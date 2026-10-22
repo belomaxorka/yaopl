@@ -98,7 +98,7 @@ static int splitAssignment(char *line, char *key, size_t keymax, char *val, size
     return (int)eqpos;
 }
 
-static int parsePrefix(char *line, char *prefix)
+static int parsePrefix(char *line, char *prefix, size_t prefixmax)
 {
     // find "=".
     // If found, the text before is key, after is val.
@@ -106,9 +106,11 @@ static int parsePrefix(char *line, char *prefix)
     char *colpos = strchr(line, ':');
 
     if (colpos && colpos != line) {
-        // copy the name and the value
-        strncpy(prefix, line, colpos - line);
-        prefix[colpos - line] = 0;
+        // copy the name, cut to fit with room for the terminator
+        size_t len = min(prefixmax - 1, colpos - line);
+
+        strncpy(prefix, line, len);
+        prefix[len] = 0;
 
         return 1;
     } else {
@@ -499,7 +501,7 @@ static int configReadFileBuffer(file_buffer_t *fileBuffer, config_set_t *configS
             } else {
                 configSetStr(configSet, key, val);
             }
-        } else if (parsePrefix(line, prefix)) {
+        } else if (parsePrefix(line, prefix, sizeof(prefix))) {
             // prefix is set, that's about it
         } else {
             LOG("CONFIG Malformed file '%s' line %d: '%s'\n", configSet->filename, lineno, line);
