@@ -564,7 +564,11 @@ int configWrite(config_set_t *configSet)
                 cur = cur->next;
             }
 
-            closeFileBuffer(fileBuffer);
+            if (closeFileBuffer(fileBuffer) != 0) {
+                // The file is incomplete (e.g. the memory card is full): report it and keep the changes
+                bgmUnMute();
+                return 0;
+            }
             configSet->modified = 0;
             bgmUnMute();
             return 1;

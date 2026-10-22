@@ -18,13 +18,14 @@ typedef struct
     unsigned int available;
     char *lastPtr;
     short allocResult;
+    short writeError; // A write failed or was short: the file is incomplete
 } file_buffer_t;
 
 file_buffer_t *openFileBufferBuffer(short allocResult, const void *buffer, unsigned int size);
 file_buffer_t *openFileBuffer(char *fpath, int mode, short allocResult, unsigned int size);
 int readFileBuffer(file_buffer_t *readContext, char **outBuf);
 void writeFileBuffer(file_buffer_t *fileBuffer, char *inBuf, int size);
-void closeFileBuffer(file_buffer_t *fileBuffer);
+int closeFileBuffer(file_buffer_t *fileBuffer); // 0, or -1 if anything written was lost
 
 int max(int a, int b);
 int min(int a, int b);
