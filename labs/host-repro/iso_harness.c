@@ -79,6 +79,14 @@ int main(int argc, char **argv)
     char path[] = "SYSTEM.CNF;1";
 #endif
 
+    if (strcmp(test, "file") == 0) { /* an image file whose root directory is at LBA 20 */
+        FILE *f = fopen(argv[2], "rb");
+        if (f == NULL)
+            return 2;
+        fread(disc, 1, sizeof(disc), f);
+        fclose(f);
+        goto locate;
+    }
     pos = rec(root, pos, 34, 0, 20, 2048, 2, "\0", 1);
     pos = rec(root, pos, 34, 0, 20, 2048, 2, "\1", 1);
     if (strcmp(test, "zero") == 0) /* name length 0, record length 34 */
@@ -89,6 +97,7 @@ int main(int argc, char **argv)
         pos = rec(root, pos, 66, 0, 30, 10, 0, "A_VERY_LONG_LEVEL2_FILENAME.TXT;1", 33);
     pos = rec(root, pos, 46, 0, 24, 100, 0, "SYSTEM.CNF;1", 12);
 
+locate:
     e = cdvdman_locatefile(path, 20, 2048, 0);
     if (e != NULL)
         printf("found lba=%u size=%u after %ld sector reads\n", e->fileLBA, e->fileSize, reads);

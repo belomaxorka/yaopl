@@ -38,3 +38,10 @@ MSVC's `char` is signed, as on the EE and the IOP.
 | `updateISOGameList` | `src/supportbase.c` | compares `games[i]` in the `j` loop, reads past the cache |
 | `isValidIsoName` | `src/supportbase.c` | reads before the name for `..` |
 | `USBA_crc32` | `src/system.c` | non-ASCII titles index `crctab` negatively; `ref` is an independent unsigned implementation |
+
+## Console test files
+
+`make_console_kit.py <bootable.iso> <out dir>` turns one bootable image (for example a
+homebrew ELF packed as a disc) into the same malformed cases for a real PS2: ISO and ZSO
+variants for `DVD/`, two `ul.cfg` sets and three `.cht` files. `iso_harness` can check an
+image directly: `iso-<tag>.exe file <image>`.
