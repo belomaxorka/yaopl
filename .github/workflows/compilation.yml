@@ -164,6 +164,8 @@ jobs:
   release:
     needs: [build, build-variants, build-lang]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/master'
     env:
       USERNAME: ${{ secrets.USERNAME }}
@@ -194,8 +196,27 @@ jobs:
         cp -f OPNPS2LD-LANGS-${{ env.OPL_VERSION }}.7z OPNPS2LD-LANGS.7z
         cp -f OPNPS2LD/OPNPS2LD-${{ env.OPL_VERSION }}.ELF OPNPS2LD.ELF
 
+    - name: Publish the fork's rolling pre-release
+      if: github.repository != 'ps2homebrew/Open-PS2-Loader' && github.ref == 'refs/heads/master'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        files="OPNPS2LD.ELF OPNPS2LD-${{ env.OPL_VERSION }}.7z OPNPS2LD-VARIANTS-${{ env.OPL_VERSION }}.7z OPNPS2LD-LANGS-${{ env.OPL_VERSION }}.7z"
+        sha256sum $files > SHA256SUMS
+        cat SHA256SUMS
+        gh release delete latest --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes || true
+        git push --delete origin latest || true
+        {
+          echo "Automatic build of ${{ env.OPL_VERSION }} from $GITHUB_SHA."
+          echo
+          echo "Not an official OPL build: see FORK.md for what differs from upstream."
+          echo "SHA-256 checksums of the files are in SHA256SUMS."
+        } > notes.md
+        gh release create latest $files SHA256SUMS --repo "$GITHUB_REPOSITORY" --prerelease \
+          --target "$GITHUB_SHA" --title "${{ env.OPL_VERSION }}" --notes-file notes.md
+
     - name: Create prerelease
-      if: github.ref == 'refs/heads/master'
+      if: github.repository == 'ps2homebrew/Open-PS2-Loader' && github.ref == 'refs/heads/master'
       uses: mathieucarbou/marvinpinto-action-automatic-releases@latest
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -212,7 +233,7 @@ jobs:
           OPNPS2LD.ELF
 
     - name: Create release
-      if: startsWith(github.ref, 'refs/tags/v')
+      if: github.repository == 'ps2homebrew/Open-PS2-Loader' && startsWith(github.ref, 'refs/tags/v')
       uses: mathieucarbou/marvinpinto-action-automatic-releases@latest
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
