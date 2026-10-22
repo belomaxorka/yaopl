@@ -144,6 +144,12 @@ if (Want "cfgwrite") {
     foreach ($m in "ok", "fail", "short") { Test "configWrite, write() $m" cfgwrite-t (Join-Path $build "cfgwrite-$m.cfg"), $m }
 }
 
+if (Want "cdread") {
+    # The IOP has 32-bit pointers; keep them whole on a 64-bit host
+    Build cdread t "modules\iopcore\cdvdman\cdvdman.c" "cdvdman_read" -Patch "(void *)((u32)buf + offset)=>(void *)((u8 *)buf + offset)", "(u32)(buf)&3=>(size_t)(buf)&3"
+    foreach ($c in "2048 2", "2340 1", "2340 3", "2328 2") { Test "cdvdman_read $c" cdread-t $c.Split(" ") }
+}
+
 if (Want "vmc") {
     Build vmc t "src\system.c" "sysCheckVMC"
     $dir = Join-Path $build "vmc"
