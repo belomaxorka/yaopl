@@ -449,7 +449,8 @@ void bdmLaunchGame(item_list_t *itemList, int id, config_set_t *configSet)
 
         // Get fragment list
         int iFragCount = fileXioIoctl2(iop_fd, USBMASS_IOCTL_GET_FRAGLIST, NULL, 0, (void *)&settings->frags[iTotalFragCount], sizeof(bd_fragment_t) * (BDM_MAX_FRAGS - iTotalFragCount));
-        if (iFragCount > BDM_MAX_FRAGS) {
+        // The driver returns the file's full fragment count, even when only part of it fitted
+        if (iFragCount < 0 || iFragCount > BDM_MAX_FRAGS - iTotalFragCount) {
             // Too many fragments
             close(fd);
             sbUnprepare(&settings->common);
