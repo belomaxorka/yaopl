@@ -70,6 +70,7 @@ does not match upstream's numbering.
 | ZSO | Images with a block size other than 2048 (maxcso default for 2 GiB+ images: 16 KiB) are rejected instead of read as the wrong sectors | this fork |
 | ZSO | The block index is checked before the compressed data is read: a corrupt index gives a read error, not a write before the buffer | this fork |
 | ZSO | Reads of more than 256 sectors go in slices instead of running past the index cache | this fork |
+| In-game | IGR is sampled from the VBLANK_END interrupt handler again, not by a polling thread that busy games starve (upstream issue #1787); Fatal Fury: Battle Archives Vol. 2 needs Mode 6 as before | revert of upstream PR #1762, as RiptOPL 38481e9c |
 
 RiptOPL is [NathanNeurotic/Open-PS2-Loader](https://github.com/NathanNeurotic/Open-PS2-Loader) and its C++ edition
 [NathanNeurotic/RiptOPL](https://github.com/NathanNeurotic/RiptOPL). Its fixes were reviewed one by one against
