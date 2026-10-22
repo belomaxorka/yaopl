@@ -1,0 +1,166 @@
+OPL tree: C:\Users\Admin\Projects\Open-PS2-Loader
+cheat cht_plain                    plain: cheat   0 name="Mastercode" enabled=1 codes=1 first=90106418 | cheat   1 name="Cheat" enabled=0 codes=1 first=20100000 | total cheats: 2
+                                   asan:  cheat   0 name="Mastercode" enabled=1 codes=1 first=90106418 | cheat   1 name="Cheat" enabled=0 codes=1 first=20100000 | total cheats: 2
+cheat cht_indented                 plain: cheat   0 name="Mastercode" enabled=1 codes=3 first=90106418 | total cheats: 1
+                                   asan:  cheat   0 name="Mastercode" enabled=1 codes=3 first=90106418 | total cheats: 1
+cheat cht_251                      plain: cheat 248 name="Cheat 248" enabled=0 codes=1 first=201003E0 | cheat 249 name="Cheat 249" enabled=0 codes=1 first=201003E4 | total cheats: 250
+                                   asan:  cheat 248 name="Cheat 248" enabled=0 codes=1 first=201003E0 | cheat 249 name="Cheat 249" enabled=0 codes=1 first=201003E4 | total cheats: 250
+cheat cht_long_last                plain: cheat   0 name="Mastercode" enabled=1 codes=1 first=90106418 | total cheats: 1
+                                   asan:  cheat   0 name="Mastercode" enabled=1 codes=1 first=90106418 | total cheats: 1
+cheat cht_no_lf                    plain: cheat   0 name="Mastercode" enabled=1 codes=1 first=90106418 | cheat   1 name="Cheat" enabled=0 codes=1 first=20100000 | total cheats: 2
+                                   asan:  cheat   0 name="Mastercode" enabled=1 codes=1 first=90106418 | cheat   1 name="Cheat" enabled=0 codes=1 first=20100000 | total cheats: 2
+cheat engine cht_addr0             plain: engine list: 14 of 14 parsed codes: 90183688/0C07B869 E10100FD/0028489C 000FFFE0/00000001 E10100FB/0028489C 000FFFE0/00000000 E1020000/000FFFE0 60284390/00000080 00000000/00000B4C E1020001/000FFFE0 60284390/00000088 00000000/00000B4C E1010002/2028C598 000FFFE0/00000000 20100000/00000001 | SetupCheats: numhooks=1 numcodes=13 (list had 1 hooks and 13 codes)
+                                   asan:  engine list: 14 of 14 parsed codes: 90183688/0C07B869 E10100FD/0028489C 000FFFE0/00000001 E10100FB/0028489C 000FFFE0/00000000 E1020000/000FFFE0 60284390/00000080 00000000/00000B4C E1020001/000FFFE0 60284390/00000088 00000000/00000B4C E1010002/2028C598 000FFFE0/00000000 20100000/00000001 | SetupCheats: numhooks=1 numcodes=13 (list had 1 hooks and 13 codes)
+cheat engine cht_9hooks            plain: engine list: 10 of 10 parsed codes: 901B9920/0C047714 901B9A20/0C047714 901B9B20/0C047714 901B9C20/0C047714 901B9D20/0C047714 901B9E20/0C047714 901B9F20/0C047714 901BA020/0C047714 901BA120/0C047714 2039FCF8/3FAAAAAB | SetupCheats: numhooks=5 numcodes=1 (list had 9 hooks and 1 codes)
+                                   asan:  engine list: 10 of 10 parsed codes: 901B9920/0C047714 901B9A20/0C047714 901B9B20/0C047714 901B9C20/0C047714 901B9D20/0C047714 901B9E20/0C047714 901B9F20/0C047714 901BA020/0C047714 901BA120/0C047714 2039FCF8/3FAAAAAB | SetupCheats: numhooks=5 numcodes=1 (list had 9 hooks and 1 codes)
+cheat engine cht_many              plain: engine list: 254 of 300 parsed codes | SetupCheats: numhooks=0 numcodes=250 (list had 0 hooks and 254 codes)
+                                   asan:  engine list: 254 of 300 parsed codes | SetupCheats: numhooks=0 numcodes=250 (list had 0 hooks and 254 codes)
+isofs locatefile ok                plain: found lba=24 size=100 after 1 sector reads
+                                   asan:  found lba=24 size=100 after 1 sector reads
+cdvdman locatefile ok              plain: found lba=24 size=100 after 1 sector reads
+                                   asan:  found lba=24 size=100 after 1 sector reads
+isofs locatefile zero              plain: found lba=24 size=100 after 1 sector reads
+                                   asan:  found lba=24 size=100 after 1 sector reads
+cdvdman locatefile zero            plain: found lba=24 size=100 after 1 sector reads
+                                   asan:  found lba=24 size=100 after 1 sector reads
+isofs locatefile xa                plain: found lba=24 size=100 after 1 sector reads
+                                   asan:  found lba=24 size=100 after 1 sector reads
+cdvdman locatefile xa              plain: found lba=24 size=100 after 1 sector reads
+                                   asan:  found lba=24 size=100 after 1 sector reads
+isofs locatefile long              plain: found lba=24 size=100 after 1 sector reads
+                                   asan:  found lba=24 size=100 after 1 sector reads
+cdvdman locatefile long            plain: found lba=24 size=100 after 1 sector reads
+                                   asan:  found lba=24 size=100 after 1 sector reads
+isofs findfile \SYSTEM.CNF;1       plain: \SYSTEM.CNF;1: found=1 lsn=24 size=100 name="SYSTEM.CNF;1"
+                                   asan:  \SYSTEM.CNF;1: found=1 lsn=24 size=100 name="SYSTEM.CNF;1"
+isofs findfile /SYSTEM.CNF;1       plain: /SYSTEM.CNF;1: found=1 lsn=24 size=100 name="SYSTEM.CNF;1"
+                                   asan:  /SYSTEM.CNF;1: found=1 lsn=24 size=100 name="SYSTEM.CNF;1"
+isofs findfile \A_VERY_LONG_LEVEL2_FILENAME.TXT;1 plain: \A_VERY_LONG_LEVEL2_FILENAME.TXT;1: found=1 lsn=26 size=300 name="A_VERY_LONG_LEV"
+                                   asan:  \A_VERY_LONG_LEVEL2_FILENAME.TXT;1: found=1 lsn=26 size=300 name="A_VERY_LONG_LEV"
+zso align 0                        plain: align 0: header accepted, reading index... | read ok
+                                   asan:  align 0: header accepted, reading index... | read ok
+zso align 11                       plain: align 11: header accepted, reading index... | read ok
+                                   asan:  align 11: header accepted, reading index... | read ok
+zso align 12                       plain: align 12: header rejected (-1)
+                                   asan:  align 12: header rejected (-1)
+zso align 255                      plain: align 255: header rejected (-1)
+                                   asan:  align 255: header rejected (-1)
+zso read ok 0 4                    plain: header accepted: 400 sectors, block size 2048, align 0 | read 4 sectors from 0: data ok
+                                   asan:  header accepted: 400 sectors, block size 2048, align 0 | read 4 sectors from 0: data ok
+zso read ok 7 3                    plain: header accepted: 400 sectors, block size 2048, align 0 | read 3 sectors from 7: data ok
+                                   asan:  header accepted: 400 sectors, block size 2048, align 0 | read 3 sectors from 7: data ok
+zso read align4 0 40               plain: header accepted: 40 sectors, block size 2048, align 4 | read 40 sectors from 0: data ok
+                                   asan:  header accepted: 40 sectors, block size 2048, align 4 | read 40 sectors from 0: data ok
+zso read ok 100 300                plain: header accepted: 400 sectors, block size 2048, align 0 | read 300 sectors from 100: data ok
+                                   asan:  header accepted: 400 sectors, block size 2048, align 0 | read 300 sectors from 100: data ok
+zso read badidx 3 1                plain: header accepted: 10 sectors, block size 2048, align 0 | read 0 of 1 sectors from 3: read error
+                                   asan:  header accepted: 10 sectors, block size 2048, align 0 | read 0 of 1 sectors from 3: read error
+zso read 16k 0 4                   plain: header rejected (-1): block size 16384, align 0
+                                   asan:  header rejected (-1): block size 16384, align 0
+ps2cnf cnf_ok                      plain: ps2cnfGetBootFile = 0, bootfile = "cdrom0:\SLUS_200.62;1"
+                                   asan:  ps2cnfGetBootFile = 0, bootfile = "cdrom0:\SLUS_200.62;1"
+ps2cnf cnf_no_eq                   plain: ps2cnfGetBootFile = -1, bootfile = ""
+                                   asan:  ps2cnfGetBootFile = -1, bootfile = ""
+sbReadList ul64 0                  plain: ul.cfg size 64, 1 games: [Game A]
+                                   asan:  ul.cfg size 64, 1 games: [Game A]
+sbReadList ul65 0                  plain: ul.cfg size 65, 1 games: [Game A]
+                                   asan:  ul.cfg size 65, 1 games: [Game A]
+sbReadList ul129 0                 plain: ul.cfg size 129, 2 games: [Game A] [Game B]
+                                   asan:  ul.cfg size 129, 2 games: [Game A] [Game B]
+sbReadList ul65 2                  plain: ul.cfg size 65, 3 games: [Game A] [Game 0] [Game 1]
+                                   asan:  ul.cfg size 65, 3 games: [Game A] [Game 0] [Game 1]
+sbReadList ul129 2                 plain: ul.cfg size 129, 4 games: [Game A] [Game B] [Game 0] [Game 1]
+                                   asan:  ul.cfg size 129, 4 games: [Game A] [Game B] [Game 0] [Game 1]
+updateISOGameList 2 2              plain: cache 2, listed 2: games.bin kept
+                                   asan:  cache 2, listed 2: games.bin kept
+updateISOGameList 3 3 swap         plain: cache 3, listed 3 (reordered): games.bin kept
+                                   asan:  cache 3, listed 3 (reordered): games.bin kept
+updateISOGameList 1 2              plain: cache 1, listed 2: games.bin rewritten
+                                   asan:  cache 1, listed 2: games.bin rewritten
+isValidIsoName                     plain: ..                       format=0 name_len=-1 | x.iso                    format=2 name_len=1 | SLUS_200.62.Title.iso    format=1 name_len=5
+                                   asan:  ..                       format=0 name_len=-1 | x.iso                    format=2 name_len=1 | SLUS_200.62.Title.iso    format=1 name_len=5
+USBA_crc32                         plain: 4772616e64205468656674204175746f20494949 10D00014 | c8e3f0e0                 E857E311 | d098d0b3d180d0b0         E0598591
+                                   asan:  4772616e64205468656674204175746f20494949 10D00014 | c8e3f0e0                 E857E311 | d098d0b3d180d0b0         E0598591
+                                   ref:   (empty)                  00000000 | 41                       935FAD90 | 4772616e64205468656674204175746f20494949 10D00014 | c8e3f0e0                 E857E311 | d098d0b3d180d0b0         E0598591
+readFileBuffer plain cfg           plain: line 1: "a=1" | line 2: "b=2" | 2 lines
+                                   asan:  line 1: "a=1" | line 2: "b=2" | 2 lines
+readFileBuffer '#' last line, no LF plain: line 1: "a=1" | 1 lines
+                                   asan:  line 1: "a=1" | 1 lines
+readFileBuffer read() fails        plain: 0 lines
+                                   asan:  0 lines
+strToColor #112233                 plain: color 11 22 33, canary CC CC CC CC
+                                   asan:  color 11 22 33, canary CC CC CC CC
+strToColor #11223344556677         plain: color 11 22 33, canary CC CC CC CC
+                                   asan:  color 11 22 33, canary CC CC CC CC
+splitAssignment 40-char key        plain: key length 31 (buffer 32): "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"
+                                   asan:  key length 31 (buffer 32): "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk"
+parsePrefix 60-char prefix         plain: prefix length 31, canary intact
+                                   asan:  prefix length 31, canary intact
+configReadLegacyIP 300 bytes       plain: ps2_ip_addr=192.168.0.10 ps2_netmask=255.255.255.0 ps2_gateway=192.168.0.1 ps2_dns=192.168.0.1 -> 1
+                                   asan:  ps2_ip_addr=192.168.0.10 ps2_netmask=255.255.255.0 ps2_gateway=192.168.0.1 ps2_dns=192.168.0.1 -> 1
+CheckPS2Logo HDD                   plain: HDD logo check read 48 sectors of 512 bytes into a 24576-byte buffer
+                                   asan:  HDD logo check read 48 sectors of 512 bytes into a 24576-byte buffer
+cheat picks, distinct names        plain: picked after reload: [0 Mastercode]=1 [1 Infinite Health]=1 [2 Max Money]=0 [3 Moon Jump]=1
+                                   asan:  picked after reload: [0 Mastercode]=1 [1 Infinite Health]=1 [2 Max Money]=0 [3 Moon Jump]=1
+cheat picks, duplicate names       plain: picked after reload: [0 Mastercode]=1 [1 Infinite Health]=1 [2 Infinite Health]=1 [3 Max Money]=0
+                                   asan:  picked after reload: [0 Mastercode]=1 [1 Infinite Health]=1 [2 Infinite Health]=1 [3 Max Money]=0
+configWrite, write() ok            plain: configWrite = 1, modified = 0, file 10 of 10 bytes
+                                   asan:  configWrite = 1, modified = 0, file 10 of 10 bytes
+configWrite, write() fail          plain: configWrite = 0, modified = 1, file 0 of 10 bytes
+                                   asan:  configWrite = 0, modified = 1, file 0 of 10 bytes
+configWrite, write() short         plain: configWrite = 0, modified = 1, file 5 of 10 bytes
+                                   asan:  configWrite = 0, modified = 1, file 5 of 10 bytes
+cdvdman_read 2048 2                plain: read 2 sectors of 2048 bytes into a 4096-byte buffer
+                                   asan:  read 2 sectors of 2048 bytes into a 4096-byte buffer
+cdvdman_read 2340 1                plain: read 1 sectors of 2340 bytes into a 2340-byte buffer
+                                   asan:  read 1 sectors of 2340 bytes into a 2340-byte buffer
+cdvdman_read 2340 3                plain: read 3 sectors of 2340 bytes into a 7020-byte buffer
+                                   asan:  read 3 sectors of 2340 bytes into a 7020-byte buffer
+cdvdman_read 2328 2                plain: read 2 sectors of 2328 bytes into a 4656-byte buffer
+                                   asan:  read 2 sectors of 2328 bytes into a 4656-byte buffer
+bdmFindPartition write probe       plain: probe = 1 (mass0:); conf_opl.cfg 38 bytes before, 38 after
+                                   asan : probe = 1 (mass0:); conf_opl.cfg 38 bytes before, 38 after
+sysCheckVMC 4 MiB card, create 8 MB plain: returned 4; card kept, 4194304 bytes; no new card
+                                   asan : returned 4; card kept, 4194304 bytes; no new card
+sysCheckVMC PCSX2 .ps2 size, create 8 MB plain: returned 0; card kept, 8650752 bytes; no new card
+                                   asan : returned 0; card kept, 8650752 bytes; no new card
+sysCheckVMC 8 MiB card, create 8 MB plain: returned 8; card kept, 8388608 bytes; no new card
+                                   asan : returned 8; card kept, 8388608 bytes; no new card
+sysCheckVMC no card, create 8 MB   plain: returned -1; no card file; genvmc asked for a new 8 MB card
+                                   asan : returned -1; no card file; genvmc asked for a new 8 MB card
+sysCheckVMC 4 MiB card, delete     plain: returned -1; no card file; no new card
+                                   asan : returned -1; no card file; no new card
+fntFitString fits, exact buffer    plain: wrapped: "two words" | terminator kept
+                                   asan:  wrapped: "two words" | terminator kept
+fntFitString long word, exact buffer plain: wrapped: "Averyveryverylongword" | terminator kept
+                                   asan:  wrapped: "Averyveryverylongword" | terminator kept
+fntFitString 255-char config value plain: 255-character value: terminator kept, next pointer intact, bytes after it intact
+                                   asan:  255-character value: terminator kept, next pointer intact, bytes after it intact
+AttributeText wrap, config value   plain: config value after drawing: "The quick brown fox jumps over the lazy dog" | rendered text: "Description:|The quick|brown fox|jumps over|the lazy dog"
+                                   asan:  config value after drawing: "The quick brown fox jumps over the lazy dog" | rendered text: "Description:|The quick|brown fox|jumps over|the lazy dog"
+GameCountText count buffer         plain: GameCountText value: "1234 games"
+                                   asan:  GameCountText value: "1234 games"
+image file missing                 plain: image file missing: no texture, element disabled | freed
+                                   asan:  image file missing: no texture, element disabled | freed
+theme without ItemsList            plain: theme without ItemsList: gamesItemsList set, appsItemsList set
+                                   asan:  theme without ItemsList: gamesItemsList set, appsItemsList set
+lngReadEntry file names            plain: lang_Russian.lng: language "Russian" from mc0:/OPL/lang_Russian.lng | abcd.lng: skipped | ru.lng: skipped
+                                   asan:  lang_Russian.lng: language "Russian" from mc0:/OPL/lang_Russian.lng | abcd.lng: skipped | ru.lng: skipped
+GetBootFilename                    plain: cdrom0:\SLUS_200.62;1: record "SLUS_200.62" (11 characters) | cdrom0:\DATA\ABCDEFGHIJKLMNOPQRST.ELF;1: record "ABCDEFGHIJKLMNOP" (16 characters)
+                                   asan:  cdrom0:\SLUS_200.62;1: record "SLUS_200.62" (11 characters) | cdrom0:\DATA\ABCDEFGHIJKLMNOPQRST.ELF;1: record "ABCDEFGHIJKLMNOP" (16 characters)
+PrepareGSM $GSMVMode=0             plain: $GSMVMode=0: mode used 2, interlace 1, ffmd 0, display 001BF9FF0182E2BC, cmdline "1 2 0 7874698008519356 56154283650848769 1 0 0 0 0 0"
+                                   asan:  $GSMVMode=0: mode used 2, interlace 1, ffmd 0, display 001BF9FF0182E2BC, cmdline "1 2 0 7874698008519356 56154283650848769 1 0 0 0 0 0"
+PrepareGSM $GSMVMode=28            plain: $GSMVMode=28: mode used 75, interlace 0, ffmd 1, display 003FF4FF0882815E, cmdline "0 75 1 18002299729379678 31525197431439361 2 0 0 0 0 0"
+                                   asan:  $GSMVMode=28: mode used 75, interlace 0, ffmd 1, display 003FF4FF0882815E, cmdline "0 75 1 18002299729379678 31525197431439361 2 0 0 0 0 0"
+PrepareGSM $GSMVMode=29            plain: $GSMVMode=29: mode used 2, interlace 1, ffmd 0, display 001BF9FF0182E2BC, cmdline "1 2 0 7874698008519356 56154283650848769 1 0 0 0 0 0"
+                                   asan:  $GSMVMode=29: mode used 2, interlace 1, ffmd 0, display 001BF9FF0182E2BC, cmdline "1 2 0 7874698008519356 56154283650848769 1 0 0 0 0 0"
+PrepareGSM $GSMVMode=-1            plain: $GSMVMode=-1: mode used 2, interlace 1, ffmd 0, display 001BF9FF0182E2BC, cmdline "1 2 0 7874698008519356 56154283650848769 1 0 0 0 0 0"
+                                   asan:  $GSMVMode=-1: mode used 2, interlace 1, ffmd 0, display 001BF9FF0182E2BC, cmdline "1 2 0 7874698008519356 56154283650848769 1 0 0 0 0 0"
+readPads tick counter wrap         plain: held button: countdown 590 ms before the wrap, 580 ms after it (10 ms later)
+                                   asan:  held button: countdown 590 ms before the wrap, 580 ms after it (10 ms later)
+genvmc write ok                    plain: write ok: mc_writecluster = 0, abort semaphore released
+                                   asan:  write ok: mc_writecluster = 0, abort semaphore released
+genvmc write short                 plain: write short: mc_writecluster = -1, abort semaphore released
+                                   asan:  write short: mc_writecluster = -1, abort semaphore released
+bgmLoad default_bgm_path           plain: format string = "%s" | bgmLoad = -2
+                                   asan:  format string = "%s" | bgmLoad = -2

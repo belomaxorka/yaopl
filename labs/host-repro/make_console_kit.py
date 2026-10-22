@@ -4,12 +4,14 @@ Usage: make_console_kit.py <bootable.iso> <out dir>
 
 The ISO must have SYSTEM.CNF;1 in its root and fit its root directory in one sector, e.g. a
 homebrew ELF packed as a disc. Every variant keeps that ISO's game ID. Cheat files only use
-codes with address 0, which OPL parses but never sends to the cheat engine.
+codes with address 0 and no hook line (9xxxxxxx): without a hook the cheat engine never
+applies the codes it is given.
 """
 import os
 import shutil
 import struct
 import sys
+import zlib
 
 SECTOR = 2048
 
@@ -87,6 +89,69 @@ def zso(iso: bytes, align: int = 0) -> bytes:
     return header + struct.pack("<%dI" % len(index), *index) + iso
 
 
+def zso_blocks(iso: bytes, block_size: int) -> bytes:
+    """ZSO with uncompressed blocks of block_size bytes, as maxcso writes 16 KiB blocks by default
+    for images of 2 GiB and more. The image is padded to whole blocks."""
+    iso = iso + b"\0" * ((-len(iso)) % block_size)
+    blocks = len(iso) // block_size
+    data = 24 + 4 * (blocks + 1)
+    index = [(data + k * block_size) | 0x80000000 for k in range(blocks)] + [data + blocks * block_size]
+    header = b"ZISO" + struct.pack("<IQIBB2x", 24, len(iso), block_size, 1, 0)
+    return header + struct.pack("<%dI" % len(index), *index) + iso
+
+
+def zso_bad_index(z: bytes, sector: int) -> bytes:
+    """Swap the index entries of `sector` and the next one: the sector then ends before it starts."""
+    z = bytearray(z)
+    a, b = 24 + 4 * sector, 24 + 4 * (sector + 1)
+    z[a : a + 4], z[b : b + 4] = z[b : b + 4], z[a : a + 4]
+    return bytes(z)
+
+
+def png_grey(width: int, height: int) -> bytes:
+    """An 8-bit greyscale PNG (colour type 0) with a diagonal gradient."""
+
+    def chunk(tag: bytes, data: bytes) -> bytes:
+        return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)
+
+    rows = b"".join(b"\0" + bytes((x + y) & 0xFF for x in range(width)) for y in range(height))
+    ihdr = struct.pack(">IIBBBBB", width, height, 8, 0, 0, 0, 0)
+    return b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", ihdr) + chunk(b"IDAT", zlib.compress(rows)) + chunk(b"IEND", b"")
+
+
+THEME_CFG = """# YAOPL test theme: no ItemsList (OPL adds a default one), a StaticImage whose file is missing,
+# a GameCountText and a wrapped Description
+main0:
+\ttype=Background
+\tpattern=BG
+main1:
+\ttype=StaticImage
+\tdefault=missing_image
+\tx=420
+\ty=40
+main2:
+\ttype=GameCountText
+\tx=420
+\ty=60
+main3:
+\ttype=AttributeText
+\tattribute=Description
+\tx=420
+\ty=90
+\twidth=200
+\theight=300
+\twrap=1
+main4:
+\ttype=ItemText
+\tx=-124
+\ty=-155
+main5:
+\ttype=HintText
+\taligned=1
+\tx=POS_MID
+"""
+
+
 def ul_record(name: bytes, startup: bytes) -> bytes:
     r = bytearray(64)
     r[0 : len(name)] = name
@@ -125,6 +190,9 @@ def main():
     control_zso = zso(base, 0)
     write(os.path.join(dvd, "T5 control.zso"), control_zso)
     write(os.path.join(dvd, "T6 align 12.zso"), control_zso[:21] + bytes([12]) + control_zso[22:])
+    write(os.path.join(dvd, "T10 16k blocks.zso"), zso_blocks(base, 16384))
+    # The index of the SYSTEM.CNF sector is corrupt: reading it must fail, not write before the buffer
+    write(os.path.join(dvd, "T11 bad index.zso"), zso_bad_index(control_zso, cnf_lba))
 
     # One record plus one stray byte; the chunk is the control image.
     name = b"T7 ragged ul.cfg"
@@ -158,6 +226,15 @@ def main():
     write(os.path.join(out, "cfg-comment-end", gid.decode() + ".cfg"), b"$Compatibility=0\r\n#end")
     # A VMC of a size OPL's menu does not offer (contents do not matter for the menu)
     write(os.path.join(out, "vmc-4mb", "keep4mb.bin"), bytes(4 * 1024 * 1024))
+
+    # A Description of 255 characters, the most the config reader keeps, for the test theme's wrap
+    description = b"".join(b"Word%03d " % n for n in range(40))[:255]
+    write(os.path.join(out, "cfg-long-description", gid.decode() + ".cfg"), b"Title=Long description test\r\nDescription=" + description + b"\r\n")
+    write(os.path.join(out, "theme-test", "THM", "thm_yaopl-test", "conf_theme.cfg"), THEME_CFG.encode("ascii"))
+    # A grey cover: OPL only loaded RGB, RGBA and palette PNGs
+    write(os.path.join(out, "art-grey", "ART", gid.decode() + "_COV.png"), png_grey(140, 200))
+    # A language file name shorter than lang_X.lng: the scan of a device's LNG folder crashed on it
+    write(os.path.join(out, "lng-short-name", "LNG", "ru.lng"), b"Russian\r\nFontName\r\n")
     print("game ID", gid.decode(), "- files written to", out)
 
 

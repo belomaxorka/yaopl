@@ -1,5 +1,6 @@
 """Write the malformed inputs used by run_all.ps1 into the given directory."""
 import os
+import struct
 import sys
 
 
@@ -12,6 +13,20 @@ def cheats(out):
         "cht_251.cht": b"".join(b"Cheat %d\r\n2%07X 00000001\r\n" % (n, 0x100000 + n * 4) for n in range(251)),
         "cht_long_last.cht": b"Mastercode\r\n90106418 0c0418ae\r\n" + b"A" * 400,
         "cht_no_lf.cht": b"Mastercode\r\n90106418 0c0418ae\r\nCheat\r\n20100000 00000001",
+        # The cheat of upstream issue #1548: lines with address 0 are the second half of multi-line codes
+        "cht_addr0.cht": b"Mastercode\r\n90183688 0C07B869\r\n\r\nAiming on L3, off on R3\r\n"
+        b"E10100FD 0028489C\r\n000FFFE0 00000001\r\nE10100FB 0028489C\r\n000FFFE0 00000000\r\n"
+        b"E1020000 000FFFE0\r\n60284390 00000080\r\n00000000 00000B4C\r\n"
+        b"E1020001 000FFFE0\r\n60284390 00000088\r\n00000000 00000B4C\r\n"
+        b"E1010002 2028C598\r\n000FFFE0 00000000\r\n\r\nAnother cheat\r\n20100000 00000001\r\n",
+        # Same shape as SLUS_210.09.cht (Sega Classics Collection): a Mastercode with 9 hook lines
+        "cht_9hooks.cht": b"Mastercode\r\n" + b"".join(b"9%07X 0C047714\r\n" % (0x01B9920 + n * 0x100) for n in range(9))
+        + b"\r\nCheat\r\n2039FCF8 3FAAAAAB\r\n",
+        # 100 cheats of 3 codes: 300 codes for the engine's list of 250 when all are enabled
+        "cht_many.cht": b"".join(
+            b"Cheat %d\r\n2%07X 00000001\r\n2%07X 00000002\r\n2%07X 00000003\r\n" % (n, 0x100000 + n * 16, 0x100004 + n * 16, 0x100008 + n * 16)
+            for n in range(100)
+        ),
     }
     for name, data in files.items():
         with open(os.path.join(out, name), "wb") as f:
@@ -56,6 +71,60 @@ def config_files(out):
             f.write(data)
 
 
+def lz4_run(byte, size):
+    """One LZ4 block of `size` copies of `byte`: a literal, a match on it and 11 closing literals."""
+    ext = (size - 12) - 4 - 15  # match length beyond the token's 15, written as 255s and a remainder
+    block = bytearray([0x1F, byte, 1, 0])
+    while ext >= 255:
+        block.append(255)
+        ext -= 255
+    block.append(ext)
+    block.append(0xB0)
+    block += bytes([byte]) * 11
+    return bytes(block)
+
+
+def sector_byte(n):
+    return (n * 7 + 1) & 0xFF
+
+
+def zso_file(path, sectors, block_size=2048, align=0, raw_all=False, swap=None):
+    """A ZSO image whose sector n holds 2048 bytes of sector_byte(n). Even blocks are LZ4 (one run),
+    odd blocks raw. swap=(a, b) exchanges two index entries, so block a ends before it starts."""
+    per_block = block_size // 2048
+    nblocks = sectors * 2048 // block_size
+    unit = 1 << align
+    blocks = []
+    for b in range(nblocks):
+        data = b"".join(bytes([sector_byte(s)]) * 2048 for s in range(b * per_block, (b + 1) * per_block))
+        if raw_all or b % 2:
+            blocks.append((True, data))
+        else:
+            blocks.append((False, lz4_run(sector_byte(b), 2048)))
+    first = 24 + 4 * (nblocks + 1)
+    pos = (first + unit - 1) // unit * unit
+    index, body = [], b""
+    for raw, data in blocks:
+        index.append((pos // unit) | (0x80000000 if raw else 0))
+        padded = data + b"\0" * ((-len(data)) % unit)
+        body += padded
+        pos += len(padded)
+    index.append(pos // unit)
+    if swap:
+        index[swap[0]], index[swap[1]] = index[swap[1]], index[swap[0]]
+    header = struct.pack("<IIQIBBBB", 0x4F53495A, 24, sectors * 2048, block_size, 1, align, 0, 0)
+    with open(path, "wb") as f:
+        f.write(header + struct.pack("<%dI" % len(index), *index) + b"\0" * ((-first) % unit) + body)
+
+
+def zso_images(out):
+    zso_file(os.path.join(out, "zso_ok.zso"), 400)
+    zso_file(os.path.join(out, "zso_align4.zso"), 40, align=4)
+    zso_file(os.path.join(out, "zso_badidx.zso"), 10, swap=(3, 4))
+    # maxcso writes 16 KiB blocks by default for images of 2 GiB and more
+    zso_file(os.path.join(out, "zso_16k.zso"), 64, block_size=16384, raw_all=True)
+
+
 def main():
     out = sys.argv[1]
     os.makedirs(out, exist_ok=True)
@@ -63,6 +132,7 @@ def main():
     ul_cfg(out)
     system_cnf(out)
     config_files(out)
+    zso_images(out)
     with open(os.path.join(out, "zero.bin"), "wb") as f:
         f.write(bytes(65536))
     print("inputs written to", out)

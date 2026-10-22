@@ -6,8 +6,10 @@
 # run works on master and on a fix branch. Every test is built twice: plain (/GS-, so a small stack
 # overrun does not abort) for the output, and with /fsanitize=address for memory errors.
 # -Images <dir> also prints the game ID OPL derives from every .iso image in <dir>.
-# -Only cheat,iso,find,zso,cnf,sb,name,crc,cfg runs only those groups.
-param([string]$Opl = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path, [string]$Images = "", [string[]]$Only = @())
+# -Only cheat,iso,find,zso,cnf,sb,name,crc,cfg,... runs only those groups.
+# -Expected <file> compares every result line with <file> (the output of an earlier run, without the
+# "OPL tree:" line) and exits with 1 on any difference. CI runs the checks this way.
+param([string]$Opl = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path, [string]$Images = "", [string[]]$Only = @(), [string]$Expected = "")
 $ErrorActionPreference = "Stop"
 $here = $PSScriptRoot
 $build = Join-Path $here "build"
@@ -23,6 +25,12 @@ python -I (Join-Path $here "make_inputs.py") $inputs | Out-Null
 
 $Only = @($Only | ForEach-Object { $_ -split "," } | Where-Object { $_ })
 function Want([string]$Group) { return ($Only.Count -eq 0) -or ($Only -contains $Group) }
+
+$script:lines = @()
+function Emit([string]$Line) {
+    $script:lines += $Line
+    $Line
+}
 
 function Build([string]$Harness, [string]$Tag, [string]$Source, [string[]]$Funcs, [string]$Source2 = "", [string[]]$Funcs2 = @(), [string]$Source3 = "", [string[]]$Funcs3 = @(), [string[]]$Patch = @(), [string]$Defines = "") {
     $text = ""
@@ -64,19 +72,22 @@ function Run([string]$Exe, [string[]]$Arguments) {
 }
 
 function Test([string]$Name, [string]$Exe, [string[]]$Arguments) {
-    "{0,-34} plain: {1}" -f $Name, (Run $Exe $Arguments)
-    "{0,-34} asan:  {1}" -f "", (Run "$Exe-asan" $Arguments)
+    Emit ("{0,-34} plain: {1}" -f $Name, (Run $Exe $Arguments))
+    Emit ("{0,-34} asan:  {1}" -f "", (Run "$Exe-asan" $Arguments))
 }
 
 "OPL tree: $Opl"
 if (Want "cheat") {
-    $cheatFuncs = "make_code", "is_cheat_code", "parse_line", "is_cmt_str", "chr_idx", "term_str", "is_empty_str", "trim_str", "is_empty_substr", "parse_buf", "CHEAT_LINE_MAX"
-    Build cheat t "src\cheatman.c" $cheatFuncs
+    $cheatFuncs = "make_code", "is_cheat_code", "parse_line", "is_cmt_str", "chr_idx", "term_str", "is_empty_str", "trim_str", "is_empty_substr", "parse_buf", "CHEAT_LINE_MAX", "set_cheats_list"
+    Build cheat t "src\cheatman.c" $cheatFuncs -Source2 "ee_core\src\cheat_api.c" -Funcs2 "SetupCheats"
     foreach ($t in "cht_plain", "cht_indented", "cht_251", "cht_long_last", "cht_no_lf") { Test "cheat $t" cheat-t (Join-Path $inputs "$t.cht") }
+    # every cheat enabled, then the list for the EE core and the engine's hook and code tables
+    foreach ($t in "cht_addr0", "cht_9hooks", "cht_many") { Test "cheat engine $t" cheat-t "-e", (Join-Path $inputs "$t.cht") }
     if ((Get-Content -Raw (Join-Path $Opl "src\cheatman.c")).Contains("char digits[CODE_DIGITS];")) {
-        "(make_code() overruns digits[] on every code; again with only that line fixed, to see the other bugs)"
-        Build cheat iso "src\cheatman.c" $cheatFuncs -Patch "char digits[CODE_DIGITS];=>char digits[CODE_DIGITS + 1];"
+        Emit "(make_code() overruns digits[] on every code; again with only that line fixed, to see the other bugs)"
+        Build cheat iso "src\cheatman.c" $cheatFuncs -Source2 "ee_core\src\cheat_api.c" -Funcs2 "SetupCheats" -Patch "char digits[CODE_DIGITS];=>char digits[CODE_DIGITS + 1];"
         foreach ($t in "cht_251", "cht_long_last", "cht_no_lf") { Test "cheat $t (digits fixed)" cheat-iso (Join-Path $inputs "$t.cht") }
+        foreach ($t in "cht_addr0", "cht_9hooks", "cht_many") { Test "cheat engine $t (digits fixed)" cheat-iso "-e", (Join-Path $inputs "$t.cht") }
     }
 }
 
@@ -96,8 +107,16 @@ if (Want "find") {
 
 if (Want "zso") {
     $zsoDefine = if ((Get-Content -Raw (Join-Path $Opl "modules\isofs\zso.c")).Contains("int ziso_init(")) { "/DINIT_RETURNS_INT" } else { "" }
-    Build zso t "modules\isofs\isofs.c" "longLseek", "read_raw_data" -Source2 "modules\isofs\zso.c" -Funcs2 "ziso_init" -Defines $zsoDefine
+    # the LZ4 decoder of the tree, and 32-bit pointer arithmetic kept whole on a 64-bit host
+    Copy-Item (Join-Path $Opl "modules\isofs\lz4.c"), (Join-Path $Opl "modules\isofs\lz4.h") $build
+    $zsoPatch = "(u32)ziso_tmp_buf & 63=>(size_t)ziso_tmp_buf & 63", "(void *)(((u32)ziso_tmp_buf & (~63)) + 64)=>(void *)(((size_t)ziso_tmp_buf & (~63)) + 64)"
+    Build zso t "modules\isofs\isofs.c" "longLseek", "read_raw_data" -Source2 "modules\isofs\zso.c" -Funcs2 "ziso_init", "?ziso_read_slice", "ziso_read_sector" -Defines $zsoDefine -Patch $zsoPatch
     foreach ($a in "0", "11", "12", "255") { Test "zso align $a" zso-t (Join-Path $inputs "zero.bin"), $a }
+    # sector reads over LZ4 and raw blocks into buffers of exactly count * 2048 bytes
+    foreach ($c in "ok 0 4", "ok 7 3", "align4 0 40", "ok 100 300", "badidx 3 1", "16k 0 4") {
+        $a = $c.Split(" ")
+        Test "zso read $c" zso-t "read", (Join-Path $inputs "zso_$($a[0]).zso"), $a[1], $a[2]
+    }
 }
 
 if (Want "cnf") {
@@ -123,7 +142,7 @@ if (Want "crc") {
     Build crc t "src\system.c" "USBA_crc32"
     $names = '""', "41", "4772616e64205468656674204175746f20494949", "c8e3f0e0", "d098d0b3d180d0b0"
     Test "USBA_crc32" crc-t $names
-    "{0,-34} ref:   {1}" -f "", ((python -I (Join-Path $here "usba_ref.py") @names) -join " | ")
+    Emit ("{0,-34} ref:   {1}" -f "", ((python -I (Join-Path $here "usba_ref.py") @names) -join " | "))
 }
 
 if (Want "cfg") {
@@ -165,7 +184,7 @@ if (Want "bdmprobe") {
         New-Item -ItemType Directory -Force (Join-Path $dir "mass0") | Out-Null
         Set-Content -Encoding ascii (Join-Path $dir "mass0\conf_opl.cfg") "theme=Some theme`r`nlanguage=Russian`r`n"
         $exe = if ($v -eq "plain") { "bdmprobe-t" } else { "bdmprobe-t-asan" }
-        "{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "bdmFindPartition write probe" } else { "" }), $v.PadRight(5), (Run $exe $dir)
+        Emit ("{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "bdmFindPartition write probe" } else { "" }), $v.PadRight(5), (Run $exe $dir))
     }
 }
 
@@ -180,12 +199,73 @@ if (Want "vmc") {
             Remove-Item $card -ErrorAction SilentlyContinue
             if ($c[0] -ge 0) { [IO.File]::WriteAllBytes($card, (New-Object byte[] $c[0])) }
             $exe = if ($v -eq "plain") { "vmc-t" } else { "vmc-t-asan" }
-            "{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "sysCheckVMC " + $c[2] } else { "" }), $v.PadRight(5), (Run $exe $dir, "keep", "$($c[1])")
+            Emit ("{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "sysCheckVMC " + $c[2] } else { "" }), $v.PadRight(5), (Run $exe $dir, "keep", "$($c[1])"))
         }
     }
+}
+
+if (Want "text") {
+    Build text t "src\themes.c" "drawAttributeText" -Source2 "src\fntsys.c" -Funcs2 "fntFitString"
+    Test "fntFitString fits, exact buffer" text-t "fit", "200", "two words"
+    Test "fntFitString long word, exact buffer" text-t "fit", "40", "Averyveryverylongword"
+    Test "fntFitString 255-char config value" text-t "cfgval", "100"
+    Test "AttributeText wrap, config value" text-t "attr", "100", "The quick brown fox jumps over the lazy dog"
+}
+
+if (Want "theme") {
+    Build theme t "src\themes.c" "initMutableText", "getGameCount", "drawGameCountText", "initGameCountText", "freeImageTexture", "initImageTexture", "validateItemsList", "validateGUIElems"
+    Test "GameCountText count buffer" theme-t "gamecount"
+    Test "image file missing" theme-t "image"
+    Test "theme without ItemsList" theme-t "itemslist"
+}
+
+if (Want "lang") {
+    Build lang t "src\lang.c" "lngReadEntry"
+    Test "lngReadEntry file names" lang-t "lang_Russian.lng", "abcd.lng", "ru.lng"
+}
+
+if (Want "history") {
+    Build history t "src\OSDHistory.c" "GetBootFilename", "AddHistoryRecordUsingFullPath"
+    Test "GetBootFilename" history-t "cdrom0:\SLUS_200.62;1", "cdrom0:\DATA\ABCDEFGHIJKLMNOPQRST.ELF;1"
+}
+
+if (Want "gsm") {
+    Build gsm t "src\gsm.c" "PrepareGSM" -Source2 "include\pggsm.h" -Funcs2 "makeDISPLAY", "makeSYNCV", "predef_vmode_struct" -Source3 "ee_core\include\coreconfig.h" -Funcs3 "GsmConfig_t"
+    foreach ($m in "0", "28", "29", "-1") { Test "PrepareGSM `$GSMVMode=$m" gsm-t $m }
+}
+
+if (Want "pad") {
+    Build pad t "src\pad.c" "CLOCKS_PER_MILISEC", "getKeyDelay", "readPads"
+    Test "readPads tick counter wrap" pad-t "wrap"
+}
+
+if (Want "genvmc") {
+    Build genvmc t "modules\vmc\genvmc\genvmc.c" "mc_writecluster"
+    Test "genvmc write ok" genvmc-t "0"
+    Test "genvmc write short" genvmc-t "1"
+}
+
+if (Want "bgm") {
+    Build bgm t "src\sound.c" "bgmLoad"
+    Test "bgmLoad default_bgm_path" bgm-t "mass:/MUSIC/100%s.ogg"
 }
 
 if ($Images) {
     Build gameid t "src\supportbase.c" "GetStartupExecName" -Source2 "modules\isofs\isofs.c" -Funcs2 "dirTocEntry", "cdvdman_trimspaces", "cdvdman_locatefile" -Source3 "src\ps2cnf.c" -Funcs3 "CNF_LEN_MAX", "CNFGetToken", "CNFAdvanceLine", "CNFGetKey", "ps2cnfGetBootFile" -Patch 'fopen(path, "r")=>fopen(path, "rb")'
     foreach ($f in Get-ChildItem $Images -File | Where-Object { $_.Extension -in ".iso" }) { Test "gameid $($f.Name)" gameid-t $f.FullName }
+}
+
+if ($Expected) {
+    $want = @(Get-Content $Expected | Where-Object { $_ -notmatch "^OPL tree:" })
+    $got = @($script:lines)
+    $bad = 0
+    for ($i = 0; $i -lt [Math]::Max($want.Count, $got.Count); $i++) {
+        if ($want[$i] -cne $got[$i]) {
+            "line $($i + 1) expected: $($want[$i])"
+            "line $($i + 1) got:      $($got[$i])"
+            $bad++
+        }
+    }
+    if ($bad) { "$bad lines differ from $Expected"; exit 1 }
+    "all $($got.Count) lines match $Expected"
 }
