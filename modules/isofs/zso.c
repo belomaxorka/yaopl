@@ -21,6 +21,10 @@ int ziso_init(ZISO_header *header, u32 first_block)
     // read_raw_data() divides by (2048 >> align), so a larger shift cannot be read
     if (header->align > 11)
         return -1;
+    // The reader indexes blocks of one 2048-byte sector: with a larger block size (maxcso writes
+    // 16 KiB blocks for images of 2 GiB and more) the index would be read as the wrong sectors
+    if (header->block_size != 2048)
+        return -1;
 
     // read header information
     ziso_align = header->align;
