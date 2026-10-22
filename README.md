@@ -1,15 +1,44 @@
+# YAOPL — Yet Another Open PS2 Loader
+
+[![CI](https://github.com/belomaxorka/Open-PS2-Loader/actions/workflows/compilation.yml/badge.svg?branch=master)](https://github.com/belomaxorka/Open-PS2-Loader/actions/workflows/compilation.yml)
+
+YAOPL is a fork of [Open PS2 Loader](https://github.com/ps2homebrew/Open-PS2-Loader) (OPL) that continues
+its development. It tracks upstream OPL and adds its own fixes, starting with crashes, hangs and memory
+errors on malformed cheat files, ISO and ZSO images, `SYSTEM.CNF`, `ul.cfg` and `games.bin`. It is the
+loader-side companion of YAOPLM (Yet Another OPL Manager), the PC manager for OPL game libraries.
+
+YAOPL is not an official OPL build and is not affiliated with the OPL project.
+
+## Download
+
+Every change to `master` is built automatically and published as the
+[`latest` pre-release](https://github.com/belomaxorka/Open-PS2-Loader/releases/tag/latest):
+`OPNPS2LD.ELF`, the 7z packages and `SHA256SUMS` with the SHA-256 checksum of each file.
+
+YAOPL versions end in `-yaopl`, for example `v1.2.0-Beta-2310-1a2b3c4-yaopl`, so they are easy to tell apart
+from official OPL builds. The ELF keeps OPL's file name, so existing FreeMcBoot or OSDMenu entries keep working.
+
+## What differs from OPL
+
+[FORK.md](FORK.md) lists every fix with its reproduction and origin, and explains how upstream changes are
+merged into YAOPL. `labs/host-repro/` has the host programs that show each bug in upstream OPL and its absence
+here, and a generator of test files for a real console.
+
+## Credits and license
+
+Open PS2 Loader: copyright 2013, Ifcaro & jimmikaelkael, and the OPL contributors. Some fixes are ported from
+[RiptOPL](https://github.com/NathanNeurotic/Open-PS2-Loader) by NathanNeurotic; each commit names its source.
+Licensed under the Academic Free License version 3.0, like OPL. Review the LICENSE file for further details.
+
+The rest of this file is upstream OPL's documentation. It applies to YAOPL as well.
+
+---
+
 # Open PS2 Loader
 
 ![logo](https://github.com/ps2homebrew/Open-PS2-Loader/blob/master/gfx/logo.png)
 
-Copyright 2013, Ifcaro & jimmikaelkael  
-Licensed under Academic Free License version 3.0  
-Review the LICENSE file for further details.  
-
-[![CI](https://github.com/ps2homebrew/Open-PS2-Loader/actions/workflows/compilation.yml/badge.svg?branch=master)](https://github.com/ps2homebrew/Open-PS2-Loader/actions/workflows/compilation.yml)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/99032a6a180243bfa0d0e23efeb0608d)](https://www.codacy.com/gh/ps2homebrew/Open-PS2-Loader/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ps2homebrew/Open-PS2-Loader&amp;utm_campaign=Badge_Grade)
 [![Discord](https://img.shields.io/discord/652861436992946216?style=flat&logo=Discord)](https://discord.gg/CVFUa9xh6B)
-[![Mega](https://img.shields.io/badge/Mega-%23D90007.svg?style=flat&logo=Mega&logoColor=white)](https://mega.nz/folder/Ndwi1bAK#oLWNhH_g-h0p4BoT4c556A)
 
 ## Introduction
 

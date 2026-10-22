@@ -1,9 +1,9 @@
-# About this fork
+# YAOPL and upstream OPL
 
-This is the YAOPLM project's build of [Open PS2 Loader](https://github.com/ps2homebrew/Open-PS2-Loader).
-It follows upstream and adds fixes for crashes, hangs and memory errors that OPL hits on malformed
-files: cheat files, ISO and ZSO images, `SYSTEM.CNF`, `ul.cfg`, `games.bin`. It is not an official
-OPL build. The licence is the same as upstream's (AFL-3.0, see `LICENSE`).
+YAOPL (Yet Another Open PS2 Loader) is a fork of [Open PS2 Loader](https://github.com/ps2homebrew/Open-PS2-Loader)
+that continues its development. It follows upstream and adds fixes for crashes, hangs and memory errors that
+OPL hits on malformed files: cheat files, ISO and ZSO images, `SYSTEM.CNF`, `ul.cfg`, `games.bin`. It is not an
+official OPL build. The licence is the same as upstream's (AFL-3.0, see `LICENSE`).
 
 ## Getting a build
 
@@ -11,8 +11,8 @@ Every push to `master` builds OPL in GitHub Actions and replaces the `latest` pr
 repository: the ELF (`OPNPS2LD.ELF`), the upstream-style 7z packages and `SHA256SUMS`. Check a
 download with `sha256sum -c SHA256SUMS` (Linux) or compare `Get-FileHash <file>` (Windows).
 
-Fork builds carry the suffix `-yaoplm` in their version string (`LOCALVERSION` in the `Makefile`),
-for example `v1.2.0-Beta-2170-d4fb44f-yaoplm`. The revision number counts this fork's commits, so it
+YAOPL builds carry the suffix `-yaopl` in their version string (`LOCALVERSION` in the `Makefile`),
+for example `v1.2.0-Beta-2310-1a2b3c4-yaopl`. The revision number counts this fork's commits, so it
 does not match upstream's numbering.
 
 ## What differs from upstream

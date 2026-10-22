@@ -49,8 +49,8 @@ INGAME_DEBUG ?= 0
 DECI2_DEBUG ?= 0
 #How the TTY will reach developer: 'UDP', 'PPC_UART'.
 TTY_APPROACH ?= UDP
-# Builds of this fork carry a suffix so they are not mistaken for official OPL builds.
-LOCALVERSION ?= yaoplm
+# YAOPL (Yet Another Open PS2 Loader) builds carry a suffix so they are not mistaken for official OPL builds.
+LOCALVERSION ?= yaopl
 
 # ======== DO NOT MODIFY VALUES AFTER THIS POINT! UNLESS YOU KNOW WHAT YOU ARE DOING ========
 REVISION = $(shell expr $(shell git rev-list --count HEAD) + 2)

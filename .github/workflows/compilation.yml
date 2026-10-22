@@ -207,9 +207,9 @@ jobs:
         gh release delete latest --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes || true
         git push --delete origin latest || true
         {
-          echo "Automatic build of ${{ env.OPL_VERSION }} from $GITHUB_SHA."
+          echo "Automatic YAOPL (Yet Another Open PS2 Loader) build of ${{ env.OPL_VERSION }} from $GITHUB_SHA."
           echo
-          echo "Not an official OPL build: see FORK.md for what differs from upstream."
+          echo "Not an official OPL build: see FORK.md for what differs from upstream OPL."
           echo "SHA-256 checksums of the files are in SHA256SUMS."
         } > notes.md
         gh release create latest $files SHA256SUMS --repo "$GITHUB_REPOSITORY" --prerelease \
