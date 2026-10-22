@@ -42,6 +42,7 @@ does not match upstream's numbering.
 | Config files | Keys of 32+ and values of 256+ characters are cut and terminated | RiptOPL |
 | Config files | A long line without `=` no longer overflows the prefix buffer | RiptOPL |
 | Settings | A failed save (e.g. full memory card) is reported instead of "Settings saved" | RiptOPL |
+| Settings | Looking for a USB device to save to no longer empties its `conf_opl.cfg` (upstream issue #1397) | this fork; RiptOPL has the same change |
 | Themes | A colour with more than three bytes (`#RRGGBBAA`) no longer writes past the colour | RiptOPL |
 | Network | An `IPCONFIG.DAT` of 256 bytes or more no longer overflows the stack | RiptOPL |
 | VMC | Leaving the VMC menu no longer replaces a card of another size (4 MB, 128 MB, PCSX2 `.ps2`); Modify asks first | this fork, after RiptOPL |

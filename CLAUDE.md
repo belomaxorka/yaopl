@@ -4,11 +4,18 @@ YAOPL (Yet Another Open PS2 Loader) is our fork of Open PS2 Loader that we devel
 ELF that CI publishes from `master`. Its PC-side companion is YAOPLM (Yet Another OPL Manager), a separate project.
 
 Read before working: `FORK.md` (what differs from upstream and why), `README.md` (header), `CONTRIBUTING.md`
-(upstream's code rules), `labs/host-repro/README.md`.
+(upstream's code rules), `labs/host-repro/README.md`. If the local knowledge base `kb/` exists, start with
+`kb/README.md` and `kb/ROADMAP.md`.
+
+## Knowledge base
+- `kb/` is local only: it is listed in `.git/info/exclude` and must never be committed or pushed, to our GitHub or
+  upstream. Do not `git add -f` it.
+- Keep it current: `ROADMAP.md` (what is next), `DECISIONS.md` (new decisions as ADRs), `HISTORY.md` (major steps),
+  `TESTING.md`, and `research/` for findings. Core docs are in Russian, `research/` in English.
 
 ## Communication
 - Talk to the user in **Russian**. They own the project and test on a real PS2.
-- Write code, comments, commit messages and docs in **English**.
+- Write code, comments, commit messages and public docs in **English**.
 - After a set of fixes, give the user a short Russian checklist of what to test on the console.
 
 ## Rules
