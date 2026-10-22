@@ -259,9 +259,9 @@ static int parse_buf(const char *buf)
     while (*buf) {
         /* Scanner */
         int len = chr_idx(buf, LF);
-        if (len < 0)
+        if (len < 0) // The last line may have no LF
             len = strlen(buf);
-        else if (len > CHEAT_LINE_MAX)
+        if (len > CHEAT_LINE_MAX)
             len = CHEAT_LINE_MAX;
 
         if (!is_empty_substr(buf, len)) {
@@ -304,7 +304,9 @@ static int parse_buf(const char *buf)
             }
         }
         linenumber++;
-        buf += len + 1;
+        buf += len;
+        if (*buf != NUL) // Step over the LF (or the byte where a long line was cut), never over the end
+            buf++;
     }
 
     return 0;
