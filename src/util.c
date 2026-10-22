@@ -353,8 +353,11 @@ int readFileBuffer(file_buffer_t *fileBuffer, char **outBuf)
         if (fileBuffer->lastPtr[0] == '#') { // '#' for comment lines
             if (posLF)
                 fileBuffer->lastPtr = posLF + 1;
-            else
+            else {
+                // The comment ends the buffer: nothing of it is left to shift on the next pass
                 fileBuffer->lastPtr = NULL;
+                lineSize = 0;
+            }
             continue;
         }
 
