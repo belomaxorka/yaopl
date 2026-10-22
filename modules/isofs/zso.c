@@ -16,8 +16,12 @@ u32 ziso_total_block;
 // block buffers
 u8 *ziso_tmp_buf = NULL;
 
-void ziso_init(ZISO_header *header, u32 first_block)
+int ziso_init(ZISO_header *header, u32 first_block)
 {
+    // read_raw_data() divides by (2048 >> align), so a larger shift cannot be read
+    if (header->align > 11)
+        return -1;
+
     // read header information
     ziso_align = header->align;
     ziso_idx_start_block = -1;
@@ -33,6 +37,7 @@ void ziso_init(ZISO_header *header, u32 first_block)
             ziso_idx_cache = (u32 *)(ziso_tmp_buf + 2048);
         }
     }
+    return 0;
 }
 
 /*
