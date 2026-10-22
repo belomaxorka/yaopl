@@ -19,8 +19,7 @@ typedef unsigned long long u64;
 #define DISPLAY_ALWAYS 0
 #define DISPLAY_NEVER  2
 #define THM_MAX_FONTS  16
-enum
-{
+enum {
     ELEM_TYPE_ATTRIBUTE_TEXT,
     ELEM_TYPE_STATIC_TEXT,
     ELEM_TYPE_ATTRIBUTE_IMAGE,
@@ -31,8 +30,7 @@ enum
     ELEM_TYPE_MENU_TEXT,
     ELEM_TYPE_ITEMS_LIST
 };
-enum
-{
+enum {
     _STR_INFO_TITLE,
     _STR_INFO_GENRE,
     _STR_INFO_RELEASE,
@@ -169,7 +167,10 @@ static void validateBackgroundElems(const char *themePath, config_set_t *themeCo
 
 #include "theme_extracted.c"
 
-static int countGames(item_list_t *itemList) { return 1234; }
+static int countGames(item_list_t *itemList)
+{
+    return 1234;
+}
 
 int main(int argc, char **argv)
 {
