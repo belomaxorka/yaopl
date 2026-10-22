@@ -472,9 +472,9 @@ void hddLaunchGame(item_list_t *itemList, int id, config_set_t *configSet)
         pfs_blockinfo_t blocks[11];
 
         for (vmc_id = 0; vmc_id < 2; vmc_id++) {
+            hdd_vmc_infos.active = 0; // A slot without a VMC is written as inactive below
             if (vmc_name[vmc_id][0]) {
                 have_error = 1;
-                hdd_vmc_infos.active = 0;
                 if (sysCheckVMC(gHDDPrefix, "/", vmc_name[vmc_id], 0, &vmc_superblock) > 0) {
                     hdd_vmc_infos.flags = vmc_superblock.mc_flag & 0xFF;
                     hdd_vmc_infos.flags |= 0x100;
@@ -513,15 +513,15 @@ void hddLaunchGame(item_list_t *itemList, int id, config_set_t *configSet)
                     } else
                         LOG("VMC error\n");
                 }
+            }
 
-                for (i = 0; i < size_hdd_mcemu_irx; i++) {
-                    if (((u32 *)&hdd_mcemu_irx)[i] == (0xC0DEFAC0 + vmc_id)) {
-                        if (hdd_vmc_infos.active)
-                            size_mcemu_irx = size_hdd_mcemu_irx;
-                        memcpy(&((u32 *)&hdd_mcemu_irx)[i], &hdd_vmc_infos, sizeof(hdd_vmc_infos_t));
-                        break;
-                    }
-                }
+            // Write every slot, so a slot left active by an aborted launch cannot ride along
+            static int mcemuSlots[2];
+            int slotWord = sbMcemuSlotWord(&hdd_mcemu_irx, size_hdd_mcemu_irx, vmc_id, mcemuSlots);
+            if (slotWord >= 0) {
+                if (hdd_vmc_infos.active)
+                    size_mcemu_irx = size_hdd_mcemu_irx;
+                memcpy(&((u32 *)&hdd_mcemu_irx)[slotWord], &hdd_vmc_infos, sizeof(hdd_vmc_infos_t));
             }
         }
     }

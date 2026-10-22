@@ -688,6 +688,28 @@ void sbUnprepare(void *pCommon)
     memcpy(pCommon, &cdvdman_settings_common_sample, sizeof(struct cdvdman_settings_common));
 }
 
+/* Returns the index of the u32 word that holds VMC slot `slot` in an mcemu image, or -1.
+   The slot is marked by the word 0xC0DEFAC0 + slot, which the first launch overwrites with the
+   slot's settings; an aborted launch returns to the menu, so the next launch could no longer
+   find it. `cache` (two ints, zero at start) keeps the index of each slot found in the pristine image. */
+int sbMcemuSlotWord(void *irx, int size, int slot, int *cache)
+{
+    if (cache[slot] == 0) { // word 0 is the ELF header, so 0 means "not looked up yet"
+        u32 *words = (u32 *)irx;
+        int i;
+
+        cache[slot] = -1;
+        for (i = 0; i < size / 4; i++) {
+            if (words[i] == 0xC0DEFAC0 + slot) {
+                cache[slot] = i;
+                break;
+            }
+        }
+    }
+
+    return cache[slot];
+}
+
 void sbRebuildULCfg(base_game_info_t **list, const char *prefix, int gamecount, int excludeID)
 {
     char path[256];

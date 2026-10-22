@@ -401,13 +401,12 @@ void bdmLaunchGame(item_list_t *itemList, int id, config_set_t *configSet)
         } else
             LOG("VMC error\n");
 
-        for (i = 0; i < size_bdm_mcemu_irx; i++) {
-            if (((u32 *)&bdm_mcemu_irx)[i] == (0xC0DEFAC0 + vmc_id)) {
-                if (bdm_vmc_infos.active)
-                    size_mcemu_irx = size_bdm_mcemu_irx;
-                memcpy(&((u32 *)&bdm_mcemu_irx)[i], &bdm_vmc_infos, sizeof(bdm_vmc_infos_t));
-                break;
-            }
+        static int mcemuSlots[2];
+        int slotWord = sbMcemuSlotWord(&bdm_mcemu_irx, size_bdm_mcemu_irx, vmc_id, mcemuSlots);
+        if (slotWord >= 0) {
+            if (bdm_vmc_infos.active)
+                size_mcemu_irx = size_bdm_mcemu_irx;
+            memcpy(&((u32 *)&bdm_mcemu_irx)[slotWord], &bdm_vmc_infos, sizeof(bdm_vmc_infos_t));
         }
     }
 
