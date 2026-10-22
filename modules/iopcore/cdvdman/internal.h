@@ -83,7 +83,8 @@ typedef struct
 
 struct dirTocEntry
 {
-    short length;
+    u8 length;           // 0, ISO 9660 LEN_DR
+    u8 extAttrLength;    // 1, not used
     u32 fileLBA;         // 2
     u32 fileLBA_bigend;  // 6
     u32 fileSize;        // 10

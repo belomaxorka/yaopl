@@ -144,7 +144,7 @@ lbl_startlocate:
             }
 
             // Advance past every other record, including one without a name
-            tocPos += (tocEntryPointer->length << 16) >> 16;
+            tocPos += tocEntryPointer->length;
         } while (tocPos < 2016);
     }
 

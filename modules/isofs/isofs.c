@@ -18,7 +18,8 @@ IRX_ID(MODNAME, 1, 1);
 
 struct dirTocEntry
 {
-    short length;
+    u8 length;           // 0, ISO 9660 LEN_DR
+    u8 extAttrLength;    // 1, not used
     u32 fileLBA;         // 2
     u32 fileLBA_bigend;  // 6
     u32 fileSize;        // 10
@@ -292,7 +293,7 @@ lbl_startlocate:
             }
 
             // Advance past every other record, including one without a name
-            tocPos += (tocEntryPointer->length << 16) >> 16;
+            tocPos += tocEntryPointer->length;
         } while (tocPos < 2016);
     }
 
