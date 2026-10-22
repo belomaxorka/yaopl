@@ -40,8 +40,9 @@ struct pad_data_t
     int actuators;
 };
 
-/// current time in miliseconds (last update time)
-static u32 curtime = 0;
+/// tick count at the last update, and the ticks of it not yet counted as a millisecond
+static u32 lastticks = 0;
+static u32 tickrem = 0;
 static u32 time_since_last = 0;
 
 static unsigned short pad_count;
@@ -330,10 +331,12 @@ int readPads()
     oldpaddata = paddata;
     paddata = 0;
 
-    // in ms.
-    u32 newtime = cpu_ticks() / CLOCKS_PER_MILISEC;
-    time_since_last = newtime - curtime;
-    curtime = newtime;
+    // in ms. The 32-bit tick counter wraps every 29 s: the difference of the raw counts is wrap-safe
+    u32 ticks = cpu_ticks();
+    u32 elapsed = (ticks - lastticks) + tickrem;
+    time_since_last = elapsed / CLOCKS_PER_MILISEC;
+    tickrem = elapsed % CLOCKS_PER_MILISEC;
+    lastticks = ticks;
 
     int rslt = 0;
 
