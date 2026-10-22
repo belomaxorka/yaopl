@@ -132,6 +132,22 @@ if (Want "cfg") {
     Test "CheckPS2Logo HDD" cfg-t "logo"
 }
 
+if (Want "vmc") {
+    Build vmc t "src\system.c" "sysCheckVMC"
+    $dir = Join-Path $build "vmc"
+    New-Item -ItemType Directory -Force (Join-Path $dir "VMC") | Out-Null
+    # card size in bytes (-1: no card), createSize as the VMC menu passes it
+    foreach ($c in @(@(4194304, 8, "4 MiB card, create 8 MB"), @(8650752, 8, "PCSX2 .ps2 size, create 8 MB"), @(8388608, 8, "8 MiB card, create 8 MB"), @(-1, 8, "no card, create 8 MB"), @(4194304, -1, "4 MiB card, delete"))) {
+        foreach ($v in "plain", "asan") {
+            $card = Join-Path $dir "VMC\keep.bin"
+            Remove-Item $card -ErrorAction SilentlyContinue
+            if ($c[0] -ge 0) { [IO.File]::WriteAllBytes($card, (New-Object byte[] $c[0])) }
+            $exe = if ($v -eq "plain") { "vmc-t" } else { "vmc-t-asan" }
+            "{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "sysCheckVMC " + $c[2] } else { "" }), $v.PadRight(5), (Run $exe $dir, "keep", "$($c[1])")
+        }
+    }
+}
+
 if ($Images) {
     Build gameid t "src\supportbase.c" "GetStartupExecName" -Source2 "modules\isofs\isofs.c" -Funcs2 "dirTocEntry", "cdvdman_trimspaces", "cdvdman_locatefile" -Source3 "src\ps2cnf.c" -Funcs3 "CNF_LEN_MAX", "CNFGetToken", "CNFAdvanceLine", "CNFGetKey", "ps2cnfGetBootFile" -Patch 'fopen(path, "r")=>fopen(path, "rb")'
     foreach ($f in Get-ChildItem $Images -File | Where-Object { $_.Extension -in ".iso" }) { Test "gameid $($f.Name)" gameid-t $f.FullName }
