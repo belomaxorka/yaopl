@@ -312,6 +312,8 @@ int readFileBuffer(file_buffer_t *fileBuffer, char **outBuf)
                 length = fileBuffer->size - lineSize - 1;
                 // LOG("##### Asking for %d characters to complete buffer\n", length);
                 readSize = read(fileBuffer->fd, fileBuffer->buffer + lineSize, length);
+                if (readSize < 0) // A read error (e.g. the device was removed) ends the file
+                    readSize = 0;
                 fileBuffer->buffer[lineSize + readSize] = '\0';
 
                 // Search again (from the lastly added chars only), the result will be "analyzed" in next if
