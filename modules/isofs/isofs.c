@@ -288,10 +288,11 @@ lbl_startlocate:
                         tocLBA += layer1_start;
 
                     goto lbl_startlocate;
-                } else {
-                    tocPos += (tocEntryPointer->length << 16) >> 16;
                 }
             }
+
+            // Advance past every other record, including one without a name
+            tocPos += (tocEntryPointer->length << 16) >> 16;
         } while (tocPos < 2016);
     }
 
