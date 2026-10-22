@@ -132,6 +132,12 @@ if (Want "cfg") {
     Test "CheckPS2Logo HDD" cfg-t "logo"
 }
 
+if (Want "cheatsel") {
+    Build cheatsel t "src\cheatconfig.c" "normalizeCheatName", "cheatConfigIsMasterCode", "cheatNamesMatch", "cheatConfigLoadSelections", "cheatConfigSaveSelections"
+    Test "cheat picks, distinct names" cheatsel-t "+Mastercode", "+Infinite Health", "Max Money", "+Moon Jump"
+    Test "cheat picks, duplicate names" cheatsel-t "+Mastercode", "+Infinite Health", "+Infinite Health", "Max Money"
+}
+
 if (Want "vmc") {
     Build vmc t "src\system.c" "sysCheckVMC"
     $dir = Join-Path $build "vmc"
