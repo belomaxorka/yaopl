@@ -62,7 +62,7 @@ u32 crc32(const char *string)
     }
 
     do {
-        byte = string[count++];
+        byte = (unsigned char)string[count++]; // same as USBA_crc32() in OPL: bytes >= 0x80 are not negative
         crc = crctab[byte ^ ((crc >> 24) & 0xFF)] ^ ((crc << 8) & 0xFFFFFF00);
     } while (string[count - 1] != 0);
 
