@@ -244,12 +244,24 @@ static int guiGameShowVMCConfig(int id, item_list_t *support, char *VMCName, int
                     sizeUI = 8;
 
                 if (sizeUI != size) {
-                    support->itemCheckVMC(support, vmc, sizeUI);
+                    int create = 1;
 
-                    diaSetEnabled(diaVMC, VMC_NAME, 0);
-                    diaSetEnabled(diaVMC, VMC_SIZE, 0);
-                    diaSetLabel(diaVMC, VMC_BUTTON_CREATE, _l(_STR_ABORT));
-                    vmc_operation = OPERATION_CREATING;
+                    if (size != -1) { // The card exists with another size: a new one replaces it and its saves
+                        if (validate)
+                            break; // Leaving the menu never replaces a card, e.g. one of 4 MB or a PCSX2 card
+                        create = guiMsgBox(_l(_STR_DELETE_WARNING), 1, diaVMC);
+                        if (create)
+                            support->itemCheckVMC(support, vmc, -1);
+                    }
+
+                    if (create) {
+                        support->itemCheckVMC(support, vmc, sizeUI);
+
+                        diaSetEnabled(diaVMC, VMC_NAME, 0);
+                        diaSetEnabled(diaVMC, VMC_SIZE, 0);
+                        diaSetLabel(diaVMC, VMC_BUTTON_CREATE, _l(_STR_ABORT));
+                        vmc_operation = OPERATION_CREATING;
+                    }
                 } else
                     break;
             } else if (vmc_operation == OPERATION_ENDING) {

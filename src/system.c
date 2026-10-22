@@ -1079,13 +1079,11 @@ int sysCheckVMC(const char *prefix, const char *sep, char *name, int createSize,
                 size /= 1048576;
 
             close(fd);
-
-            if (createSize && (createSize != size))
-                unlink(path);
         }
 
-
-        if (createSize && (createSize != size)) {
+        // Only create a card where there is none. Replacing a card loses its saves, so the
+        // caller has to delete it first (createSize == -1).
+        if (createSize && (size == -1)) {
             createVMCparam_t createParam;
             strcpy(createParam.VMC_filename, path);
             createParam.VMC_size_mb = createSize;
