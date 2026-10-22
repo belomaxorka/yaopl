@@ -50,18 +50,11 @@ int ziso_init(ZISO_header *header, u32 first_block)
   Tailored for OPL.
   It's made to work with 2048 block size (matching DVD sector size) and LZ4 compression (ZSO).
 */
-int ziso_read_sector(u8 *addr, u32 lsn, unsigned int count)
+// Reads at most ZISO_IDX_MAX_ENTRIES - 1 sectors, which the index cache covers at once
+static int ziso_read_slice(u8 *addr, u32 lsn, unsigned int count)
 {
 
     u32 cur_block = lsn;
-
-    if (lsn >= ziso_total_block) {
-        return 0; // can't seek beyond file
-    }
-
-    if (lsn + count > ziso_total_block) {
-        count = ziso_total_block - lsn; // adjust oob reads
-    }
 
     // refresh index table if needed
     if (ziso_idx_start_block < 0 || lsn < ziso_idx_start_block || lsn + count >= ziso_idx_start_block + ZISO_IDX_MAX_ENTRIES - 1) {
@@ -115,4 +108,28 @@ int ziso_read_sector(u8 *addr, u32 lsn, unsigned int count)
         c_buff += b_size;
     }
     return cur_block - lsn;
+}
+
+int ziso_read_sector(u8 *addr, u32 lsn, unsigned int count)
+{
+    unsigned int done = 0;
+
+    if (lsn >= ziso_total_block) {
+        return 0; // can't seek beyond file
+    }
+
+    if (lsn + count > ziso_total_block) {
+        count = ziso_total_block - lsn; // adjust oob reads
+    }
+
+    // the index cache holds ZISO_IDX_MAX_ENTRIES offsets: a larger read goes in slices
+    while (done < count) {
+        unsigned int n = count - done;
+        if (n > ZISO_IDX_MAX_ENTRIES - 1)
+            n = ZISO_IDX_MAX_ENTRIES - 1;
+        if (ziso_read_slice(addr + done * 2048, lsn + done, n) != (int)n)
+            break;
+        done += n;
+    }
+    return done;
 }
