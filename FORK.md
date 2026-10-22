@@ -52,6 +52,24 @@ does not match upstream's numbering.
 | BDM | Returning from the NBD server no longer crashes | RiptOPL |
 | HDD | The PS2 logo check reads 48 sectors, not 49 | RiptOPL |
 | Misc | Format string, terminators and the IOP patch mode compare (hardening, no known trigger) | RiptOPL |
+| Cheats | A code line with address 0 (the second half of a multi-line code) no longer ends the cheat (upstream issue #1548) | this fork |
+| Cheats | More than 5 hooks or 250 codes are dropped instead of written past the engine's tables (`SLUS_210.09.cht` has 9 hooks) | this fork |
+| Themes | `fntFitString()` stops at the end of the string instead of scanning and writing past it (upstream issue #1713) | this fork |
+| Themes | Wrapped text is a private copy: line breaks no longer go into the game's CFG (upstream issue #1713) | RiptOPL (same fix) |
+| Themes | `GameCountText` gets the 60 bytes it formats into, not 1 | this fork; RiptOPL has the same fix |
+| Themes | An image file that is missing disables the element instead of leaving a garbage texture that is drawn and freed | this fork; RiptOPL has the same fix |
+| Themes | A theme without an `ItemsList` keeps the default list, instead of a NULL that crashes the first scroll | this fork; RiptOPL has the same fix |
+| Languages | A `.lng` file name shorter than `lang_X.lng` (for example `ru.lng`) no longer crashes OPL at boot | this fork; RiptOPL checks the prefix |
+| Launch | A boot file name over 16 characters (`$AltStartup`) no longer overflows the OSD history buffer | this fork |
+| Settings | The default BGM path is no longer used as a format string | this fork |
+| GSM | A `$GSMVMode` outside the table of modes falls back to mode 0 instead of reading past the table | RiptOPL |
+| Pad | A held button keeps repeating across the 29 s wrap of the tick counter | RiptOPL (upstream PR #1757) |
+| VMC | A failed cluster write while creating a VMC no longer leaves genvmc's abort semaphore taken (the next creation hung) | RiptOPL, smaller form |
+| GUI | The scroll speed is restored after dialogs that return through their updater (VMC menu) | upstream PR #1757 |
+| Art | Grey and grey+alpha PNGs are loaded | wOPL |
+| ZSO | Images with a block size other than 2048 (maxcso default for 2 GiB+ images: 16 KiB) are rejected instead of read as the wrong sectors | this fork |
+| ZSO | The block index is checked before the compressed data is read: a corrupt index gives a read error, not a write before the buffer | this fork |
+| ZSO | Reads of more than 256 sectors go in slices instead of running past the index cache | this fork |
 
 RiptOPL is [NathanNeurotic/Open-PS2-Loader](https://github.com/NathanNeurotic/Open-PS2-Loader) and its C++ edition
 [NathanNeurotic/RiptOPL](https://github.com/NathanNeurotic/RiptOPL). Its fixes were reviewed one by one against
