@@ -56,6 +56,7 @@ typedef struct
 
     u32 currentConfigId;
     char *currentValue;
+    char *wrappedValue; // the wrapped copy currentValue points to, when wrapping is on
 } mutable_text_t;
 
 typedef struct

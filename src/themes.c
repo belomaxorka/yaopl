@@ -90,6 +90,9 @@ static void endMutableText(theme_element_t *elem)
         if (mutableText->alias)
             free(mutableText->alias);
 
+        if (mutableText->wrappedValue)
+            free(mutableText->wrappedValue);
+
         free(mutableText);
     }
 
@@ -101,6 +104,7 @@ static mutable_text_t *initMutableText(const char *themePath, config_set_t *them
     mutable_text_t *mutableText = (mutable_text_t *)malloc(sizeof(mutable_text_t));
     mutableText->currentConfigId = 0;
     mutableText->currentValue = NULL;
+    mutableText->wrappedValue = NULL;
     mutableText->alias = NULL;
 
     char elemProp[64];
@@ -244,9 +248,22 @@ static void drawAttributeText(struct menu_list *menu, struct submenu_list *item,
             // force refresh
             mutableText->currentConfigId = config->uid;
             mutableText->currentValue = NULL;
+            if (mutableText->wrappedValue) {
+                free(mutableText->wrappedValue);
+                mutableText->wrappedValue = NULL;
+            }
             if (configGetStr(config, mutableText->value, (const char **)&mutableText->currentValue)) {
-                if (mutableText->sizingMode == SIZING_WRAP)
-                    fntFitString(elem->font, mutableText->currentValue, elem->width);
+                if (mutableText->sizingMode == SIZING_WRAP) {
+                    // configGetStr() points into the config's own value: wrap a copy, or the line
+                    // breaks would be saved into the CFG with the next settings save
+                    int length = strlen(mutableText->currentValue) + 1;
+                    mutableText->wrappedValue = (char *)malloc(length);
+                    if (mutableText->wrappedValue) {
+                        memcpy(mutableText->wrappedValue, mutableText->currentValue, length);
+                        fntFitString(elem->font, mutableText->wrappedValue, elem->width);
+                        mutableText->currentValue = mutableText->wrappedValue;
+                    }
+                }
             }
         }
         if (mutableText->currentValue) {
