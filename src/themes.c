@@ -229,11 +229,14 @@ static void drawGameCountText(struct menu_list *menu, struct submenu_list *item,
 
 static void initGameCountText(const char *themePath, config_set_t *themeConfig, theme_t *theme, theme_element_t *elem, const char *name)
 {
-    int length = 60;
-    char *countStr = (char *)malloc(length * sizeof(char));
-    memset(countStr, 0, length * sizeof(char));
+    mutable_text_t *mutableText = initMutableText(themePath, themeConfig, theme, name, ELEM_TYPE_ATTRIBUTE_TEXT, elem, "", NULL, DISPLAY_ALWAYS, SIZING_NONE);
 
-    elem->extended = initMutableText(themePath, themeConfig, theme, name, ELEM_TYPE_ATTRIBUTE_TEXT, elem, countStr, NULL, DISPLAY_ALWAYS, SIZING_NONE);
+    // initMutableText() sizes value after the text it is given: drawGameCountText() formats up to
+    // 60 bytes into it
+    free(mutableText->value);
+    mutableText->value = (char *)calloc(60, sizeof(char));
+
+    elem->extended = mutableText;
     elem->endElem = &endMutableText;
     elem->drawElem = &drawGameCountText;
 }
