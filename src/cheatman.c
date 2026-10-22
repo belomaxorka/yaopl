@@ -282,7 +282,13 @@ static int parse_buf(const char *buf)
                 code = parse_line(line, linenumber);
                 if (!(code.addr == 0 && code.val == 0)) {
                     // Only add the cheat entry if we have a valid cheat name in temp_name
-                    if (cheat_index < MAX_CODES && temp_name[0] != NUL) {
+                    if (temp_name[0] != NUL) {
+                        // gCheats is full: drop the remaining cheats instead of writing past the
+                        // array or appending their codes to the last cheat.
+                        if (cheat_index + 1 >= MAX_CODES) {
+                            LOG("%s: more than %d cheats, ignoring the rest\n", __FUNCTION__, MAX_CODES);
+                            break;
+                        }
                         cheat_index++; // Move to the next cheat entry
                         strncpy(gCheats[cheat_index].name, temp_name, CHEAT_NAME_MAX);
                         gCheats[cheat_index].name[CHEAT_NAME_MAX] = NUL;
