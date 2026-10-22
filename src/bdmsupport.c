@@ -43,8 +43,8 @@ int bdmFindPartition(char *target, const char *name, int write)
             sprintf(path, "mass%d:%s/%s", i, gBDMPrefix, name);
         else
             sprintf(path, "mass%d:%s", i, name);
-        if (write)
-            fd = open(path, O_WRONLY | O_TRUNC | O_CREAT, 0666);
+        if (write) // Only a probe: the file is written later, and only if its settings are saved
+            fd = open(path, O_WRONLY | O_CREAT, 0666);
         else
             fd = open(path, O_RDONLY);
 
