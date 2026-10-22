@@ -72,7 +72,7 @@ static code_t make_code(const char *s)
     code_t code;
     u32 address;
     u32 value;
-    char digits[CODE_DIGITS];
+    char digits[CODE_DIGITS + 1]; // is_cheat_code() let exactly CODE_DIGITS digits through, plus NUL
     int i = 0;
 
     while (*s) {
