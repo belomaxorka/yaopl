@@ -317,7 +317,7 @@ unsigned int USBA_crc32(const char *string)
     }
 
     do {
-        byte = string[count++];
+        byte = (unsigned char)string[count++]; // char is signed on the EE: bytes >= 0x80 must not index crctab negatively
         crc = crctab[byte ^ ((crc >> 24) & 0xFF)] ^ ((crc << 8) & 0xFFFFFF00);
     } while ((string[count - 1] != 0) && (count <= 32));
 
