@@ -400,7 +400,9 @@ void set_cheats_list(void)
     // Populate the cheat list
     for (int i = 0; i < MAX_CODES; ++i) {
         if (gCheats[i].enabled) {
-            for (int j = 0; j < MAX_CHEATLIST && gCheats[i].codes[j].addr != 0; ++j) {
+            // A code line may have address 0 (the second line of multi-line codes): only an all-zero
+            // pair, which parse_buf() never stores, ends the codes, as in the cheat engine
+            for (int j = 0; j < MAX_CHEATLIST && (gCheats[i].codes[j].addr != 0 || gCheats[i].codes[j].val != 0); ++j) {
                 if (cheatCount + 2 <= MAX_CHEATLIST) {
                     // Store the address and value in gCheatList
                     gCheatList[cheatCount++] = gCheats[i].codes[j].addr;
