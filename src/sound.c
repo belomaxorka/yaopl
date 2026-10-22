@@ -338,7 +338,7 @@ static int bgmLoad(void)
         char *thmPath = thmGetFilePath(themeID);
         snprintf(bgmPath, sizeof(bgmPath), "%ssound/bgm.ogg", thmPath);
     } else
-        snprintf(bgmPath, sizeof(bgmPath), gDefaultBGMPath);
+        snprintf(bgmPath, sizeof(bgmPath), "%s", gDefaultBGMPath);
 
     bgmFile = fopen(bgmPath, "rb");
     if (bgmFile == NULL) {
