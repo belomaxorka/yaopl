@@ -25,6 +25,7 @@ typedef struct
     unsigned int available;
     char *lastPtr;
     short allocResult;
+    short writeError; /* as in include/util.h; unused by older trees */
 } file_buffer_t;
 
 static int failReads; /* make read() fail, as on a USB unplug or SMB drop */

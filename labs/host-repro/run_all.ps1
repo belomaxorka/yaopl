@@ -21,6 +21,7 @@ $asanDir = (Get-ChildItem (Join-Path $vs "VC\Tools\MSVC") -Recurse -Filter "clan
 $env:PATH = "$asanDir;$env:PATH"
 python -I (Join-Path $here "make_inputs.py") $inputs | Out-Null
 
+$Only = @($Only | ForEach-Object { $_ -split "," } | Where-Object { $_ })
 function Want([string]$Group) { return ($Only.Count -eq 0) -or ($Only -contains $Group) }
 
 function Build([string]$Harness, [string]$Tag, [string]$Source, [string[]]$Funcs, [string]$Source2 = "", [string[]]$Funcs2 = @(), [string]$Source3 = "", [string[]]$Funcs3 = @(), [string[]]$Patch = @(), [string]$Defines = "") {
@@ -136,6 +137,11 @@ if (Want "cheatsel") {
     Build cheatsel t "src\cheatconfig.c" "normalizeCheatName", "cheatConfigIsMasterCode", "cheatNamesMatch", "cheatConfigLoadSelections", "cheatConfigSaveSelections"
     Test "cheat picks, distinct names" cheatsel-t "+Mastercode", "+Infinite Health", "Max Money", "+Moon Jump"
     Test "cheat picks, duplicate names" cheatsel-t "+Mastercode", "+Infinite Health", "+Infinite Health", "Max Money"
+}
+
+if (Want "cfgwrite") {
+    Build cfgwrite t "src\config.c" "configWrite" -Source2 "src\util.c" -Funcs2 "openFileBuffer", "writeFileBuffer", "closeFileBuffer"
+    foreach ($m in "ok", "fail", "short") { Test "configWrite, write() $m" cfgwrite-t (Join-Path $build "cfgwrite-$m.cfg"), $m }
 }
 
 if (Want "vmc") {
