@@ -954,8 +954,10 @@ int diaExecuteDialog(struct UIItem *ui, int uiId, short inMenu, int (*updater)(i
 
         if (updater) {
             int updResult = updater(modified);
-            if (updResult)
+            if (updResult) {
+                diaRestoreScrollSpeed();
                 return updResult;
+            }
         }
     }
 }
