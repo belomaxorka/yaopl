@@ -82,8 +82,9 @@ memory errors on the given inputs; they do not emulate the PS2, so a console tes
 `master` is the only long-lived branch: the releases are built from it. A fix may be prepared on a
 short-lived branch, which is deleted once it is merged into `master`.
 
-The branches `copilot/*`, `gh-pages`, `main`, `master_old` and `v1.1.z` came from upstream when the
-fork was created; this fork does not use them.
+The branches `copilot/*`, `main`, `master_old` and `v1.1.z` came from upstream when the fork was
+created; this fork does not use them. Upstream's website branch `gh-pages` was deleted and GitHub Pages
+is off, so no copy of the official OPL site is published here.
 
 ## Pulling in upstream changes
 

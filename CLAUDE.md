@@ -15,6 +15,8 @@ Read before working: `FORK.md` (what differs from upstream and why), `README.md`
 1. **Licence.** YAOPL is AFL-3.0 like OPL. Never copy code from YAOPLM (GPL-3.0) into YAOPL, or the other way.
 2. **`master` is the release.** Every push to `master` publishes the public `latest` pre-release. Push only
    finished, checked work. Prepare bigger changes on a short-lived branch and delete it after the merge.
+   Only the build of master's tip is published: a commit that does not change the ELF (`labs/`, docs) may say
+   `[skip ci]`, but push it only after the running build has published, or that build is not released.
 3. **Keep `FORK.md` current.** Every fix or behaviour change updates the table in `FORK.md` (area, fix, origin)
    in the same push. Update the README header if what YAOPL is or how to get it changes.
 4. **One fix per commit.** Subject `<component>: <summary>`. The body states the problem, the fix, its origin

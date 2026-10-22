@@ -42,14 +42,22 @@ function Build([string]$Harness, [string]$Tag, [string]$Source, [string[]]$Funcs
 }
 
 function Run([string]$Exe, [string[]]$Arguments) {
-    $out = Join-Path $build "last.out"
-    $quoted = @($Arguments | ForEach-Object { if ($_ -match "\s") { "`"$_`"" } else { $_ } })
-    $p = Start-Process -FilePath (Join-Path $build "$Exe.exe") -ArgumentList $quoted -NoNewWindow -PassThru -RedirectStandardOutput $out -RedirectStandardError "$out.err"
-    $null = $p.Handle
+    # Process rather than Start-Process: the latter can lose the exit code of a process that ends at once
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = Join-Path $build "$Exe.exe"
+    $psi.Arguments = (@($Arguments | ForEach-Object { if ($_ -match "\s") { "`"$_`"" } else { $_ } })) -join " "
+    $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $p = [System.Diagnostics.Process]::Start($psi)
+    $stdout = $p.StandardOutput.ReadToEndAsync()
+    $stderr = $p.StandardError.ReadToEndAsync()
     if (-not $p.WaitForExit(10000)) { $p.Kill(); return "TIMEOUT: endless loop" }
-    $lines = @(Get-Content $out | Select-Object -Last 3)
-    $asan = Get-Content "$out.err" | Select-String -Pattern "ERROR: AddressSanitizer: ([\w-]+)" | Select-Object -First 1
-    $frame = Get-Content "$out.err" | Select-String -Pattern "#\d+ 0x\w+ in (\w+) .*(extracted|harness)" | Select-Object -First 1
+    $p.WaitForExit()
+    $lines = @($stdout.Result -split "`r?`n" | Where-Object { $_ } | Select-Object -Last 3)
+    $err = $stderr.Result -split "`r?`n"
+    $asan = $err | Select-String -Pattern "ERROR: AddressSanitizer: ([\w-]+)" | Select-Object -First 1
+    $frame = $err | Select-String -Pattern "#\d+ 0x\w+ in (\w+) .*(extracted|harness)" | Select-Object -First 1
     if ($asan) { return "ASAN " + $asan.Matches[0].Groups[1].Value + " in " + $frame.Matches[0].Groups[1].Value }
     if ($p.ExitCode -ne 0) { return ("CRASH 0x{0:X8}" -f $p.ExitCode) }
     return ($lines -join " | ")
