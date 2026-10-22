@@ -983,7 +983,7 @@ static void validateBackgroundElems(const char *themePath, config_set_t *themeCo
     }
 }
 
-static void validateItemsList(const char *themePath, config_set_t *themeConfig, theme_t *theme, theme_element_t *list, theme_elems_t *mainElems)
+static theme_element_t *validateItemsList(const char *themePath, config_set_t *themeConfig, theme_t *theme, theme_element_t *list, theme_elems_t *mainElems)
 {
     if (list) {
         items_list_t *itemsList = (items_list_t *)list->extended;
@@ -1012,6 +1012,8 @@ static void validateItemsList(const char *themePath, config_set_t *themeConfig, 
         list->next = mainElems->first->next; // Position the itemsList as second element (right after the Background)
         mainElems->first->next = list;
     }
+
+    return list;
 }
 
 static void validateGUIElems(const char *themePath, config_set_t *themeConfig, theme_t *theme)
@@ -1020,9 +1022,10 @@ static void validateGUIElems(const char *themePath, config_set_t *themeConfig, t
     validateBackgroundElems(themePath, themeConfig, theme, &theme->mainElems, &theme->infoElems);
     validateBackgroundElems(themePath, themeConfig, theme, &theme->appsMainElems, &theme->appsInfoElems);
 
-    // 2. check we have a valid ItemsList element, and link its decorator to the target element
-    validateItemsList(themePath, themeConfig, theme, theme->gamesItemsList, &theme->mainElems);
-    validateItemsList(themePath, themeConfig, theme, theme->appsItemsList, &theme->appsMainElems);
+    // 2. check we have a valid ItemsList element, and link its decorator to the target element;
+    // the theme must know the default list, menusys navigates with it
+    theme->gamesItemsList = validateItemsList(themePath, themeConfig, theme, theme->gamesItemsList, &theme->mainElems);
+    theme->appsItemsList = validateItemsList(themePath, themeConfig, theme, theme->appsItemsList, &theme->appsMainElems);
 }
 
 static int addGUIElem(const char *themePath, config_set_t *themeConfig, theme_t *theme, theme_elems_t *elems, const char *type, const char *name)
