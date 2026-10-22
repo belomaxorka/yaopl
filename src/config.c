@@ -180,7 +180,7 @@ void configPrepareNotifications(char *prefix)
 {
     char *colpos;
 
-    snprintf(cfgDevice, sizeof(cfgDevice), prefix);
+    snprintf(cfgDevice, sizeof(cfgDevice), "%s", prefix);
 
     if ((colpos = strchr(cfgDevice, ':')) != NULL)
         *(colpos + 1) = '\0';

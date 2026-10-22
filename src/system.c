@@ -421,7 +421,7 @@ static unsigned int addIopPatch(const char *mode_str, const char *startup, irxpt
     for (i = 0; iop_patch_list[i].game != NULL; i++) {
         p = &iop_patch_list[i];
 
-        if (!strcmp(p->game, startup) && (p->mode[0] == '\0' || !strcmp(p->mode, startup))) {
+        if (!strcmp(p->game, startup) && (p->mode[0] == '\0' || !strcmp(p->mode, mode_str))) {
             tab->info = (*(p->module_size)) | SET_OPL_MOD_ID(OPL_MODULE_ID_IOP_PATCH);
             tab->ptr = (void *)p->module;
             return 1;
@@ -902,7 +902,9 @@ void sysLaunchLoaderElf(const char *filename, const char *mode_str, int size_cdv
     config->magic[1] = EE_CORE_MAGIC_1;
 
     strncpy(config->ExitPath, gExitPath, CORE_EXIT_PATH_MAX_LEN);
+    config->ExitPath[CORE_EXIT_PATH_MAX_LEN - 1] = '\0';
     strncpy(config->GameModeDesc, mode_str, CORE_GAME_MODE_DESC_MAX_LEN);
+    config->GameModeDesc[CORE_GAME_MODE_DESC_MAX_LEN - 1] = '\0';
 
     config->EnableDebug = gEnableDebug;
     config->HDDSpindown = gHDDSpindown;
@@ -959,6 +961,7 @@ void sysLaunchLoaderElf(const char *filename, const char *mode_str, int size_cdv
     config->ModStorageEnd = ModuleStorageEnd;
 
     strncpy(config->GameID, filename, CORE_GAME_ID_MAX_LEN);
+    config->GameID[CORE_GAME_ID_MAX_LEN - 1] = '\0';
 
     config->_CompatMask = compatflags;
 
