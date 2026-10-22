@@ -419,8 +419,11 @@ static int configReadLegacyIP(void)
     if (fd >= 0) {
         char ipconfig[256];
         int size = getFileSize(fd);
-        read(fd, &ipconfig, size);
+        if (size < 0 || size > (int)sizeof(ipconfig) - 1) // The three addresses fit easily; ignore the rest
+            size = sizeof(ipconfig) - 1;
+        size = read(fd, ipconfig, size);
         close(fd);
+        ipconfig[size > 0 ? size : 0] = '\0';
 
         sscanf(ipconfig, "%d.%d.%d.%d %d.%d.%d.%d %d.%d.%d.%d", &ps2_ip[0], &ps2_ip[1], &ps2_ip[2], &ps2_ip[3],
                &ps2_netmask[0], &ps2_netmask[1], &ps2_netmask[2], &ps2_netmask[3],
