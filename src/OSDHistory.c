@@ -273,6 +273,8 @@ static void GetBootFilename(const char *bootpath, char *filename)
             if (length > 2 && bootpath[length - 1] == '1' && bootpath[length - 2] == ';')
                 length -= 2;
             length -= (i + 1);
+            if (length > 16) // A history record holds 16 characters; filename has room for 16 and the NUL.
+                length = 16;
             strncpy(filename, &bootpath[i + 1], length);
             filename[length] = '\0';
             break;
@@ -280,7 +282,8 @@ static void GetBootFilename(const char *bootpath, char *filename)
     }
 
     if (i == 0) { // The boot path contains only the filename.
-        strcpy(filename, bootpath);
+        strncpy(filename, bootpath, 16);
+        filename[16] = '\0';
     }
 }
 
