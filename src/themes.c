@@ -374,7 +374,9 @@ static void freeImageTexture(image_texture_t *texture)
 
 static image_texture_t *initImageTexture(const char *themePath, config_set_t *themeConfig, const char *name, const char *imgName, int isOverlay)
 {
-    image_texture_t *texture = (image_texture_t *)malloc(sizeof(image_texture_t));
+    // Zeroed: a failed load leaves the texture unset, and it is then freed (NULL pointers) and
+    // dropped below, so that the element is disabled instead of drawn from what the memory held
+    image_texture_t *texture = (image_texture_t *)calloc(1, sizeof(image_texture_t));
     texture->name = NULL;
 
     int texId = -1;
@@ -383,14 +385,10 @@ static image_texture_t *initImageTexture(const char *themePath, config_set_t *th
     if (themePath) {
         char path[256];
         snprintf(path, sizeof(path), "%s%s", themePath, imgName);
-        if (texDiscoverLoad(&texture->source, path, texId) >= 0)
-            ;
-        result = 1;
+        result = (texDiscoverLoad(&texture->source, path, texId) >= 0);
     } else {
         texId = texLookupInternalTexId(imgName);
-        if (texLoadInternal(&texture->source, texId) >= 0)
-            ;
-        result = 1;
+        result = (texLoadInternal(&texture->source, texId) >= 0);
     }
 
     if (result) {
