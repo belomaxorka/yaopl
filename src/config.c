@@ -41,7 +41,7 @@ static int strToColor(const char *string, unsigned char *color)
 
     string++;
 
-    while (*string) {
+    while (*string && n < 3) { // Ignore digits past RRGGBB, e.g. an alpha byte
         int fh = fromHex(*string);
         if (fh >= 0) {
             color[n] = color[n] * 16 + fh;
