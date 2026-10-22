@@ -344,6 +344,7 @@ void bdmLaunchGame(item_list_t *itemList, int id, config_set_t *configSet)
 
     for (vmc_id = 0; vmc_id < 2; vmc_id++) {
         memset(&bdm_vmc_infos, 0, sizeof(bdm_vmc_infos_t));
+        have_error = 0; // An error in slot 1 must not be reported again for slot 2
         configGetVMC(configSet, vmc_name, sizeof(vmc_name), vmc_id);
         if (vmc_name[0]) {
             have_error = 1;
