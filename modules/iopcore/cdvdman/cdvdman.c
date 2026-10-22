@@ -386,7 +386,9 @@ static int cdvdman_read(u32 lsn, u32 sectors, u16 sector_size, void *buf)
 
             // Copy the data for buffer.
             // For any sector other than 2048 one sector at a time is copied.
-            memcpy((void *)((u32)buf + offset), cdvdman_buf, nbytes);
+            // Only 2048 bytes per sector are data: copying sector_size bytes after the header read past
+            // cdvdman_buf and, for 2340-byte sectors, wrote 12 bytes past the caller's buffer.
+            memcpy((void *)((u32)buf + offset), cdvdman_buf, nsectors * 2048);
 
             // For these custom sizes we need to manually fix the header.
             // For 2340 we have 12bytes. 4 are position.
