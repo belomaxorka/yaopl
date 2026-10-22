@@ -49,9 +49,11 @@ bug on an upstream tree and its absence here.
 
 ## Branches
 
-- `master`: what the releases are built from.
-- `fix/*`: one branch per fix, merged into `master`.
-- `yaoplm/*`: tooling for this fork.
+`master` is the only long-lived branch: the releases are built from it. A fix may be prepared on a
+short-lived branch, which is deleted once it is merged into `master`.
+
+The branches `copilot/*`, `gh-pages`, `main`, `master_old` and `v1.1.z` came from upstream when the
+fork was created; this fork does not use them.
 
 ## Pulling in upstream changes
 
