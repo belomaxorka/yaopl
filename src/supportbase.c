@@ -409,7 +409,8 @@ int sbReadList(base_game_info_t **list, const char *prefix, int *fsize, int *gam
             if ((*list = (base_game_info_t *)malloc(sizeof(base_game_info_t) * count)) != NULL) {
                 memset(*list, 0, sizeof(base_game_info_t) * count);
 
-                while (size > 0) {
+                // count only has room for whole records: ignore a partial one at the end
+                while (size >= (int)sizeof(USBExtreme_game_entry_t)) {
                     base_game_info_t *g = &(*list)[id++];
 
                     // populate game entry in list even if entry corrupted
