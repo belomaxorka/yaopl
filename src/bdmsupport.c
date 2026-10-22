@@ -640,9 +640,11 @@ static void bdmCleanUp(item_list_t *itemList, int exception)
         LOG("BDMSUPPORT CleanUp\n");
 
         bdm_device_data_t *pDeviceData = (bdm_device_data_t *)itemList->priv;
-        free(pDeviceData->bdmGames);
-        free(pDeviceData);
-        itemList->priv = NULL;
+        if (pDeviceData != NULL) {
+            free(pDeviceData->bdmGames);
+            free(pDeviceData);
+            itemList->priv = NULL;
+        }
 
         //      if ((exception & UNMOUNT_EXCEPTION) == 0)
         //          ...
@@ -664,7 +666,7 @@ static void bdmShutdown(item_list_t *itemList)
     // As required by some (typically 2.5") HDDs, issue the SCSI STOP UNIT command to avoid causing an emergency park.
     fileXioDevctl(path, USBMASS_DEVCTL_STOP_ALL, NULL, 0, NULL, 0);
 
-    if (itemList->enabled) {
+    if (itemList->enabled && pDeviceData != NULL) {
         LOG("BDMSUPPORT Shutdown free data\n");
 
         // Free device data.
@@ -722,6 +724,13 @@ void bdmInitDevicesData()
 
     // Refresh the visibility of the menu.
     for (int i = 0; i < MAX_BDM_DEVICES; i++) {
+        // bdmCleanUp() frees the per-device data, e.g. before the NBD server starts. Allocate it again
+        // and mark the device as not initialized, so it is set up again like on the first start.
+        if (bdmDeviceList[i].priv == NULL) {
+            bdmDeviceList[i].priv = calloc(1, sizeof(bdm_device_data_t));
+            bdmDeviceList[i].enabled = 0;
+        }
+
         // Register the device structure into the UI.
         initSupport(&bdmDeviceList[i], i, 0);
 
