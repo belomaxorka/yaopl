@@ -202,7 +202,7 @@ static int updateISOGameList(const char *path, const struct game_cache_list *cac
 
             for (i = 0; i < count; i++) {
                 for (j = 0; j < cache->count; j++) {
-                    if (strncmp(cache->games[i].name, game->gameinfo.name, ISO_GAME_NAME_MAX + 1) == 0 && strncmp(cache->games[i].extension, game->gameinfo.extension, ISO_GAME_EXTENSION_MAX + 1) == 0)
+                    if (strncmp(cache->games[j].name, game->gameinfo.name, ISO_GAME_NAME_MAX + 1) == 0 && strncmp(cache->games[j].extension, game->gameinfo.extension, ISO_GAME_EXTENSION_MAX + 1) == 0)
                         break;
                 }
 
