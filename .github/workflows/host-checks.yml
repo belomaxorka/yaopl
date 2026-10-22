@@ -1,0 +1,16 @@
+name: CI-host-checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  host-checks:
+    runs-on: windows-latest
+    steps:
+    - name: git checkout
+      uses: actions/checkout@v4
+
+    - name: Host checks (MSVC with AddressSanitizer) against the expected results
+      run: powershell -ExecutionPolicy Bypass -File labs\host-repro\run_all.ps1 -Expected labs\host-repro\expected.txt
