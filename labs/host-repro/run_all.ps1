@@ -18,8 +18,15 @@ New-Item -ItemType Directory -Force $build | Out-Null
 
 $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -property installationPath
 $vcvars = Join-Path $vs "VC\Auxiliary\Build\vcvars64.bat"
-$asanDir = (Get-ChildItem (Join-Path $vs "VC\Tools\MSVC") -Recurse -Filter "clang_rt.asan_dynamic-x86_64.dll" |
-        Where-Object { $_.FullName -like "*Hostx64\x64*" } | Select-Object -First 1).DirectoryName
+# The ASan runtime must come from the toolset vcvars64.bat selects: a runner with several toolsets has
+# several copies, and a binary built by a newer compiler does not start with an older DLL (0xC0000139)
+$vcTools = (cmd /c "`"$vcvars`" >nul 2>nul && echo %VCToolsInstallDir%" | Select-Object -Last 1).Trim()
+$asanDir = if ($vcTools -and (Test-Path (Join-Path $vcTools "bin\Hostx64\x64\clang_rt.asan_dynamic-x86_64.dll"))) {
+    Join-Path $vcTools "bin\Hostx64\x64"
+} else {
+    (Get-ChildItem (Join-Path $vs "VC\Tools\MSVC") -Recurse -Filter "clang_rt.asan_dynamic-x86_64.dll" |
+        Where-Object { $_.FullName -like "*Hostx64\x64*" } | Sort-Object FullName | Select-Object -Last 1).DirectoryName
+}
 $env:PATH = "$asanDir;$env:PATH"
 python -I (Join-Path $here "make_inputs.py") $inputs | Out-Null
 
