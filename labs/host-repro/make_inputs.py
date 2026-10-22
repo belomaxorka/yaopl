@@ -45,12 +45,24 @@ def system_cnf(out):
             f.write(boot2 + b"cdrom0:\\SLUS_200.62;1\r\nVER = 1.00\r\nVMODE = NTSC\r\n")
 
 
+def config_files(out):
+    files = {
+        "cfg_comment_end.cfg": b"a=1\r\n#end",  # last line is a comment without LF
+        "cfg_plain.cfg": b"a=1\r\n#comment\r\nb=2\r\n",
+        "IPCONFIG.DAT": b"192.168.0.10 255.255.255.0 192.168.0.1".ljust(300, b" "),
+    }
+    for name, data in files.items():
+        with open(os.path.join(out, name), "wb") as f:
+            f.write(data)
+
+
 def main():
     out = sys.argv[1]
     os.makedirs(out, exist_ok=True)
     cheats(out)
     ul_cfg(out)
     system_cnf(out)
+    config_files(out)
     with open(os.path.join(out, "zero.bin"), "wb") as f:
         f.write(bytes(65536))
     print("inputs written to", out)
