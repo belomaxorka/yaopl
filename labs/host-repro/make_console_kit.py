@@ -147,6 +147,17 @@ def main():
     )
     write(os.path.join(out, "cht-251", cht), b"".join(b"Cheat %d\r\n00000000 %08X\r\n" % (n, n + 1) for n in range(251)))
     write(os.path.join(out, "cht-long-last-line", cht), b"Cheat A\r\n00000000 00000001\r\nCheat B\r\n00000000 00000002\r\n" + b"X" * 400)
+    cht_dup = (
+        b"Mastercode\r\n00000000 00000001\r\n"
+        b"Character A\r\nInfinite Health\r\n00000000 00000002\r\n"
+        b"Character B\r\nInfinite Health\r\n00000000 00000003\r\n"
+    )
+    write(os.path.join(out, "cht-duplicate-names", cht), cht_dup)
+
+    # The game's own CFG, ending with a comment line without LF
+    write(os.path.join(out, "cfg-comment-end", gid.decode() + ".cfg"), b"$Compatibility=0\r\n#end")
+    # A VMC of a size OPL's menu does not offer (contents do not matter for the menu)
+    write(os.path.join(out, "vmc-4mb", "keep4mb.bin"), bytes(4 * 1024 * 1024))
     print("game ID", gid.decode(), "- files written to", out)
 
 

@@ -1,15 +1,17 @@
 # YAOPL and upstream OPL
 
 YAOPL (Yet Another Open PS2 Loader) is a fork of [Open PS2 Loader](https://github.com/ps2homebrew/Open-PS2-Loader)
-that continues its development. It follows upstream and adds fixes for crashes, hangs and memory errors that
-OPL hits on malformed files: cheat files, ISO and ZSO images, `SYSTEM.CNF`, `ul.cfg`, `games.bin`. It is not an
-official OPL build. The licence is the same as upstream's (AFL-3.0, see `LICENSE`).
+that continues its development. It follows upstream and adds fixes for crashes, hangs, memory errors and data
+loss that OPL hits on malformed or unusual files: cheat files, ISO and ZSO images, `SYSTEM.CNF`, `ul.cfg`,
+`games.bin`, configuration files and VMCs. It is not an official OPL build. The licence is the same as
+upstream's (AFL-3.0, see `LICENSE`).
 
 ## Getting a build
 
 Every push to `master` builds OPL in GitHub Actions and replaces the `latest` pre-release of this
 repository: the ELF (`OPNPS2LD.ELF`), the upstream-style 7z packages and `SHA256SUMS`. Check a
 download with `sha256sum -c SHA256SUMS` (Linux) or compare `Get-FileHash <file>` (Windows).
+Only the build of the current tip of `master` is published.
 
 YAOPL builds carry the suffix `-yaopl` in their version string (`LOCALVERSION` in the `Makefile`),
 for example `v1.2.0-Beta-2310-1a2b3c4-yaopl`. The revision number counts this fork's commits, so it
@@ -23,29 +25,57 @@ does not match upstream's numbering.
 | Cheats | The 251st cheat is no longer written past the cheat table | this fork; overflow found by RiptOPL |
 | Cheats | `make_code()` no longer writes one byte past `digits[]` for every code | RiptOPL |
 | Cheats | A last line without LF is no longer read past the end of the buffer or copied past `line[]` | RiptOPL |
+| Cheats | Remembered picks of cheats that share a name survive a reload | RiptOPL |
 | ISO | A directory record with an empty name no longer hangs the game list or the game | this fork |
 | ISO | The record length is read as one byte; an extended attribute length no longer derails the scan | this fork |
 | ISO | In-game lookups no longer overflow `cdvdman_curdir[15]` on names longer than 14 characters | this fork |
 | ISO | `cdvdman_findfile()` no longer copies from address 1 or past the 16-byte name | RiptOPL (isofs), this fork (in-game) |
 | ZSO | A header with `align` above 11 is rejected instead of dividing by zero | this fork |
+| In-game | 2340-byte sector reads no longer write past the game's buffer | RiptOPL |
 | `SYSTEM.CNF` | `BOOT2` without `=` no longer passes NULL to the parser | RiptOPL C++ edition |
 | `ul.cfg` | A partial record at the end is ignored instead of written past the game list | RiptOPL C++ edition |
+| `ul.cfg` | `USBA_crc32()` hashes names as unsigned bytes (non-ASCII titles), also in `pc/` tools | RiptOPL |
 | `games.bin` | Each listed game is looked up in the whole cache, without reading past it | this fork |
 | Game list | `isValidIsoName()` no longer reads before short names such as `..` | RiptOPL |
-| `ul.cfg` | `USBA_crc32()` hashes names as unsigned bytes (non-ASCII titles), also in `pc/` tools | RiptOPL |
+| Config files | A CFG, theme or language file whose last line is a `#` comment without LF no longer crashes OPL | this fork |
+| Config files | A read error (device removed) ends the file instead of corrupting memory | RiptOPL |
+| Config files | Keys of 32+ and values of 256+ characters are cut and terminated | RiptOPL |
+| Config files | A long line without `=` no longer overflows the prefix buffer | RiptOPL |
+| Settings | A failed save (e.g. full memory card) is reported instead of "Settings saved" | RiptOPL |
+| Themes | A colour with more than three bytes (`#RRGGBBAA`) no longer writes past the colour | RiptOPL |
+| Network | An `IPCONFIG.DAT` of 256 bytes or more no longer overflows the stack | RiptOPL |
+| VMC | Leaving the VMC menu no longer replaces a card of another size (4 MB, 128 MB, PCSX2 `.ps2`); Modify asks first | this fork, after RiptOPL |
+| VMC | VMC slots are found again after an aborted launch, so a game cannot use the previous game's VMC | RiptOPL |
+| BDM | All parts of a UL game must fit the fragment table together | RiptOPL |
+| BDM | One VMC error is no longer reported again for the other slot | RiptOPL |
+| BDM | Returning from the NBD server no longer crashes | RiptOPL |
+| HDD | The PS2 logo check reads 48 sectors, not 49 | RiptOPL |
+| Misc | Format string, terminators and the IOP patch mode compare (hardening, no known trigger) | RiptOPL |
 
-Each fix is a separate commit with the reproduction in its message. RiptOPL is
-[NathanNeurotic/Open-PS2-Loader](https://github.com/NathanNeurotic/Open-PS2-Loader) and its C++ edition
-[NathanNeurotic/RiptOPL](https://github.com/NathanNeurotic/RiptOPL); the commits credit the RiptOPL commit
-they port.
+RiptOPL is [NathanNeurotic/Open-PS2-Loader](https://github.com/NathanNeurotic/Open-PS2-Loader) and its C++ edition
+[NathanNeurotic/RiptOPL](https://github.com/NathanNeurotic/RiptOPL). Its fixes were reviewed one by one against
+upstream: only those that fix a defect present in upstream were taken, some in a smaller or corrected form. Each
+commit credits the RiptOPL commit it ports.
 
 **Compatibility note:** a `ul.cfg` game whose title has non-ASCII bytes now uses the CRC that PC tools
 compute. Upstream's CRC for such titles depended on the build, so chunks named by upstream OPL itself
 may need renaming.
 
-`labs/host-repro/` holds host programs (Windows, MSVC with AddressSanitizer) that run OPL's own parsing
-functions on malformed input, and a generator of console test files. `run_all.ps1 -Opl <tree>` shows each
-bug on an upstream tree and its absence here.
+## How fixes are checked
+
+Each fix is a separate commit whose message states the problem, the fix, its origin and the reproduction.
+
+1. Reproduce the bug on an upstream tree, with a host check (`labs/host-repro/run_all.ps1 -Opl <tree>`) or,
+   for code that only runs on the console, a console test.
+2. Fix it, then rerun the same check on this tree: the bug must be gone.
+3. Rerun all host checks, and the real data where it applies (cheat corpus, ISO fixtures), for regressions.
+4. Format with clang-format 12, as `CI-format-check` does.
+5. The GitHub Actions build (ps2dev toolchain) must pass; then test on a console.
+
+`labs/host-repro/` holds the host checks. They compile OPL's own functions, taken from the tree at build
+time, on Windows with MSVC and AddressSanitizer, with stubs in place of PS2 I/O. They show logic errors and
+memory errors on the given inputs; they do not emulate the PS2, so a console test remains the final check.
+`make_console_kit.py` turns a bootable ISO into the malformed test files for a console.
 
 ## Branches
 
