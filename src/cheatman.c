@@ -198,9 +198,11 @@ static int trim_str(char *s)
     size_t slen;
     char *t = s;
 
-    /* Return if string is empty */
-    if (is_empty_str(s))
+    /* Return if string is empty. A string of blanks trims to an empty one. */
+    if (is_empty_str(s)) {
+        *s = NUL;
         return -1;
+    }
 
     /* Get first non-space char */
     while (isspace((int)*t++))
