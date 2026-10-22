@@ -103,6 +103,10 @@ static int lngReadEntry(int index, const char *path, const char *separator, cons
 {
     if (d_type != DT_DIR) {
         if (strstr(name, ".lng") || strstr(name, ".LNG")) {
+            // The language name is cut from lang_<Name>.lng: a shorter file name has none, and gave
+            // a negative length below
+            if (strlen(name) < 10)
+                return index;
 
             language_t *currLang = &languages[nLanguages + index];
 
