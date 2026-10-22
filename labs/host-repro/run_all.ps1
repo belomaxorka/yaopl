@@ -158,6 +158,17 @@ if (Want "cdread") {
     foreach ($c in "2048 2", "2340 1", "2340 3", "2328 2") { Test "cdvdman_read $c" cdread-t $c.Split(" ") }
 }
 
+if (Want "bdmprobe") {
+    Build bdmprobe t "src\bdmsupport.c" "bdmFindPartition"
+    $dir = Join-Path $build "bdmprobe"
+    foreach ($v in "plain", "asan") {
+        New-Item -ItemType Directory -Force (Join-Path $dir "mass0") | Out-Null
+        Set-Content -Encoding ascii (Join-Path $dir "mass0\conf_opl.cfg") "theme=Some theme`r`nlanguage=Russian`r`n"
+        $exe = if ($v -eq "plain") { "bdmprobe-t" } else { "bdmprobe-t-asan" }
+        "{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "bdmFindPartition write probe" } else { "" }), $v.PadRight(5), (Run $exe $dir)
+    }
+}
+
 if (Want "vmc") {
     Build vmc t "src\system.c" "sysCheckVMC"
     $dir = Join-Path $build "vmc"
