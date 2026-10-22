@@ -202,7 +202,14 @@ static int cdvdman_findfile(sceCdlFILE *pcdfile, const char *name, int layer)
     else
         pcdfile->size = tocEntryPointer->fileSize;
 
-    strcpy(pcdfile->name, strrchr(name, '\\') + 1);
+    // For information only: the last path component, cut to fit. The name may use '/' and have no '\\'.
+    const char *base = name, *c;
+    for (c = name; *c != '\0'; c++) {
+        if (*c == '\\' || *c == '/')
+            base = c + 1;
+    }
+    strncpy(pcdfile->name, base, sizeof(pcdfile->name) - 1);
+    pcdfile->name[sizeof(pcdfile->name) - 1] = '\0';
 
     DPRINTF("cdvdman_findfile found %s\n", name);
 
