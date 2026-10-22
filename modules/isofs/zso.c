@@ -73,8 +73,17 @@ int ziso_read_sector(u8 *addr, u32 lsn, unsigned int count)
     u32 o_end = (ziso_idx_cache[cur_block + count - ziso_idx_start_block] & 0x7FFFFFFF);
     u32 compressed_size = (o_end - o_start) << ziso_align;
 
+    // A corrupt index could place the compressed data outside the buffer: the offsets must not
+    // decrease, and the blocks must fit the count * 2048 bytes the caller provides (a block is
+    // stored in at most the 2048 bytes it decodes to)
+    for (unsigned int i = 1; i <= count; i++) {
+        if ((ziso_idx_cache[cur_block - ziso_idx_start_block + i] & 0x7FFFFFFF) < (ziso_idx_cache[cur_block - ziso_idx_start_block + i - 1] & 0x7FFFFFFF))
+            return 0;
+    }
+    if (o_end - o_start > (count * 2048) >> ziso_align)
+        return 0;
+
     // read all compressed data to the end of provided buffer to reduce IO
-    // there should be no overflow or overrun, as long as compressed data is smaller, and it should be
     u8 *c_buff = addr + (count * 2048) - compressed_size;
     read_raw_data(c_buff, compressed_size, o_start, ziso_align);
 
