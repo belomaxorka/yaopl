@@ -50,12 +50,16 @@ void SetupCheats()
         if ((code.addr == 0) && (code.val == 0))
             break;
 
+        // hooklist holds MAX_HOOKS hooks and codelist MAX_CODES codes; the loader's list can carry
+        // more, which must not be written past the tables
         if (((code.addr & 0xfe000000) == 0x90000000) && nextCodeCanBeHook == 1) {
-            hooklist[j] = code.addr & 0x01FFFFFC;
-            j++;
-            hooklist[j] = code.val;
-            j++;
-        } else {
+            if (j < MAX_HOOKS * 2) {
+                hooklist[j] = code.addr & 0x01FFFFFC;
+                j++;
+                hooklist[j] = code.val;
+                j++;
+            }
+        } else if (k < MAX_CODES * 2) {
             codelist[k] = code.addr;
             k++;
             codelist[k] = code.val;
