@@ -114,6 +114,9 @@ lbl_startlocate:
 
             filename_len = tocEntryPointer->filenameLength;
             if (filename_len) {
+                // Longer (ISO 9660 level 2) names would overflow cdvdman_curdir. Only 12 characters are compared below.
+                if (filename_len >= (int)sizeof(cdvdman_curdir))
+                    filename_len = sizeof(cdvdman_curdir) - 1;
                 strncpy(cdvdman_curdir, tocEntryPointer->filename, filename_len); // copy filename
                 cdvdman_curdir[filename_len] = 0;
 
