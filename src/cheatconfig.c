@@ -79,8 +79,9 @@ void cheatConfigLoadSelections(config_set_t *configSet)
         if (!configGetStrCopy(configSet, key, savedName, sizeof(savedName)))
             break;
 
+        // Each saved name enables the first match not enabled yet, so cheats that share a name keep their picks
         for (cheatIndex = 0; cheatIndex < MAX_CODES && gCheats[cheatIndex].name[0] != NUL; cheatIndex++) {
-            if (!cheatConfigIsMasterCode(gCheats[cheatIndex].name) &&
+            if (!gCheats[cheatIndex].enabled && !cheatConfigIsMasterCode(gCheats[cheatIndex].name) &&
                 cheatNamesMatch(gCheats[cheatIndex].name, savedName)) {
                 gCheats[cheatIndex].enabled = 1;
                 break;
