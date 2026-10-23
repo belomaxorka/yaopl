@@ -81,7 +81,7 @@ IOP_OBJS =	iomanx.o filexio.o ps2fs.o usbd.o bdmevent.o \
 		bdm.o bdmfs_fatfs.o usbmass_bd.o iLinkman.o IEEE1394_bd.o mx4sio_bd.o \
 		ps2atad.o hdpro_atad.o poweroff.o ps2hdd.o xhdd.o genvmc.o lwnbdsvr.o \
 		ps2dev9.o smsutils.o ps2ip.o smap.o isofs.o nbns-iop.o \
-		sio2man.o padman.o mcman.o mcserv.o \
+		sio2man.o padman.o mcman.o mcserv.o mmceman.o mmcedrv.o mmceigr.o \
 		httpclient-iop.o netman.o ps2ips.o \
 		bdm_mcemu.o hdd_mcemu.o smb_mcemu.o \
 		iremsndpatch.o apemodpatch.o f2techioppatch.o cleareffects.o resetspu.o \
@@ -229,7 +229,7 @@ EE_LDFLAGS += -fdata-sections -ffunction-sections -Wl,--gc-sections
 
 .SILENT:
 
-.PHONY: all release debug iopcore_debug eesio_debug ingame_debug deci2_debug debug_ppctty iopcore_ppctty_debug ingame_ppctty_debug clean rebuild pc_tools pc_tools_win32 oplversion format format-check ps2sdk-not-setup download_lng download_lwNBD download_usbd languages
+.PHONY: all release debug iopcore_debug eesio_debug ingame_debug deci2_debug debug_ppctty iopcore_ppctty_debug ingame_ppctty_debug clean rebuild pc_tools pc_tools_win32 oplversion format format-check ps2sdk-not-setup download_lng download_lwNBD download_usbd download_mmce languages
 
 ifdef PS2SDK
 
@@ -335,6 +335,8 @@ clean:	download_lwNBD
 	$(MAKE) -C modules/pademu USE_USB=1 clean
 	echo " -usbd_mini"
 	$(MAKE) -C modules/usb/usbd_mini clean
+	echo " -mmce modules"
+	test ! -d modules/mmce/mmceman/mmceman || $(MAKE) -C modules/mmce/mmceman clean
 	echo "-pc tools"
 	$(MAKE) -C pc clean
 
@@ -504,6 +506,25 @@ modules/usb/usbd_mini/usbd_mini.irx: download_usbd
 	$(MAKE) -C modules/usb/usbd_mini
 
 $(EE_ASM_DIR)usbd.c: modules/usb/usbd_mini/usbd_mini.irx | $(EE_ASM_DIR)
+	$(BIN2C) $< $@ $(*F)_irx
+
+# The MMCE modules are built from ps2-mmce/mmceman, which download_mmce.sh fetches; see FORK.md and CREDITS.
+modules/mmce/mmceman/mmceman/irx/mmceman.irx: download_mmce
+	$(MAKE) -C modules/mmce/mmceman/mmceman
+
+$(EE_ASM_DIR)mmceman.c: modules/mmce/mmceman/mmceman/irx/mmceman.irx | $(EE_ASM_DIR)
+	$(BIN2C) $< $@ $(*F)_irx
+
+modules/mmce/mmceman/mmcedrv/irx/mmcedrv.irx: download_mmce
+	$(MAKE) -C modules/mmce/mmceman/mmcedrv
+
+$(EE_ASM_DIR)mmcedrv.c: modules/mmce/mmceman/mmcedrv/irx/mmcedrv.irx | $(EE_ASM_DIR)
+	$(BIN2C) $< $@ $(*F)_irx
+
+modules/mmce/mmceman/mmceigr/irx/mmceigr.irx: download_mmce
+	$(MAKE) -C modules/mmce/mmceman/mmceigr
+
+$(EE_ASM_DIR)mmceigr.c: modules/mmce/mmceman/mmceigr/irx/mmceigr.irx | $(EE_ASM_DIR)
 	$(BIN2C) $< $@ $(*F)_irx
 
 $(EE_ASM_DIR)libsd.c: $(PS2SDK)/iop/irx/libsd.irx | $(EE_ASM_DIR)
@@ -804,6 +825,9 @@ download_lwNBD:
 
 download_usbd:
 	./download_usbd.sh
+
+download_mmce:
+	./download_mmce.sh
 
 download_cfla:
 	./download_cfla.sh

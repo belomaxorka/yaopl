@@ -28,6 +28,12 @@ jobs:
         sha256sum modules/usb/usbd_mini/usbd_mini.irx "$PS2SDK/iop/irx/usbd_mini.irx"
         git -C modules/usb/usbd_mini/ps2sdk log -1 --format='ps2sdk USBD sources: %H (%cs)'
 
+    - name: Report the MMCE modules (built from ps2-mmce/mmceman, see FORK.md)
+      run: |
+        ls -l modules/mmce/mmceman/mmceman/irx/mmceman.irx modules/mmce/mmceman/mmcedrv/irx/mmcedrv.irx modules/mmce/mmceman/mmceigr/irx/mmceigr.irx
+        sha256sum modules/mmce/mmceman/mmceman/irx/mmceman.irx modules/mmce/mmceman/mmcedrv/irx/mmcedrv.irx modules/mmce/mmceman/mmceigr/irx/mmceigr.irx
+        git -C modules/mmce/mmceman log -1 --format='mmceman sources: %H (%cs)'
+
     - name: Create detailed changelog
       run: sh ./make_changelog.sh
 
