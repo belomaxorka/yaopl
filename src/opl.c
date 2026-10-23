@@ -140,6 +140,7 @@ int hddCacheSize;
 int smbCacheSize;
 int gMMCEIGRSlot;
 int gMMCESlot;
+int gMMCEEnableGameID;
 int gEnableILK;
 int gEnableMX4SIO;
 int gEnableBdmHDD;
@@ -966,6 +967,7 @@ static void _loadConfig()
             configGetInt(configOPL, CONFIG_OPL_MMCE_MODE, &gMMCEStartMode);
             configGetInt(configOPL, CONFIG_OPL_MMCE_SLOT, &gMMCESlot);
             configGetInt(configOPL, CONFIG_OPL_MMCEIGR_SLOT, &gMMCEIGRSlot);
+            configGetInt(configOPL, CONFIG_OPL_MMCE_GAMEID, &gMMCEEnableGameID);
             configGetInt(configOPL, CONFIG_OPL_ENABLE_ILINK, &gEnableILK);
             configGetInt(configOPL, CONFIG_OPL_ENABLE_MX4SIO, &gEnableMX4SIO);
             configGetInt(configOPL, CONFIG_OPL_ENABLE_BDMHDD, &gEnableBdmHDD);
@@ -1137,6 +1139,7 @@ static void _saveConfig()
         configSetInt(configOPL, CONFIG_OPL_MMCE_MODE, gMMCEStartMode);
         configSetInt(configOPL, CONFIG_OPL_MMCE_SLOT, gMMCESlot);
         configSetInt(configOPL, CONFIG_OPL_MMCEIGR_SLOT, gMMCEIGRSlot);
+        configSetInt(configOPL, CONFIG_OPL_MMCE_GAMEID, gMMCEEnableGameID);
         configSetInt(configOPL, CONFIG_OPL_BDM_CACHE, bdmCacheSize);
         configSetInt(configOPL, CONFIG_OPL_HDD_CACHE, hddCacheSize);
         configSetInt(configOPL, CONFIG_OPL_SMB_CACHE, smbCacheSize);
@@ -1786,6 +1789,7 @@ static void setDefaults(void)
 
     gMMCESlot = MMCE_SLOT_AUTO;
     gMMCEIGRSlot = 3; // both slots
+    gMMCEEnableGameID = 1;
 
     gEnableILK = 0;
     gEnableMX4SIO = 0;

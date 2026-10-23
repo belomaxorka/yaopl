@@ -865,6 +865,7 @@ void guiShowMMCEConfig(void)
     diaSetInt(diaMMCEConfig, CFG_MMCEIGRSLOT, gMMCEIGRSlot);
 
     diaSetString(diaMMCEConfig, CFG_MMCEPREFIX, gMMCEPrefix);
+    diaSetInt(diaMMCEConfig, CFG_MMCEGAMEID, gMMCEEnableGameID);
 
     ret = diaExecuteDialog(diaMMCEConfig, -1, 1, NULL);
     if (ret) {
@@ -873,6 +874,7 @@ void guiShowMMCEConfig(void)
         diaGetInt(diaMMCEConfig, CFG_MMCEIGRSLOT, &gMMCEIGRSlot);
 
         diaGetString(diaMMCEConfig, CFG_MMCEPREFIX, gMMCEPrefix, sizeof(gMMCEPrefix));
+        diaGetInt(diaMMCEConfig, CFG_MMCEGAMEID, &gMMCEEnableGameID);
     }
 
     applyConfig(-1, -1, 0);

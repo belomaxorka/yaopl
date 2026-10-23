@@ -26,10 +26,13 @@
 #include <ps2sdkapi.h>
 #define NEWLIB_PORT_AWARE // for fileXioIoctl2 and fileXioDevctl; files are opened with open(), as in bdmsupport.c
 #include <fileXio_rpc.h>
+#include <delaythread.h>
 
 // mmceman devctl and ioctl2 codes (ps2-mmce/mmceman: mmceman/include/mmce_cmds.h, mmceman/src/mmce_fs.c)
-#define MMCE_DEVCTL_PING   0x1  // -1 when no card answers on that port
-#define MMCE_IOCTL2_GET_FD 0x80 // the card's own descriptor of an open file
+#define MMCE_DEVCTL_PING       0x1  // -1 when no card answers on that port
+#define MMCE_DEVCTL_GET_STATUS 0x2  // bit 0: the card is busy
+#define MMCE_DEVCTL_SET_GAMEID 0x8  // the game ID string, so the card switches to that game's memory card
+#define MMCE_IOCTL2_GET_FD     0x80 // the card's own descriptor of an open file
 
 static char mmcePrefix[40]; // "mmceN:/" plus the user's prefix: the folder that holds CD, DVD, ART, CFG...
 static int mmcePort = -1;   // SIO2 port of the card the prefix points at (2 = slot 1, 3 = slot 2), -1 = none
@@ -61,17 +64,37 @@ static void mmceBuildPrefix(int port)
     }
 }
 
-// The configured slot, or in Auto mode the first port that answers a ping. Returns the port, or -1.
-static int mmceFindCard(void)
+// The SIO2 ports that have an MMCE card, as bits 2 and 3 (port 2 = memory-card slot 1, port 3 = slot 2).
+// Pinged once per session, or again when asked (mmceman must be loaded).
+static int mmceProbePorts(int again)
 {
+    static int ports = -1;
+
+    if (ports < 0 || again) {
+        ports = 0;
+        if (fileXioDevctl("mmce0:/", MMCE_DEVCTL_PING, NULL, 0, NULL, 0) != -1)
+            ports |= 1 << 2;
+        if (fileXioDevctl("mmce1:/", MMCE_DEVCTL_PING, NULL, 0, NULL, 0) != -1)
+            ports |= 1 << 3;
+    }
+
+    return ports;
+}
+
+// The configured slot, or in Auto mode the first port that answers a ping. Returns the port, or -1.
+static int mmceFindCard(int again)
+{
+    int ports;
+
     if (gMMCESlot == MMCE_SLOT_1)
         return 2;
     if (gMMCESlot == MMCE_SLOT_2)
         return 3;
 
-    if (fileXioDevctl("mmce0:/", MMCE_DEVCTL_PING, NULL, 0, NULL, 0) != -1)
+    ports = mmceProbePorts(again);
+    if (ports & (1 << 2))
         return 2;
-    if (fileXioDevctl("mmce1:/", MMCE_DEVCTL_PING, NULL, 0, NULL, 0) != -1)
+    if (ports & (1 << 3))
         return 3;
 
     return -1;
@@ -88,7 +111,7 @@ static void mmceSetPrefix(int force)
     if (!force && mmcePort > 0 && slotUsed == gMMCESlot && !strcmp(folderUsed, gMMCEPrefix))
         return;
 
-    port = mmceFindCard();
+    port = mmceFindCard(force || mmcePort < 0);
     slotUsed = gMMCESlot;
     strcpy(folderUsed, gMMCEPrefix);
     mmceBuildPrefix(port);
@@ -107,6 +130,57 @@ void mmceLoadModules(void)
         mmceModulesLoaded = 1;
     else
         LOG("MMCESUPPORT mmceman did not load\n");
+}
+
+// Tells the MMCE card(s) which game starts, so a card switches to that game's own memory card. It must run
+// after the last write to the real memory card (last played, OSD history): from then on mc0: or mc1: is
+// the game's card. The card is busy for a moment after the command; the wait is bounded, as in wOPL
+// dca04cf (200 ms, then up to 20 x 100 ms).
+void mmceSendGameID(const char *bootpath)
+{
+    static const char *const devices[2] = {"mmce0:/", "mmce1:/"};
+    char gameid[17];
+    const char *name, *p;
+    int ports, port, i, status;
+    size_t len;
+
+    if (!gMMCEEnableGameID || bootpath == NULL)
+        return;
+
+    // The boot file name alone, without the path and the version: SLUS_202.38.
+    name = bootpath;
+    for (p = bootpath; *p != '\0'; p++) {
+        if (*p == '/' || *p == '\\' || *p == ':')
+            name = p + 1;
+    }
+    for (len = 0; name[len] != '\0' && name[len] != ';' && len < sizeof(gameid) - 1; len++)
+        gameid[len] = name[len];
+    gameid[len] = '\0';
+    if (len == 0)
+        return;
+
+    mmceLoadModules();
+    if (!mmceModulesLoaded)
+        return;
+
+    ports = mmceProbePorts(0);
+    for (port = 2; port <= 3; port++) {
+        if (!(ports & (1 << port)))
+            continue;
+
+        LOG("MMCESUPPORT game ID %s to %s\n", gameid, devices[port - 2]);
+        DelayThread(200 * 1000);
+        if (fileXioDevctl(devices[port - 2], MMCE_DEVCTL_SET_GAMEID, gameid, len + 1, NULL, 0) < 0) {
+            LOG("MMCESUPPORT the card did not take the game ID\n");
+            continue;
+        }
+        for (i = 0; i < 20; i++) {
+            DelayThread(100 * 1000);
+            status = fileXioDevctl(devices[port - 2], MMCE_DEVCTL_GET_STATUS, NULL, 0, NULL, 0);
+            if (status < 0 || (status & 1) == 0)
+                break;
+        }
+    }
 }
 
 void mmceInit(item_list_t *itemList)

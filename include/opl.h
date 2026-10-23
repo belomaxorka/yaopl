@@ -126,6 +126,7 @@ extern int smbCacheSize;
 
 extern int gMMCESlot;
 extern int gMMCEIGRSlot;
+extern int gMMCEEnableGameID;
 extern int gEnableILK;
 extern int gEnableMX4SIO;
 extern int gEnableBdmHDD;

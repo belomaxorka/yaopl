@@ -719,6 +719,10 @@ gui_strings:
   string: The selected slot(s) are told to switch back to the boot card on IGR
 - label: MMCE_PREFIX
   string: MMCE Prefix Path
+- label: MMCE_GAMEID
+  string: Send the game ID to the card
+- label: HINT_MMCE_GAMEID
+  string: The card switches to the game's own memory card, also for games on USB or MX4SIO
 - label: MMCE_ERR_NO_CARD
   string: No MMCE card answered.
 - label: MMCE_ERR_UL_PARTS

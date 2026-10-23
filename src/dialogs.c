@@ -1113,6 +1113,11 @@ struct UIItem diaMMCEConfig[] = {
     {UI_STRING, CFG_MMCEPREFIX, 1, 1, -1, 0, 0, {.stringvalue = {"", "", NULL}}},
     {UI_BREAK},
 
+    {UI_LABEL, 0, 1, 1, -1, -40, 0, {.label = {NULL, _STR_MMCE_GAMEID}}},
+    {UI_SPACER},
+    {UI_BOOL, CFG_MMCEGAMEID, 1, 1, _STR_HINT_MMCE_GAMEID, 0, 0, {.intvalue = {0, 0}}},
+    {UI_BREAK},
+
     // buttons
     {UI_OK, 0, 1, 1, -1, 0, 0, {.label = {NULL, _STR_OK}}},
     {UI_BREAK},

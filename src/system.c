@@ -839,6 +839,9 @@ void sysLaunchLoaderElf(const char *filename, const char *mode_str, int size_cdv
     AddHistoryRecordUsingFullPath(filename);
 #endif
 
+    // The last write to the real memory card is done: an MMCE card may now switch to the game's own card.
+    mmceSendGameID(filename);
+
     if (gExitPath[0] == '\0')
         strncpy(gExitPath, "Browser", sizeof(gExitPath));
 

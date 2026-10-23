@@ -12,5 +12,6 @@ void mmceInit(item_list_t *itemList);
 item_list_t *mmceGetObject(int initOnly);
 void mmceLoadModules(void);
 void mmceLaunchGame(item_list_t *itemList, int id, config_set_t *configSet);
+void mmceSendGameID(const char *bootpath);
 
 #endif
