@@ -2,3 +2,4 @@
 ./modules/isofs/lz4.h
 ./modules/network/lwNBD
 ./thirdparty/clang-format-lint-action
+./modules/usb/usbd_mini/ps2sdk

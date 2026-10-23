@@ -71,6 +71,7 @@ does not match upstream's numbering.
 | ZSO | The block index is checked before the compressed data is read: a corrupt index gives a read error, not a write before the buffer | this fork |
 | ZSO | Reads of more than 256 sectors go in slices instead of running past the index cache | this fork |
 | In-game | IGR is sampled from the VBLANK_END interrupt handler again, not by a polling thread that busy games starve (upstream issue #1787); Fatal Fury: Battle Archives Vol. 2 needs Mode 6 as before | revert of upstream PR #1762, as RiptOPL 38481e9c |
+| USB | `usbd_mini` is built from the ps2sdk USBD sources from before the "USBD feature update" (ps2sdk b1f7ff96, OPL Beta-2127): with the rewritten USBD, Crash Bandicoot: The Wrath of Cortex takes minutes to load from USB and then black-screens (upstream issue #1751, ps2sdk issue #908). `download_usbd.sh` fetches the sources, `modules/usb/usbd_mini` builds them; drop both once ps2sdk fixes its USBD | upstream PR #1752 (prebuilt binaries), ps2sdk PR #911 |
 
 RiptOPL is [NathanNeurotic/Open-PS2-Loader](https://github.com/NathanNeurotic/Open-PS2-Loader) and its C++ edition
 [NathanNeurotic/RiptOPL](https://github.com/NathanNeurotic/RiptOPL). Its fixes were reviewed one by one against

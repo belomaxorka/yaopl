@@ -229,7 +229,7 @@ EE_LDFLAGS += -fdata-sections -ffunction-sections -Wl,--gc-sections
 
 .SILENT:
 
-.PHONY: all release debug iopcore_debug eesio_debug ingame_debug deci2_debug debug_ppctty iopcore_ppctty_debug ingame_ppctty_debug clean rebuild pc_tools pc_tools_win32 oplversion format format-check ps2sdk-not-setup download_lng download_lwNBD languages
+.PHONY: all release debug iopcore_debug eesio_debug ingame_debug deci2_debug debug_ppctty iopcore_ppctty_debug ingame_ppctty_debug clean rebuild pc_tools pc_tools_win32 oplversion format format-check ps2sdk-not-setup download_lng download_lwNBD download_usbd languages
 
 ifdef PS2SDK
 
@@ -333,6 +333,8 @@ clean:	download_lwNBD
 	echo " -pademu"
 	$(MAKE) -C modules/pademu USE_BT=1 clean
 	$(MAKE) -C modules/pademu USE_USB=1 clean
+	echo " -usbd_mini"
+	$(MAKE) -C modules/usb/usbd_mini clean
 	echo "-pc tools"
 	$(MAKE) -C pc clean
 
@@ -497,7 +499,11 @@ modules/isofs/isofs.irx: modules/isofs
 $(EE_ASM_DIR)isofs.c: modules/isofs/isofs.irx | $(EE_ASM_DIR)
 	$(BIN2C) $< $@ $(*F)_irx
 
-$(EE_ASM_DIR)usbd.c: $(PS2SDK)/iop/irx/usbd_mini.irx | $(EE_ASM_DIR)
+# Not the SDK's usbd_mini.irx: it is built from the USBD sources from before the ps2sdk rewrite, see FORK.md.
+modules/usb/usbd_mini/usbd_mini.irx: download_usbd
+	$(MAKE) -C modules/usb/usbd_mini
+
+$(EE_ASM_DIR)usbd.c: modules/usb/usbd_mini/usbd_mini.irx | $(EE_ASM_DIR)
 	$(BIN2C) $< $@ $(*F)_irx
 
 $(EE_ASM_DIR)libsd.c: $(PS2SDK)/iop/irx/libsd.irx | $(EE_ASM_DIR)
@@ -795,6 +801,9 @@ download_lng:
 
 download_lwNBD:
 	./download_lwNBD.sh
+
+download_usbd:
+	./download_usbd.sh
 
 download_cfla:
 	./download_cfla.sh
