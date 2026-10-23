@@ -132,6 +132,23 @@ void mmceLoadModules(void)
         LOG("MMCESUPPORT mmceman did not load\n");
 }
 
+// The memory-card slots whose MMCE card IGR switches back to its boot card (bit 0 = slot 1, bit 1 = slot 2):
+// the setting, or with "Auto" the slots where a card answered a ping.
+int mmceIGRSlots(void)
+{
+    int ports;
+
+    if (gMMCEIGRSlot != MMCE_IGR_AUTO)
+        return gMMCEIGRSlot & 3;
+
+    mmceLoadModules();
+    if (!mmceModulesLoaded)
+        return 0;
+
+    ports = mmceProbePorts(0);
+    return ((ports >> 2) & 1) | (((ports >> 3) & 1) << 1);
+}
+
 // Tells the MMCE card(s) which game starts, so a card switches to that game's own memory card. It must run
 // after the last write to the real memory card (last played, OSD history): from then on mc0: or mc1: is
 // the game's card. The card is busy for a moment after the command; the wait is bounded, as in wOPL

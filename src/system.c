@@ -511,7 +511,7 @@ static unsigned int sendIrxKernelRAM(const char *startup, const char *mode_str, 
     irxptr_tab[modcount++].ptr = (void *)&resetspu_irx;
 
     // mmceigr (1.4 KB) stays in kernel RAM when IGR has to switch an MMCE card back to its boot card.
-    if (gMMCEIGRSlot != 0) {
+    if (mmceIGRSlots() != 0) {
         irxptr_tab[modcount].info = size_mmceigr_irx | SET_OPL_MOD_ID(OPL_MODULE_ID_MMCEIGR);
         irxptr_tab[modcount++].ptr = (void *)&mmceigr_irx;
     }
@@ -931,7 +931,7 @@ void sysLaunchLoaderElf(const char *filename, const char *mode_str, int size_cdv
     strncpy(config->GameModeDesc, mode_str, CORE_GAME_MODE_DESC_MAX_LEN);
     config->GameModeDesc[CORE_GAME_MODE_DESC_MAX_LEN - 1] = '\0';
 
-    config->MMCEIGRSettings = gMMCEIGRSlot;
+    config->MMCEIGRSettings = mmceIGRSlots();
 
     config->EnableDebug = gEnableDebug;
     config->HDDSpindown = gHDDSpindown;

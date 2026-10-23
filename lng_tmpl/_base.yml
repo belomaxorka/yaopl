@@ -716,7 +716,7 @@ gui_strings:
 - label: MMCEIGR_SLOT
   string: IGR Boot Card Slot(s)
 - label: HINT_MMCEIGR_SLOT
-  string: The selected slot(s) are told to switch back to the boot card on IGR
+  string: On IGR the card(s) in the selected slot(s) switch back to the boot card; Auto = the slots where a card answered
 - label: MMCE_PREFIX
   string: MMCE Prefix Path
 - label: MMCE_GAMEID

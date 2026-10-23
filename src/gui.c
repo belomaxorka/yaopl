@@ -853,7 +853,7 @@ void guiShowMMCEConfig(void)
     int ret;
     const char *deviceModes[] = {_l(_STR_OFF), _l(_STR_MANUAL), _l(_STR_AUTO), NULL};
     const char *deviceSlots[] = {"1", "2", _l(_STR_AUTO), NULL};
-    const char *deviceIGRSlots[] = {"None", "1", "2", "Both", NULL};
+    const char *deviceIGRSlots[] = {"None", "1", "2", "Both", _l(_STR_AUTO), NULL};
 
     diaSetEnum(diaMMCEConfig, CFG_MMCEMODE, deviceModes);
     diaSetInt(diaMMCEConfig, CFG_MMCEMODE, gMMCEStartMode);

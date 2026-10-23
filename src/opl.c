@@ -1788,7 +1788,7 @@ static void setDefaults(void)
     gMMCEStartMode = START_MODE_DISABLED;
 
     gMMCESlot = MMCE_SLOT_AUTO;
-    gMMCEIGRSlot = 3; // both slots
+    gMMCEIGRSlot = MMCE_IGR_AUTO;
     gMMCEEnableGameID = 1;
 
     gEnableILK = 0;
