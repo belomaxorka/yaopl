@@ -703,3 +703,25 @@ gui_strings:
 - comment: Warning shown when saving a per-game parental lock while no parental lock password is set.
   label: PARENLOCK_GAME_NO_PASSWORD
   string: Set a parental lock password, or this game will not be locked.
+- label: MMCE
+  string: MMCE
+- label: MMCE_GAMES
+  string: MMCE Games
+- label: MMCE_SETTINGS
+  string: MMCE Settings
+- label: MMCEMODE
+  string: MMCE Start Mode
+- label: MMCE_SLOT
+  string: MMCE Slot
+- label: MMCEIGR_SLOT
+  string: IGR Boot Card Slot(s)
+- label: HINT_MMCEIGR_SLOT
+  string: The selected slot(s) are told to switch back to the boot card on IGR
+- label: MMCE_PREFIX
+  string: MMCE Prefix Path
+- label: MMCE_ERR_NO_CARD
+  string: No MMCE card answered.
+- label: MMCE_ERR_UL_PARTS
+  string: Games split into parts cannot be started from MMCE yet.
+- label: MMCE_NO_VMC_YET
+  string: VMCs are not used on MMCE yet; the game saves to the real memory card.
