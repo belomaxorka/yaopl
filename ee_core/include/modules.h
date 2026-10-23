@@ -39,6 +39,10 @@ enum OPL_MODULE_ID {
     // Special patches
     OPL_MODULE_ID_IOP_PATCH,
 
+    // MMCE memory-card emulators: the in-game driver and the single-shot IGR module
+    OPL_MODULE_ID_MMCEDRV,
+    OPL_MODULE_ID_MMCEIGR,
+
     OPL_MODULE_ID_COUNT
 };
 

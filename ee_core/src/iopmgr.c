@@ -147,6 +147,10 @@ static void ResetIopSpecial(const char *args, unsigned int arglen)
             break;
         case BDM_HDD_MODE:
             break;
+        case MMCE_MODE:
+            // The card keeps the ISO open across the reset; the driver only needs the SDK sio2man loaded above.
+            LoadOPLModule(OPL_MODULE_ID_MMCEDRV, 0, 0, NULL);
+            break;
     };
 }
 

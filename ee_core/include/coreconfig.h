@@ -67,6 +67,9 @@ struct EECoreConfig_t
 
     int EnableGSMOp;
     struct GsmConfig_t GsmConfig;
+
+    // MMCE cards to switch back to the boot card on IGR: bit 0 = memory-card slot 1, bit 1 = slot 2.
+    int MMCEIGRSettings;
 };
 
 #define USE_LOCAL_EECORE_CONFIG struct EECoreConfig_t *config = &g_ee_core_config;
