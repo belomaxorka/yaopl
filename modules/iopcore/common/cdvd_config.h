@@ -89,6 +89,17 @@ struct cdvdman_settings_bdm
     bd_fragment_t frags[BDM_MAX_FRAGS];
 } __attribute__((packed));
 
+struct cdvdman_settings_mmce
+{
+    struct cdvdman_settings_common common;
+
+    // SIO2 port of the MMCE card: 2 = memory-card slot 1, 3 = slot 2.
+    int port;
+
+    // The card's own descriptor of the ISO, which the menu opened (fileXioIoctl2 0x80 on the mmce handle).
+    int iso_fd;
+} __attribute__((packed));
+
 #define CDVDMAN_SETTINGS_DEFAULT_COMMON                                \
     {                                                                  \
         0x68, 0x68, 0x1234, 0x39393939, "DSKID", 16, 8, 16, 0x87654321 \

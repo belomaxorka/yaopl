@@ -1,0 +1,15 @@
+/*
+  Settings of mmcedrv.irx (ps2-mmce/mmceman, mmceman/include/mmcedrv_config.h, MIT), as its export
+  mmcedrv_config_set(setting, value) takes them.
+*/
+
+#ifndef MMCEDRV_CONFIG_H
+#define MMCEDRV_CONFIG_H
+
+enum mmcedrv_settings {
+    MMCEDRV_SETTING_PORT = 0x0,
+    MMCEDRV_SETTING_ACK_WAIT_CYCLES = 0x1,
+    MMCEDRV_SETTING_USE_ALARMS = 0x2,
+};
+
+#endif
