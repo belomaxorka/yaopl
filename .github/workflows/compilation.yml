@@ -4,6 +4,11 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      make_args:
+        description: 'Extra arguments for the main build, e.g. MMCE_NO_SDK_SIO2MAN=1 (the A/B build for MMCE)'
+        required: false
+        default: ''
   repository_dispatch:
     types: [run_build]
 
@@ -20,7 +25,7 @@ jobs:
         git fetch --prune --unshallow
 
     - name: Compile -> make clean release
-      run: make --trace clean release
+      run: make --trace clean release ${{ inputs.make_args }}
 
     - name: Report the embedded USBD (built from pre-rewrite ps2sdk sources, see FORK.md)
       run: |

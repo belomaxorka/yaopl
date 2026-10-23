@@ -36,6 +36,9 @@ IGS ?= $(EXTRA_FEATURES)
 #Enables/disables pad emulator
 PADEMU ?= 1
 
+#A/B build for the console: MMCE games keep the game's own SIO2MAN instead of the SDK sio2man (see FORK.md)
+MMCE_NO_SDK_SIO2MAN ?= 0
+
 #Enables/disables building of an edition of OPL that will support the DTL-T10000 (SDK v2.3+)
 DTL_T10000 ?= 0
 
@@ -51,6 +54,10 @@ DECI2_DEBUG ?= 0
 TTY_APPROACH ?= UDP
 # YAOPL (Yet Another Open PS2 Loader) builds carry a suffix so they are not mistaken for official OPL builds.
 LOCALVERSION ?= yaopl
+ifeq ($(MMCE_NO_SDK_SIO2MAN),1)
+  EE_CFLAGS += -DMMCE_NO_SDK_SIO2MAN
+  LOCALVERSION := $(LOCALVERSION)-nosio2man
+endif
 
 # ======== DO NOT MODIFY VALUES AFTER THIS POINT! UNLESS YOU KNOW WHAT YOU ARE DOING ========
 REVISION = $(shell expr $(shell git rev-list --count HEAD) + 2)

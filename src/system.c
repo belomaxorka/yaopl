@@ -484,6 +484,13 @@ static unsigned int sendIrxKernelRAM(const char *startup, const char *mode_str, 
     else if (!strcmp(mode_str, "MMCE_MODE"))
         modules |= CORE_IRX_MMCE;
 
+#ifdef MMCE_NO_SDK_SIO2MAN
+    // A/B build for the console: MMCE games keep the game's own SIO2MAN, as RiptOPL does (11a5150e), so
+    // neither the SDK sio2man nor mcemu is packed for them. VMC and PADEMU would hook the game's SIO2MAN.
+    if (modules & CORE_IRX_MMCE)
+        modules &= ~CORE_IRX_VMC;
+#endif
+
     irxtable = (irxtab_t *)ModuleStorage;
     irxptr_tab = (irxptr_t *)((unsigned char *)irxtable + sizeof(irxtab_t));
     size_ioprp_image = size_IOPRP_img + size_cdvdman_irx + size_cdvdfsv_irx + size_eesync_irx + 256;
