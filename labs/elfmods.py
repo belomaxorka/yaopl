@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """List the IOP modules (IRX files) embedded in an unpacked OPL ELF: size, SHA-256, module version
 from .iopmod (the names are stripped) and the export table(s) if the module has any.
-Usage: elfmods.py <ELF> [<ELF2>]  (two files: compare them module by module, by position)"""
+Usage: elfmods.py <ELF> [<ELF2>]  (two files: compare them module by module, by position, then compare
+the bytes of the loadable segments that lie outside the modules)"""
 import hashlib
 import struct
 import sys
@@ -64,29 +65,47 @@ def export_versions(blob):
     return ", ".join(found)
 
 
+def load_segments(data):
+    """File ranges of the PT_LOAD segments of the (outer) ELF: what the console loads."""
+    e_phoff = struct.unpack_from("<I", data, 28)[0]
+    e_phentsize, e_phnum = struct.unpack_from("<HH", data, 42)
+    ranges = []
+    for i in range(e_phnum):
+        p_type, p_off, _v, _p, p_filesz = struct.unpack_from("<IIIII", data, e_phoff + i * e_phentsize)
+        if p_type == 1 and p_filesz:
+            ranges.append((p_off, p_off + p_filesz))
+    return ranges
+
+
 def show(path):
     data = open(path, "rb").read()
     mods = irx_modules(data)
-    print("%s: %d bytes, %d IRX modules" % (path, len(data), len(mods)))
+    segs = load_segments(data)
+    print("%s: %d bytes, %d bytes in %d loadable segments, %d IRX modules" % (
+        path, len(data), sum(b - a for a, b in segs), len(segs), len(mods)))
     for i, m in enumerate(mods):
         print("  #%02d v%-6s %7d bytes  exports: %-24s sha256 %s" % (i, m["ver"], m["size"], m["exp"] or "-", m["sha"][:16]))
-    return data, mods
+    return data, mods, segs
 
 
-def outside(data, mods):
+def loaded_outside(data, mods, segs):
+    """The bytes of the loadable segments that are not part of an embedded module."""
     out = bytearray()
-    last = 0
-    for m in mods:
-        out += data[last:m["off"]]
-        last = m["off"] + m["size"]
-    out += data[last:]
+    for a, b in segs:
+        pos = a
+        for m in mods:
+            if m["off"] >= b or m["off"] + m["size"] <= a:
+                continue
+            out += data[pos:max(pos, m["off"])]
+            pos = max(pos, m["off"] + m["size"])
+        out += data[pos:b]
     return bytes(out)
 
 
 if __name__ == "__main__":
-    data, mods = show(sys.argv[1])
+    data, mods, segs = show(sys.argv[1])
     if len(sys.argv) > 2:
-        data2, mods2 = show(sys.argv[2])
+        data2, mods2, segs2 = show(sys.argv[2])
         print("")
         print("Comparison by position:")
         differ = 0
@@ -101,11 +120,20 @@ if __name__ == "__main__":
                     i, a["size"], b["size"], a["ver"], b["ver"], a["exp"] or "-", b["exp"] or "-"))
                 differ += 1
         print("  modules: %d vs %d, differing: %d" % (len(mods), len(mods2), differ))
-        r1, r2 = outside(data, mods), outside(data2, mods2)
-        print("  bytes outside the modules: %d vs %d, %s" % (len(r1), len(r2), "identical" if r1 == r2 else "differ"))
+        r1, r2 = loaded_outside(data, mods, segs), loaded_outside(data2, mods2, segs2)
+        print("  loadable bytes outside the modules: %d vs %d, %s" % (len(r1), len(r2), "identical" if r1 == r2 else "differ"))
         if r1 != r2 and len(r1) == len(r2):
             diffs = [i for i in range(len(r1)) if r1[i] != r2[i]]
-            lo, hi = max(0, diffs[0] - 24), min(len(r1), diffs[-1] + 24)
-            print("  differing bytes outside the modules: %d, between offsets %d and %d" % (len(diffs), diffs[0], diffs[-1]))
-            print("   first : %r" % r1[lo:hi])
-            print("   second: %r" % r2[lo:hi])
+            # Group the differing bytes into runs (a gap of more than 16 bytes starts a new run).
+            runs = []
+            for i in diffs:
+                if runs and i - runs[-1][1] <= 16:
+                    runs[-1][1] = i
+                else:
+                    runs.append([i, i])
+            print("  differing bytes: %d in %d runs" % (len(diffs), len(runs)))
+            for lo, hi in runs[:6]:
+                a, b = max(0, lo - 12), min(len(r1), hi + 13)
+                print("   at %d (%d bytes): %r -> %r" % (lo, hi - lo + 1, r1[a:b], r2[a:b]))
+            if len(runs) > 6:
+                print("   ... %d more runs" % (len(runs) - 6))
