@@ -42,6 +42,10 @@ with the commit (or upstream `#N`) at the end.
   of games that freeze after some minutes while the sound goes on (upstream issues #1795, #1790); not yet
   confirmed on a console. (5ef1b9e2)
 
+### HDD
+- In game, an LBA48 transfer of 65536 sectors or more no longer loops forever on 0-sector commands
+  (hardening, no known trigger; same fix as ps2sdk f30f05eb). (e09f5482)
+
 ### Build and releases
 - The toolchain image (ps2sdk, gsKit, ps2sdk-ports) is pinned by digest, so the same commit always embeds
   the same SDK modules; the release notes name the ps2sdk commit. A weekly canary build warns when the
