@@ -115,6 +115,13 @@ static void bdmLoadBlockDeviceModules(void)
             char ipArg[20];
             int ipArgLen = snprintf(ipArg, sizeof(ipArg), "ip=%d.%d.%d.%d", ps2_ip[0], ps2_ip[1], ps2_ip[2], ps2_ip[3]) + 1;
 
+            // The ATA driver resets the ATA interface of the DEV9 when it starts, after which the UDPBD driver no longer
+            // gets its replies. If the HDD page may load it later, load it now, before the UDPBD driver.
+            if (gHDDStartMode != START_MODE_DISABLED && !hddModLoaded) {
+                hddLoadModules();
+                hddModLoaded = 1;
+            }
+
             sysInitDev9();
             LOG("[UDPBD_SMAP]:\n");
             sysLoadModuleBuffer(&udpbd_smap_irx, size_udpbd_smap_irx, 0, NULL);
