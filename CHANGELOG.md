@@ -46,6 +46,10 @@ with the commit (or upstream `#N`) at the end.
 - In game, an LBA48 transfer of 65536 sectors or more no longer loops forever on 0-sector commands
   (hardening, no known trigger; same fix as ps2sdk f30f05eb). (e09f5482)
 
+### GUI and themes
+- The greeting screen shows a YAOPL logo, drawn in the style of OPL's logo by Berion, instead of OPL's.
+  (fca82aea)
+
 ### Build and releases
 - The toolchain image (ps2sdk, gsKit, ps2sdk-ports) is pinned by digest, so the same commit always embeds
   the same SDK modules; the release notes name the ps2sdk commit. A weekly canary build warns when the
@@ -57,6 +61,9 @@ with the commit (or upstream `#N`) at the end.
 - Problems with YAOPL builds can be reported in this repository's issues: the issue form asks for the
   `-yaopl` version, the device (now with UDPBD and MMCE) and the game ID. Problems with official OPL builds
   go to upstream. (f7b59653)
+- The README presents YAOPL, and a new user guide, `docs/USAGE.md`, replaces upstream's documentation:
+  checked against the code, with UDPBD, MMCE and the ZSO limits. FORK.md was folded into this changelog
+  and `CONTRIBUTING.md`. (91fb193c, 3980a6d4)
 
 ## YAOPL 2026-10-27
 
