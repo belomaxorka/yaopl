@@ -160,6 +160,11 @@ struct UIItem diaBlockDevicesConfig[] = {
     {UI_BOOL, CFG_ENABLEBDMHDD, 1, 1, _STR_HDD_HINT, 0, 0, {.intvalue = {0, 0}}},
     {UI_BREAK},
 
+    {UI_LABEL, 0, 1, 1, -1, -40, 0, {.label = {"UDPBD", -1}}},
+    {UI_SPACER},
+    {UI_BOOL, CFG_ENABLEUDPBD, 1, 1, _STR_HINT_UDPBD, 0, 0, {.intvalue = {0, 0}}},
+    {UI_BREAK},
+
     // buttons
     {UI_OK, 0, 1, 1, -1, 0, 0, {.label = {NULL, _STR_OK}}},
     {UI_BREAK},

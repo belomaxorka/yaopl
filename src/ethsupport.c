@@ -3,6 +3,7 @@
 #include "include/gui.h"
 #include "include/supportbase.h"
 #include "include/ethsupport.h"
+#include "include/bdmsupport.h"
 #include "include/util.h"
 #include "include/renderman.h"
 #include "include/themes.h"
@@ -27,6 +28,7 @@ static time_t ethModifiedCDPrev;
 static time_t ethModifiedDVDPrev;
 static int ethGameCount = 0;
 static unsigned char ethModulesLoaded = 0;
+static unsigned char ethSMAPLoaded = 0; // Stays set after ethDeinitModules(): the SMAP driver stays resident.
 static base_game_info_t *ethGames = NULL;
 
 static struct ip4_addr lastIP;
@@ -276,7 +278,14 @@ static int ethLoadModules(void)
     LOG("ETHSUPPORT LoadModules\n");
 
     if (!ethModulesLoaded) {
+        // The UDPBD driver owns the network adapter; the SMAP driver cannot share it, and IOP modules cannot be unloaded.
+        if (gEnableUDPBD || bdmUDPBDLoaded()) {
+            gNetworkStartup = ERROR_ETH_MODULE_UDPBD_ACTIVE;
+            return -1;
+        }
+
         ethModulesLoaded = 1;
+        ethSMAPLoaded = 1;
 
         sysInitDev9();
 
@@ -335,6 +344,11 @@ void ethDeinitModules(void)
     }
 }
 
+int ethSMAPIsLoaded(void)
+{
+    return ethSMAPLoaded;
+}
+
 int ethLoadInitModules(void)
 {
     int ret;
@@ -360,6 +374,9 @@ void ethDisplayErrorStatus(void)
             break;
         case ERROR_ETH_MODULE_NETIF_FAILURE:
             setErrorMessageWithCode(_STR_NETWORK_STARTUP_ERROR_NETIF, gNetworkStartup);
+            break;
+        case ERROR_ETH_MODULE_UDPBD_ACTIVE:
+            setErrorMessageWithCode(_STR_NETWORK_UDPBD_ACTIVE, gNetworkStartup);
             break;
         case ERROR_ETH_SMB_CONN:
             setErrorMessageWithCode(_STR_NETWORK_STARTUP_ERROR_CONN, gNetworkStartup);

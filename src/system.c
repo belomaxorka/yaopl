@@ -394,6 +394,7 @@ void sysExecExit(void)
 #define CORE_IRX_ILINK  0x80
 #define CORE_IRX_MX4SIO 0x100
 #define CORE_IRX_MMCE   0x200
+#define CORE_IRX_UDPBD  0x400
 
 typedef struct
 {
@@ -477,6 +478,8 @@ static unsigned int sendIrxKernelRAM(const char *startup, const char *mode_str, 
         modules |= CORE_IRX_MX4SIO;
     else if (!strcmp(mode_str, "BDM_ATA_MODE"))
         modules |= CORE_IRX_HDD;
+    else if (!strcmp(mode_str, "BDM_UDP_MODE"))
+        modules |= CORE_IRX_UDPBD;
     else if (!strcmp(mode_str, "ETH_MODE"))
         modules |= CORE_IRX_ETH | CORE_IRX_SMB;
     else if (!strcmp(mode_str, "HDD_MODE"))
@@ -542,6 +545,14 @@ static unsigned int sendIrxKernelRAM(const char *startup, const char *mode_str, 
     if (modules & CORE_IRX_MX4SIO) {
         irxptr_tab[modcount].info = size_mx4sio_bd_irx | SET_OPL_MOD_ID(OPL_MODULE_ID_MX4SIOBD);
         irxptr_tab[modcount++].ptr = (void *)&mx4sio_bd_irx;
+    }
+    if (modules & CORE_IRX_UDPBD) {
+        irxptr_tab[modcount].info = size_udpbd_smap_irx | SET_OPL_MOD_ID(OPL_MODULE_ID_UDPBD_SMAP);
+        irxptr_tab[modcount++].ptr = (void *)&udpbd_smap_irx;
+        irxptr_tab[modcount].info = size_udpbd_ministack_irx | SET_OPL_MOD_ID(OPL_MODULE_ID_UDPBD_MINISTACK);
+        irxptr_tab[modcount++].ptr = (void *)&udpbd_ministack_irx;
+        irxptr_tab[modcount].info = size_udpbd_irx | SET_OPL_MOD_ID(OPL_MODULE_ID_UDPBD);
+        irxptr_tab[modcount++].ptr = (void *)&udpbd_irx;
     }
     if (modules & CORE_IRX_ETH) {
         irxptr_tab[modcount].info = size_smap_ingame_irx | SET_OPL_MOD_ID(OPL_MODULE_ID_SMAP);
@@ -946,6 +957,9 @@ void sysLaunchLoaderElf(const char *filename, const char *mode_str, int size_cdv
     sprintf(config->g_ps2_ip, "%u.%u.%u.%u", local_ip_address[0], local_ip_address[1], local_ip_address[2], local_ip_address[3]);
     sprintf(config->g_ps2_netmask, "%u.%u.%u.%u", local_netmask[0], local_netmask[1], local_netmask[2], local_netmask[3]);
     sprintf(config->g_ps2_gateway, "%u.%u.%u.%u", local_gateway[0], local_gateway[1], local_gateway[2], local_gateway[3]);
+    // UDPBD does not use the SMB network stack: its driver gets the static IP, as in the menu.
+    if (!strcmp(mode_str, "BDM_UDP_MODE"))
+        sprintf(config->g_ps2_ip, "%d.%d.%d.%d", ps2_ip[0], ps2_ip[1], ps2_ip[2], ps2_ip[3]);
 
     // GSM now.
     config->EnableGSMOp = GetGSMEnabled();

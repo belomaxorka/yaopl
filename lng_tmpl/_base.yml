@@ -729,3 +729,11 @@ gui_strings:
   string: Games split into parts cannot be started from MMCE yet.
 - label: MMCE_NO_VMC_YET
   string: VMCs are not used on MMCE yet; the game saves to the real memory card.
+- label: UDPBD_GAMES
+  string: UDPBD Games
+- label: HINT_UDPBD
+  string: Disk served by a PC over the LAN (udpbd-server). Uses the static PS2 IP; SMB is off while UDPBD is on.
+- label: NETWORK_UDPBD_ACTIVE
+  string: The network adapter is used by UDPBD. Turn UDPBD off and restart OPL to use SMB or the network.
+- label: UDPBD_SMB_ACTIVE
+  string: The network adapter is used by SMB. Restart OPL to use UDPBD.

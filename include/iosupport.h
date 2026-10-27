@@ -33,6 +33,7 @@ enum ERROR_CODE {
     // Ethernet (module startup) error codes
     ERROR_ETH_MODULE_NETIF_FAILURE = 200,
     ERROR_ETH_MODULE_SMBMAN_FAILURE,
+    ERROR_ETH_MODULE_UDPBD_ACTIVE,
     // HDD (module startup) error codes
     ERROR_HDD_MODULE_ATAD_FAILURE = 220,
     ERROR_HDD_MODULE_HDD_FAILURE,

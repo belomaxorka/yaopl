@@ -18,6 +18,7 @@ typedef struct
 void ethInit(item_list_t *itemList); // Full initialization (Start ETH + SMB and apply configuration). GUI must be already initialized, used by GUI to start SMB mode.
 void ethDeinitModules(void);         // Module-only deinitialization, without the GUI's knowledge (for specific reasons, otherwise unused).
 int ethLoadInitModules(void);        // Initializes Ethernet and applies configuration.
+int ethSMAPIsLoaded(void);           // 1 once the SMAP driver was loaded; it then owns the network adapter.
 void ethDisplayErrorStatus(void);    // Displays the current error status (if any). GUI must be already initialized.
 int ethGetNetConfig(u8 *ip_address, u8 *netmask, u8 *gateway);
 int ethApplyConfig(void);

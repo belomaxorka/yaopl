@@ -130,6 +130,7 @@ extern int gMMCEEnableGameID;
 extern int gEnableILK;
 extern int gEnableMX4SIO;
 extern int gEnableBdmHDD;
+extern int gEnableUDPBD;
 
 extern int gAutosort;
 extern int gAutoRefresh;

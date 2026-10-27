@@ -151,6 +151,16 @@ static void ResetIopSpecial(const char *args, unsigned int arglen)
             // The card keeps the ISO open across the reset; the driver only needs the SDK sio2man loaded above.
             LoadOPLModule(OPL_MODULE_ID_MMCEDRV, 0, 0, NULL);
             break;
+        case BDM_UDP_MODE: {
+            // dev9 and bdm come from cdvdman; the server is found by broadcast, so only the PS2's IP is passed.
+            char ip_arg[3 + sizeof(config->g_ps2_ip)];
+            _strcpy(ip_arg, "ip=");
+            _strcpy(&ip_arg[3], config->g_ps2_ip);
+            LoadOPLModule(OPL_MODULE_ID_UDPBD_SMAP, 0, 0, NULL);
+            LoadOPLModule(OPL_MODULE_ID_UDPBD_MINISTACK, 0, strlen(ip_arg) + 1, ip_arg);
+            LoadOPLModule(OPL_MODULE_ID_UDPBD, 0, 0, NULL);
+            break;
+        }
     };
 }
 

@@ -22,6 +22,7 @@ typedef struct
 #define BDM_TYPE_ILINK   1
 #define BDM_TYPE_SDC     2
 #define BDM_TYPE_ATA     3
+#define BDM_TYPE_UDPBD   4
 
 typedef struct
 {
@@ -45,6 +46,7 @@ typedef struct
 void bdmInit(item_list_t *itemList);
 int bdmFindPartition(char *target, const char *name, int write);
 void bdmLoadModules(void);
+int bdmUDPBDLoaded(void);
 void bdmLaunchGame(item_list_t *itemList, int id, config_set_t *configSet);
 
 void bdmInitSemaphore();

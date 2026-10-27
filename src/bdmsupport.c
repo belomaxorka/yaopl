@@ -8,6 +8,7 @@
 #include "include/textures.h"
 #include "include/ioman.h"
 #include "include/system.h"
+#include "include/ethsupport.h"
 #include "include/extern_irx.h"
 #include "include/cheatman.h"
 #include "include/sound.h"
@@ -23,6 +24,7 @@
 static int iLinkModLoaded = 0;
 static int mx4sioModLoaded = 0;
 static int hddModLoaded = 0;
+static int udpbdModLoaded = 0;
 static s32 bdmLoadModuleLock;
 int bdmDeviceModeStarted;
 
@@ -103,7 +105,34 @@ static void bdmLoadBlockDeviceModules(void)
         hddModLoaded = 1;
     }
 
+    if (gEnableUDPBD && !udpbdModLoaded) {
+        // The SMAP driver of SMB and the UDPBD driver cannot share the network adapter.
+        if (ethSMAPIsLoaded()) {
+            LOG("UDPBD: the network adapter is used by SMB\n");
+            setErrorMessage(_STR_UDPBD_SMB_ACTIVE);
+        } else {
+            // Load the UDPBD Block Device drivers. The server is found by broadcast, so only the PS2's own IP is needed.
+            char ipArg[20];
+            int ipArgLen = snprintf(ipArg, sizeof(ipArg), "ip=%d.%d.%d.%d", ps2_ip[0], ps2_ip[1], ps2_ip[2], ps2_ip[3]) + 1;
+
+            sysInitDev9();
+            LOG("[UDPBD_SMAP]:\n");
+            sysLoadModuleBuffer(&udpbd_smap_irx, size_udpbd_smap_irx, 0, NULL);
+            LOG("[UDPBD_MINISTACK]: %s\n", ipArg);
+            sysLoadModuleBuffer(&udpbd_ministack_irx, size_udpbd_ministack_irx, ipArgLen, ipArg);
+            LOG("[UDPBD]:\n");
+            sysLoadModuleBuffer(&udpbd_irx, size_udpbd_irx, 0, NULL);
+        }
+
+        udpbdModLoaded = 1;
+    }
+
     SignalSema(bdmLoadModuleLock);
+}
+
+int bdmUDPBDLoaded(void)
+{
+    return udpbdModLoaded;
 }
 
 void bdmLoadModules(void)
@@ -188,6 +217,9 @@ static int bdmNeedsUpdate(item_list_t *itemList)
                 break;
             case BDM_TYPE_ATA:
                 deviceEnabled = gEnableBdmHDD;
+                break;
+            case BDM_TYPE_UDPBD:
+                deviceEnabled = gEnableUDPBD;
                 break;
             default:
                 deviceEnabled = 0;
@@ -416,6 +448,9 @@ void bdmLaunchGame(item_list_t *itemList, int id, config_set_t *configSet)
     if (!strcmp(pDeviceData->bdmDriver, "ata") && strlen(pDeviceData->bdmDriver) == 3) {
         irx = &bdm_ata_cdvdman_irx;
         irx_size = size_bdm_ata_cdvdman_irx;
+    } else if (!strcmp(pDeviceData->bdmDriver, "udp")) {
+        irx = &bdm_udp_cdvdman_irx;
+        irx_size = size_bdm_udp_cdvdman_irx;
     } else {
         irx = &bdm_cdvdman_irx;
         irx_size = size_bdm_cdvdman_irx;
@@ -575,6 +610,10 @@ void bdmLaunchGame(item_list_t *itemList, int id, config_set_t *configSet)
         settings->common.fakemodule_flags |= FAKE_MODULE_FLAG_DEV9;
         settings->common.fakemodule_flags |= FAKE_MODULE_FLAG_ATAD;
         sysLaunchLoaderElf(filename, "BDM_ATA_MODE", irx_size, irx, size_mcemu_irx, bdm_mcemu_irx, EnablePS2Logo, compatmask);
+    } else if (!strcmp(bdmCurrentDriver, "udp")) {
+        settings->common.fakemodule_flags |= FAKE_MODULE_FLAG_DEV9;
+        settings->common.fakemodule_flags |= FAKE_MODULE_FLAG_SMAP;
+        sysLaunchLoaderElf(filename, "BDM_UDP_MODE", irx_size, irx, size_mcemu_irx, bdm_mcemu_irx, EnablePS2Logo, compatmask);
     }
 }
 
@@ -611,6 +650,8 @@ static int bdmGetTextId(item_list_t *itemList)
         mode = _STR_MX4SIO_GAMES;
     else if (!strcmp(pDeviceData->bdmDriver, "ata") && strlen(pDeviceData->bdmDriver) == 3)
         mode = _STR_HDD_GAMES;
+    else if (!strcmp(pDeviceData->bdmDriver, "udp"))
+        mode = _STR_UDPBD_GAMES;
 
     return mode;
 }
@@ -629,6 +670,8 @@ static int bdmGetIconId(item_list_t *itemList)
         mode = MX4SIO_ICON;
     else if (!strcmp(pDeviceData->bdmDriver, "ata") && strlen(pDeviceData->bdmDriver) == 3)
         mode = HDD_BD_ICON;
+    else if (!strcmp(pDeviceData->bdmDriver, "udp"))
+        mode = ETH_ICON;
 
     return mode;
 }
@@ -841,7 +884,9 @@ int bdmUpdateDeviceData(item_list_t *itemList)
         else if (!strcmp(pDeviceData->bdmDriver, "ata") && strlen(pDeviceData->bdmDriver) == 3) {
             pDeviceData->bdmDeviceType = BDM_TYPE_ATA;
             itemList->flags = MODE_FLAG_COMPAT_DMA;
-        } else
+        } else if (!strcmp(pDeviceData->bdmDriver, "udp"))
+            pDeviceData->bdmDeviceType = BDM_TYPE_UDPBD;
+        else
             pDeviceData->bdmDeviceType = BDM_TYPE_UNKNOWN;
 
         // If the device is backed by the ATA driver then get the supported LBA size for the drive.
