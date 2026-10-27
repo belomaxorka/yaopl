@@ -214,8 +214,8 @@ smb read ok                        plain: smb_ReadFile = 2500, 2500 of 2500 byte
                                    asan:  smb_ReadFile = 2500, 2500 of 2500 bytes read, smb_io_sema free
 smb read error                     plain: smb_ReadFile = -2, 0 of 2500 bytes read, smb_io_sema free
                                    asan:  smb_ReadFile = -2, 0 of 2500 bytes read, smb_io_sema free
-smb read closed                    plain: TIMEOUT: endless loop
-                                   asan:  TIMEOUT: endless loop
+smb read closed                    plain: smb_ReadFile = -2, 1000 of 2500 bytes read, smb_io_sema free
+                                   asan:  smb_ReadFile = -2, 1000 of 2500 bytes read, smb_io_sema free
 smb write ok                       plain: smb_WriteFile = 2500, smb_io_sema free
                                    asan:  smb_WriteFile = 2500, smb_io_sema free
 smb write error                    plain: smb_WriteFile = -5, smb_io_sema free
