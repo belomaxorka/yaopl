@@ -678,7 +678,7 @@ static int bdmGetIconId(item_list_t *itemList)
     else if (!strcmp(pDeviceData->bdmDriver, "ata") && strlen(pDeviceData->bdmDriver) == 3)
         mode = HDD_BD_ICON;
     else if (!strcmp(pDeviceData->bdmDriver, "udp"))
-        mode = ETH_ICON;
+        mode = UDPBD_ICON;
 
     return mode;
 }
