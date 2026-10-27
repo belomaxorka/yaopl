@@ -174,15 +174,17 @@ static char *term_str(char *s, int (*callback)(const char *))
 
 /*
  * is_empty_str - Returns 1 if @s contains no printable chars other than white
- * space.  Otherwise, 0 is returned.
+ * space.  Otherwise, 0 is returned.  A byte of 0x80 or more is part of a
+ * printable UTF-8 or Shift-JIS character, although isgraph() is false for it.
  */
 static int is_empty_str(const char *s)
 {
     size_t slen = strlen(s);
 
     while (slen--) {
-        if (isgraph((int)*s++))
+        if (isgraph((int)*s) || (unsigned char)*s >= 0x80)
             return 0;
+        s++;
     }
 
     return 1;
@@ -229,8 +231,9 @@ static int trim_str(char *s)
 static int is_empty_substr(const char *s, size_t count)
 {
     while (count--) {
-        if (isgraph((int)*s++))
+        if (isgraph((int)*s) || (unsigned char)*s >= 0x80) // see is_empty_str()
             return 0;
+        s++;
     }
 
     return 1;

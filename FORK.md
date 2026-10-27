@@ -22,6 +22,7 @@ does not match upstream's numbering.
 | Area | Fix | Origin |
 |---|---|---|
 | Cheats | A comment line with leading blanks no longer becomes a cheat with an empty name | this fork |
+| Cheats | Cheat names in Cyrillic, Japanese and other non-ASCII scripts are kept: a name without ASCII letters was dropped and its codes joined the cheat before it, often the always-on Mastercode | this fork |
 | Cheats | The 251st cheat is no longer written past the cheat table | this fork; overflow found by RiptOPL |
 | Cheats | `make_code()` no longer writes one byte past `digits[]` for every code | RiptOPL |
 | Cheats | A last line without LF is no longer read past the end of the buffer or copied past `line[]` | RiptOPL |
