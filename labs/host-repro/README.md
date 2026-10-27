@@ -59,6 +59,7 @@ regenerate the file from a run on this tree:
 | `gsm` | `PrepareGSM()` | `$GSMVMode` indexes past the table of 29 modes |
 | `pad` | `readPads()` | the button repeat countdown jumps by 29 s at the tick counter wrap |
 | `genvmc` | `mc_writecluster()` | a failed write leaves the abort semaphore taken |
+| `atad` | in-game `ata_device_sector_io_internal()` | an LBA48 transfer of 65536 sectors or more loops forever, issuing 0-sector commands |
 | `bgm` | `bgmLoad()` | the default BGM path is the format string |
 
 ## Console test files

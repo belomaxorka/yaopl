@@ -164,5 +164,17 @@ genvmc write ok                    plain: write ok: mc_writecluster = 0, abort s
                                    asan:  write ok: mc_writecluster = 0, abort semaphore released
 genvmc write short                 plain: write short: mc_writecluster = -1, abort semaphore released
                                    asan:  write short: mc_writecluster = -1, abort semaphore released
+atad LBA48 sectors 65535           plain: 65535 sectors: 1 commands (first 65535, last 65535 sectors), 65535 transferred, res 0
+                                   asan:  65535 sectors: 1 commands (first 65535, last 65535 sectors), 65535 transferred, res 0
+atad LBA48 sectors 65536           plain: ENDLESS LOOP: 1000 commands, 0 sectors transferred, last blkcount 0
+                                   asan:  ENDLESS LOOP: 1000 commands, 0 sectors transferred, last blkcount 0
+atad LBA48 sectors 65537           plain: ENDLESS LOOP: 1000 commands, 0 sectors transferred, last blkcount 0
+                                   asan:  ENDLESS LOOP: 1000 commands, 0 sectors transferred, last blkcount 0
+atad LBA48 sectors 131072          plain: ENDLESS LOOP: 1000 commands, 0 sectors transferred, last blkcount 0
+                                   asan:  ENDLESS LOOP: 1000 commands, 0 sectors transferred, last blkcount 0
+atad LBA28 sectors 256             plain: 256 sectors: 1 commands (first 256, last 256 sectors), 256 transferred, res 0
+                                   asan:  256 sectors: 1 commands (first 256, last 256 sectors), 256 transferred, res 0
+atad LBA28 sectors 257             plain: 257 sectors: 2 commands (first 256, last 1 sectors), 257 transferred, res 0
+                                   asan:  257 sectors: 2 commands (first 256, last 1 sectors), 257 transferred, res 0
 bgmLoad default_bgm_path           plain: format string = "%s" | bgmLoad = -2
                                    asan:  format string = "%s" | bgmLoad = -2

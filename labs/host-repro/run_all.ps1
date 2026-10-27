@@ -252,6 +252,11 @@ if (Want "genvmc") {
     Test "genvmc write short" genvmc-t "1"
 }
 
+if (Want "atad") {
+    Build atad t "modules\iopcore\cdvdman\atad.c" "ata_device_sector_io_internal"
+    foreach ($c in "48 65535", "48 65536", "48 65537", "48 131072", "28 256", "28 257") { Test "atad LBA$($c.Replace(' ', ' sectors '))" atad-t $c.Split(" ") }
+}
+
 if (Want "bgm") {
     Build bgm t "src\sound.c" "bgmLoad"
     Test "bgmLoad default_bgm_path" bgm-t "mass:/MUSIC/100%s.ogg"
