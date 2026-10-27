@@ -66,6 +66,11 @@ with the commit (or upstream `#N`) at the end.
 - The README presents YAOPL, and a new user guide, `docs/USAGE.md`, replaces upstream's documentation:
   checked against the code, with UDPBD, MMCE and the ZSO limits. FORK.md was folded into this changelog
   and `CONTRIBUTING.md`. (91fb193c, 3980a6d4)
+- The user documentation is a site now, <https://belomaxorka.github.io/yaopl/>, with a page per topic:
+  installing and launching, every menu and setting with its default, each device (USB, MX4SIO, iLink, the
+  HDD as exFAT or APA, SMB with PC setup, UDPBD, MMCE), adding games, game settings, cheats, VMCs, in-game
+  reset, NBD and troubleshooting, all checked against the code. It replaces `docs/USAGE.md`.
+  (2e28eebd..30d34adc)
 
 ## YAOPL 2026-10-27
 
