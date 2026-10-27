@@ -133,10 +133,14 @@ void mmceLoadModules(void)
 }
 
 // The memory-card slots whose MMCE card IGR switches back to its boot card (bit 0 = slot 1, bit 1 = slot 2):
-// the setting, or with "Auto" the slots where a card answered a ping.
+// the setting, or with "Auto" the slots where a card answered a ping. None while the MMCE device is off, so
+// OPL does not send MMCE commands to the memory-card ports of a console without an MMCE card.
 int mmceIGRSlots(void)
 {
     int ports;
+
+    if (gMMCEStartMode == START_MODE_DISABLED)
+        return 0;
 
     if (gMMCEIGRSlot != MMCE_IGR_AUTO)
         return gMMCEIGRSlot & 3;
@@ -152,7 +156,7 @@ int mmceIGRSlots(void)
 // Tells the MMCE card(s) which game starts, so a card switches to that game's own memory card. It must run
 // after the last write to the real memory card (last played, OSD history): from then on mc0: or mc1: is
 // the game's card. The card is busy for a moment after the command; the wait is bounded, as in wOPL
-// dca04cf (200 ms, then up to 20 x 100 ms).
+// dca04cf (200 ms, then up to 20 x 100 ms). Only while the MMCE device is on, as for mmceIGRSlots().
 void mmceSendGameID(const char *bootpath)
 {
     static const char *const devices[2] = {"mmce0:/", "mmce1:/"};
@@ -161,7 +165,7 @@ void mmceSendGameID(const char *bootpath)
     int ports, port, i, status;
     size_t len;
 
-    if (!gMMCEEnableGameID || bootpath == NULL)
+    if (!gMMCEEnableGameID || gMMCEStartMode == START_MODE_DISABLED || bootpath == NULL)
         return;
 
     // The boot file name alone, without the path and the version: SLUS_202.38.
