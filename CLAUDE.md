@@ -48,8 +48,7 @@ If the local knowledge base `kb/` exists, start with `kb/README.md` and `kb/ROAD
 - `CHANGELOG.md` lists what changed for users, newest first: YAOPL sections by the day a change reaches
   `master` (`## YAOPL YYYY-MM-DD`, the commit's local date as `git log --date=short` shows it), then
   upstream sections by version. The release notes of `latest` list the YAOPL entries added or changed
-  since the previous published build (`.github/changelog.sh since`), and the release packages carry the
-  whole file.
+  since the previous published build (`.github/changelog.sh since`); the release packages do not carry it.
 - Every push to `master` that changes what users get (ELF, packages, behaviour, settings, supported
   devices) adds lines under that day's heading, creating it at the top if needed, in the right `###` area:
   one line per change, user-facing words, the commit hash(es) at the end. On a branch, write the expected

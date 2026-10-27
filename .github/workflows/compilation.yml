@@ -79,10 +79,8 @@ jobs:
       with:
         name: INFO
         path: |
-          CHANGELOG.md
           CREDITS
           LICENSE
-          README.md
 
   build-variants:
     strategy:

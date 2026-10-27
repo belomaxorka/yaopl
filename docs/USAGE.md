@@ -21,8 +21,8 @@ Download from the [`latest` release](https://github.com/belomaxorka/yaopl/releas
 | File | Contents |
 | --- | --- |
 | `OPNPS2LD.ELF` | The loader, ready to run. PADEMU is on, IGS and RTL are off. |
-| `OPNPS2LD-<version>.7z` | The same ELF with `CHANGELOG.md`, `CREDITS`, `LICENSE` and `README.md`. |
-| `OPNPS2LD-VARIANTS-<version>.7z` | Four ELFs for each combination of `PADEMU=0/1` and `EXTRA_FEATURES=0/1`. |
+| `OPNPS2LD-<version>.7z` | The same ELF with `LICENSE` and `CREDITS`. |
+| `OPNPS2LD-VARIANTS-<version>.7z` | Four ELFs for each combination of `PADEMU=0/1` and `EXTRA_FEATURES=0/1`, with `LICENSE` and `CREDITS`. |
 | `OPNPS2LD-LANGS-<version>.7z` | Translations and their fonts, for the `LNG` folder. |
 | `SHA256SUMS` | Checksums: `sha256sum -c SHA256SUMS` (Linux) or `Get-FileHash <file>` (Windows). |
 
@@ -248,7 +248,7 @@ git clone https://github.com/belomaxorka/yaopl.git && cd yaopl
 docker run --rm -v "$PWD:/src" -w /src <TOOLCHAIN_IMAGE> sh -c 'git config --global --add safe.directory /src && make release'
 ```
 
-`make` builds the ELF, `make release` also the 7z package, as CI does. Use a full clone: the revision in the
+`make` builds the ELF, `make release` also a ZIP of it with `LICENSE` and `CREDITS`. Use a full clone: the revision in the
 version counts the commits. The options are at the top of the `Makefile` (for example `PADEMU=0`,
 `EXTRA_FEATURES=1`, `DTL_T10000=1`). `make format` formats the code with clang-format 12. See
 [CONTRIBUTING.md](../CONTRIBUTING.md).

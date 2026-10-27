@@ -402,7 +402,7 @@ $(EE_BIN_PACKED): $(EE_BIN_STRIPPED)
 $(EE_VPKD).ELF: $(EE_BIN_PACKED)
 	cp -f $< $@
 
-$(EE_VPKD).ZIP: $(EE_VPKD).ELF CHANGELOG.md CREDITS LICENSE README.md
+$(EE_VPKD).ZIP: $(EE_VPKD).ELF CREDITS LICENSE
 	zip -r $@ $^
 	echo "Package Complete: $@"
 
