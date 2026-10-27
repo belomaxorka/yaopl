@@ -249,15 +249,27 @@ jobs:
         files="OPNPS2LD.ELF OPNPS2LD-${{ env.OPL_VERSION }}.7z OPNPS2LD-VARIANTS-${{ env.OPL_VERSION }}.7z OPNPS2LD-LANGS-${{ env.OPL_VERSION }}.7z"
         sha256sum $files > SHA256SUMS
         cat SHA256SUMS
+        # The notes list the CHANGELOG.md entries added since the build that is published now.
+        prev=$(gh release view latest --repo "$GITHUB_REPOSITORY" --json targetCommitish -q .targetCommitish || true)
+        if [ -n "$prev" ] && [ "$prev" != "$GITHUB_SHA" ] && changes=$(sh .github/changelog.sh since "$prev"); then
+          [ -n "$changes" ] || changes="No user-visible changes."
+          changes_title="Changes since the previous build ($(git rev-parse --short=7 "$prev")):"
+        else
+          changes=$(sh .github/changelog.sh latest)
+          changes_title="Newest changes:"
+        fi
         gh release delete latest --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes || true
         git push --delete origin latest || true
         {
           echo "Automatic YAOPL (Yet Another Open PS2 Loader) build of ${{ env.OPL_VERSION }} from $GITHUB_SHA."
           echo
           echo "Not an official OPL build: see FORK.md for what differs from upstream OPL."
-          echo "CHANGELOG.md lists all changes; the newest are:"
           echo
-          sh .github/changelog.sh latest
+          echo "$changes_title"
+          echo
+          echo "$changes"
+          echo
+          echo "All changes: https://github.com/$GITHUB_REPOSITORY/blob/$GITHUB_SHA/CHANGELOG.md"
           echo
           echo "SHA-256 checksums of the files are in SHA256SUMS."
           echo
