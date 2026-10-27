@@ -62,6 +62,8 @@ regenerate the file from a run on this tree:
 | `pad` | `readPads()` | the button repeat countdown jumps by 29 s at the tick counter wrap |
 | `genvmc` | `mc_writecluster()` | a failed write leaves the abort semaphore taken |
 | `atad` | in-game `ata_device_sector_io_internal()` | an LBA48 transfer of 65536 sectors or more loops forever, issuing 0-sector commands |
+| `smb` | in-game `smb_ReadFile()`, `smb_WriteFile()`, `smb_ReadAndX()` (`modules/iopcore/cdvdman/smb.c`) | a failed read or write leaves `smb_io_sema` taken, so the next disc read and IGR block; a connection closed in the middle of a reply loops forever |
+| `smbvmc` | `modules/mcemu/device-smb.c` `DeviceWritePage()`, `DeviceReadPage()` | an SMB error and a failed open of the VMC are reported to mcemu as a page done |
 | `bgm` | `bgmLoad()` | the default BGM path is the format string |
 
 ## Console test files
