@@ -55,6 +55,7 @@ same SDK modules; the release notes name the ps2sdk commit. See "Updating ps2sdk
 | BDM | One VMC error is no longer reported again for the other slot | RiptOPL |
 | BDM | Returning from the NBD server no longer crashes | RiptOPL |
 | HDD | The PS2 logo check reads 48 sectors, not 49 | RiptOPL |
+| HDD | In game, an LBA48 transfer of 65536 sectors or more no longer loops forever on 0-sector commands (hardening: OPL's requests are far smaller) | ps2sdk f30f05eb (same loop in ps2sdk's atad) |
 | Misc | Format string, terminators and the IOP patch mode compare (hardening, no known trigger) | RiptOPL |
 | Cheats | A code line with address 0 (the second half of a multi-line code) no longer ends the cheat (upstream issue #1548) | this fork |
 | Cheats | More than 5 hooks or 250 codes are dropped instead of written past the engine's tables (`SLUS_210.09.cht` has 9 hooks) | this fork |
