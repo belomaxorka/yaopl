@@ -12,10 +12,17 @@ on:
   repository_dispatch:
     types: [run_build]
 
+# The toolchain image (ps2sdk, gsKit, ps2sdk-ports) is pinned by digest, so a build does not change
+# when ps2sdk does; sdk-canary.yml builds against the newest image. Every "container:" below must name
+# this digest (checked in the build job). TOOLCHAIN_PS2SDK is the ps2sdk commit inside the image.
+env:
+  TOOLCHAIN_IMAGE: ghcr.io/ps2homebrew/ps2homebrew@sha256:f92b526029a743bc30fb47d0af096f67d7e4e97e4019313f65508f6f6cdaaa91
+  TOOLCHAIN_PS2SDK: 329e2bb43287e16af16c4dde1c614e2662c24468
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ghcr.io/ps2homebrew/ps2homebrew:main
+    container: ghcr.io/ps2homebrew/ps2homebrew@sha256:f92b526029a743bc30fb47d0af096f67d7e4e97e4019313f65508f6f6cdaaa91
     steps:
     - name: git checkout
       uses: actions/checkout@v4
@@ -24,8 +31,23 @@ jobs:
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
         git fetch --prune --unshallow
 
+    - name: Check that every job uses the pinned toolchain image
+      run: |
+        wf=.github/workflows/compilation.yml
+        bad=$(grep -E '^ +(container|container_commit): ' $wf | grep -v -e "${TOOLCHAIN_IMAGE#*@}" -e 'matrix.container_commit' || true)
+        if [ -n "$bad" ]; then
+          echo "::error::$wf: every container must be $TOOLCHAIN_IMAGE, not: $bad"
+          exit 1
+        fi
+
     - name: Compile -> make clean release
       run: make --trace clean release ${{ inputs.make_args }}
+
+    - name: Report the toolchain and the embedded ps2sdk modules
+      run: |
+        echo "toolchain image: $TOOLCHAIN_IMAGE"
+        echo "ps2sdk: $TOOLCHAIN_PS2SDK"
+        cd "$PS2SDK/iop/irx" && sha256sum $(grep -o 'iop/irx/[A-Za-z0-9_-]*\.irx' "$GITHUB_WORKSPACE/Makefile" | sed 's|^iop/irx/||' | sort -u)
 
     - name: Report the embedded USBD (built from pre-rewrite ps2sdk sources, see FORK.md)
       run: |
@@ -68,7 +90,7 @@ jobs:
         extra: [EXTRA_FEATURES=0, EXTRA_FEATURES=1]
         pademu: [PADEMU=0, PADEMU=1]
     runs-on: ubuntu-latest
-    container: ghcr.io/ps2homebrew/ps2homebrew:main
+    container: ghcr.io/ps2homebrew/ps2homebrew@sha256:f92b526029a743bc30fb47d0af096f67d7e4e97e4019313f65508f6f6cdaaa91
     steps:
     - name: git checkout
       uses: actions/checkout@v4
@@ -108,7 +130,7 @@ jobs:
 
   build-lang:
     runs-on: ubuntu-latest
-    container: ghcr.io/ps2homebrew/ps2homebrew:main
+    container: ghcr.io/ps2homebrew/ps2homebrew@sha256:f92b526029a743bc30fb47d0af096f67d7e4e97e4019313f65508f6f6cdaaa91
     steps:
     - name: git checkout
       uses: actions/checkout@v4
@@ -137,7 +159,7 @@ jobs:
       matrix:
         debug: [iopcore_debug, ingame_debug, eesio_debug, iopcore_ppctty_debug, ingame_ppctty_debug, DTL_T10000=1]
         # container_commit: [":main", "@sha256:1f00689809455d43b520e4cd4eea00c6be56d71819ae38efc6b55b56464cbd1e"] Replace with desired docker image hash or tag
-        container_commit: [":main"]
+        container_commit: ["@sha256:f92b526029a743bc30fb47d0af096f67d7e4e97e4019313f65508f6f6cdaaa91"]
     runs-on: ubuntu-latest
     container: ghcr.io/ps2homebrew/ps2homebrew${{ matrix.container_commit }}
     steps:
@@ -236,6 +258,8 @@ jobs:
           echo
           echo "Not an official OPL build: see FORK.md for what differs from upstream OPL."
           echo "SHA-256 checksums of the files are in SHA256SUMS."
+          echo
+          echo "Built with ps2sdk $TOOLCHAIN_PS2SDK (toolchain image $TOOLCHAIN_IMAGE)."
         } > notes.md
         gh release create latest $files SHA256SUMS --repo "$GITHUB_REPOSITORY" --prerelease \
           --target "$GITHUB_SHA" --title "${{ env.OPL_VERSION }}" --notes-file notes.md

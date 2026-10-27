@@ -17,6 +17,9 @@ YAOPL builds carry the suffix `-yaopl` in their version string (`LOCALVERSION` i
 for example `v1.2.0-Beta-2310-1a2b3c4-yaopl`. The revision number counts this fork's commits, so it
 does not match upstream's numbering.
 
+The build uses a pinned toolchain image (ps2sdk, gsKit, ps2sdk-ports), so the same commit always gets the
+same SDK modules; the release notes name the ps2sdk commit. See "Updating ps2sdk" below.
+
 ## What differs from upstream
 
 | Area | Fix | Origin |
@@ -122,3 +125,20 @@ git push origin master           # CI builds and publishes the new pre-release
 
 Do not use GitHub's "Sync fork" button with "Discard commits": it would drop this fork's fixes.
 Before pushing a merge, run `labs/host-repro/run_all.ps1` if upstream touched the files it covers.
+
+## Updating ps2sdk
+
+OPL embeds about 30 ps2sdk modules, several of which run inside games (`udnl`, `sio2man`, the USB,
+iLink and MX4SIO block device drivers), and links ps2sdk's libraries. Upstream builds with the newest
+toolchain image, so a ps2sdk change reaches its builds unannounced; here the image is pinned by digest
+in `.github/workflows/compilation.yml` (`TOOLCHAIN_IMAGE`, the `container:` lines and the ps2sdk commit
+in `TOOLCHAIN_PS2SDK`).
+
+To move to a newer image:
+
+1. Read the ps2sdk commits since `TOOLCHAIN_PS2SDK` for the modules OPL embeds, in-game ones first.
+2. On a short-lived branch, change only the digest and the ps2sdk commit, in one commit
+   `ci: build with ps2sdk <commit>` whose body lists the relevant ps2sdk changes.
+3. After CI, test on a console: boot, pads, memory card save, a USB game, SMB list, HDD, sounds and
+   BGM, IGR, an MX4SIO game if there is one, and whatever the ps2sdk changes touch.
+4. Merge into `master`. Add a row to the table above only if the update changes what users see.
