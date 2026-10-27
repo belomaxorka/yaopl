@@ -25,7 +25,8 @@ Read before working: `FORK.md` (what differs from upstream and why), `README.md`
    Only the build of master's tip is published: a commit that does not change the ELF (`labs/`, docs) may say
    `[skip ci]`, but push it only after the running build has published, or that build is not released.
 3. **Keep `FORK.md` current.** Every fix or behaviour change updates the table in `FORK.md` (area, fix, origin)
-   in the same push. Update the README header if what YAOPL is or how to get it changes.
+   in the same push. Update the README header if what YAOPL is or how to get it changes. Every user-visible
+   change also adds a line to `CHANGELOG.md` in the same push (see "Changelog" below).
 4. **One fix per commit.** Subject `<component>: <summary>`. The body states the problem, the fix, its origin
    (credit the RiptOPL commit for ported fixes) and the reproduction with the result before and after.
 5. **Check every fix** (details in `FORK.md`, "How fixes are checked"):
@@ -42,6 +43,20 @@ Read before working: `FORK.md` (what differs from upstream and why), `README.md`
 10. **User data and devices.** Never write to the user's removable drives without a plan and an explicit OK.
     Test data lives in `D:\yaoplm-testdata\` (reference clones in `refs\`, console test files in
     `opl-fork-tests\`); write on D: only there.
+
+## Changelog
+- `CHANGELOG.md` lists what changed for users, newest first: YAOPL sections by the day a change reaches
+  `master` (`## YAOPL YYYY-MM-DD`, UTC), then upstream sections by version. The release notes of `latest`
+  show the newest YAOPL section, and the release packages carry the whole file.
+- Every push to `master` that changes what users get (ELF, packages, behaviour, settings, supported
+  devices) adds lines under that day's heading, creating it at the top if needed, in the right `###` area:
+  one line per change, user-facing words, the commit hash(es) at the end. On a branch, write the expected
+  day and fix it when merging. Wrap at 110 columns like the rest of the file.
+- An upstream merge adds a line per user-visible upstream PR (`#N`, upstream `Beta-N`) under the merge's
+  day, in an "Upstream" area, and notes which fork changes it touches.
+- `CI-compile` fails a push that changes code but not `CHANGELOG.md` (`.github/changelog.sh check`).
+  Docs, `labs/`, `.github/` and repository files are exempt; for anything else that changes nothing for
+  users, add a line `[no changelog]` to a commit message.
 
 ## Commands
 - Host checks: `powershell -ExecutionPolicy Bypass -File labs\host-repro\run_all.ps1 [-Opl <tree>] [-Only cheat,cfg,...] [-Images <dir of .iso>]`

@@ -22,7 +22,6 @@
 *.ZIP
 *.a
 *.d
-DETAILED_CHANGELOG
 
 #
 # files that we don't want to ignore
