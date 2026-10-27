@@ -26,7 +26,7 @@ does not match upstream's numbering.
 | Cheats | The 251st cheat is no longer written past the cheat table | this fork; overflow found by RiptOPL |
 | Cheats | `make_code()` no longer writes one byte past `digits[]` for every code | RiptOPL |
 | Cheats | A last line without LF is no longer read past the end of the buffer or copied past `line[]` | RiptOPL |
-| Cheats | Remembered picks of cheats that share a name survive a reload | RiptOPL |
+| Cheats | Picks of cheats that share a name are no longer lost on a reload: as many of them are picked again (the file stores names only, not which of them) | RiptOPL |
 | ISO | A directory record with an empty name no longer hangs the game list or the game | this fork |
 | ISO | The record length is read as one byte; an extended attribute length no longer derails the scan | this fork |
 | ISO | In-game lookups no longer overflow `cdvdman_curdir[15]` on names longer than 14 characters | this fork |
@@ -43,7 +43,7 @@ does not match upstream's numbering.
 | Config files | Keys of 32+ and values of 256+ characters are cut and terminated | RiptOPL |
 | Config files | A long line without `=` no longer overflows the prefix buffer | RiptOPL |
 | Settings | A failed save (e.g. full memory card) is reported instead of "Settings saved" | RiptOPL |
-| Settings | Looking for a USB device to save to no longer empties its `conf_opl.cfg` (upstream issue #1397) | this fork; RiptOPL has the same change |
+| Settings | Looking for a USB device to save to no longer empties its `conf_opl.cfg` (the fallback to USB that upstream issue #1397 reports runs this probe) | this fork; RiptOPL has the same change |
 | Themes | A colour with more than three bytes (`#RRGGBBAA`) no longer writes past the colour | RiptOPL |
 | Network | An `IPCONFIG.DAT` of 256 bytes or more no longer overflows the stack | RiptOPL |
 | VMC | Leaving the VMC menu no longer replaces a card of another size (4 MB, 128 MB, PCSX2 `.ps2`); Modify asks first | this fork, after RiptOPL |
