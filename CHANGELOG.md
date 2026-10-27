@@ -54,6 +54,9 @@ with the commit (or upstream `#N`) at the end.
   `CHANGELOG.md` instead of the per-commit `DETAILED_CHANGELOG`.
 - The release notes list the changelog entries added since the previous published build, with a link to
   the full file.
+- Problems with YAOPL builds can be reported in this repository's issues: the issue form asks for the
+  `-yaopl` version, the device (now with UDPBD and MMCE) and the game ID. Problems with official OPL builds
+  go to upstream. (f7b59653)
 
 ## YAOPL 2026-10-27
 
