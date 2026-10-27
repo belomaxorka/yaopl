@@ -54,8 +54,10 @@ with the commit (or upstream `#N`) at the end.
 - The toolchain image (ps2sdk, gsKit, ps2sdk-ports) is pinned by digest, so the same commit always embeds
   the same SDK modules; the release notes name the ps2sdk commit. A weekly canary build warns when the
   newest image differs. (78b8427d, 756f0141)
-- This changelog is kept again, with the upstream changes since 0.9.3 filled in, and the 7z packages carry
-  `CHANGELOG.md` instead of the per-commit `DETAILED_CHANGELOG`.
+- This changelog is kept again, with the upstream changes since 0.9.3 filled in; it replaces the per-commit
+  `DETAILED_CHANGELOG`.
+- The 7z packages hold only the ELFs with `LICENSE` and `CREDITS`; `README.md` and the changelog are no longer
+  packed, as the release notes list the changes. (b5980d64)
 - The release notes list the changelog entries added since the previous published build, with a link to
   the full file.
 - Problems with YAOPL builds can be reported in this repository's issues: the issue form asks for the
