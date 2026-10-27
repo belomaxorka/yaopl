@@ -487,13 +487,6 @@ static unsigned int sendIrxKernelRAM(const char *startup, const char *mode_str, 
     else if (!strcmp(mode_str, "MMCE_MODE"))
         modules |= CORE_IRX_MMCE;
 
-#ifdef MMCE_NO_SDK_SIO2MAN
-    // A/B build for the console: MMCE games keep the game's own SIO2MAN, as RiptOPL does (11a5150e), so
-    // neither the SDK sio2man nor mcemu is packed for them. VMC and PADEMU would hook the game's SIO2MAN.
-    if (modules & CORE_IRX_MMCE)
-        modules &= ~CORE_IRX_VMC;
-#endif
-
     irxtable = (irxtab_t *)ModuleStorage;
     irxptr_tab = (irxptr_t *)((unsigned char *)irxtable + sizeof(irxtab_t));
     size_ioprp_image = size_IOPRP_img + size_cdvdman_irx + size_cdvdfsv_irx + size_eesync_irx + 256;
@@ -524,7 +517,15 @@ static unsigned int sendIrxKernelRAM(const char *startup, const char *mode_str, 
 #else
 #define PADEMU_ARG
 #endif
-    if (modules & (CORE_IRX_MX4SIO | CORE_IRX_VMC) PADEMU_ARG) {
+#ifdef MMCE_NO_SDK_SIO2MAN
+// A/B build for the console: MMCE games keep the game's own SIO2MAN, as RiptOPL does (11a5150e). MMCE games
+// have no VMC; PADEMU still loads the SDK sio2man.
+#define MMCE_SIO2MAN_ARG
+#else
+// The mmcedrv built here hooks the SDK sio2man.
+#define MMCE_SIO2MAN_ARG | CORE_IRX_MMCE
+#endif
+    if (modules & (CORE_IRX_MX4SIO | CORE_IRX_VMC MMCE_SIO2MAN_ARG) PADEMU_ARG) {
         irxptr_tab[modcount].info = size_sio2man_irx | SET_OPL_MOD_ID(OPL_MODULE_ID_SIO2MAN);
         irxptr_tab[modcount++].ptr = (void *)&sio2man_irx;
     }
@@ -880,7 +881,9 @@ void sysLaunchLoaderElf(const char *filename, const char *mode_str, int size_cdv
 #endif
 #endif
 
-    modules |= CORE_IRX_VMC;
+    // mcemu and the SDK sio2man it needs only for a game with a VMC: other games keep their own SIO2MAN.
+    if (size_mcemu_irx > 0)
+        modules |= CORE_IRX_VMC;
 
     LOG("SYSTEM LaunchLoaderElf loading modules\n");
     ModuleStorageSize = (sendIrxKernelRAM(filename, mode_str, modules, ModuleStorage, size_cdvdman_irx, cdvdman_irx, size_mcemu_irx, mcemu_irx) + 0x3F) & ~0x3F;
