@@ -222,11 +222,11 @@ smb write error                    plain: smb_WriteFile = -5, smb_io_sema free
                                    asan:  smb_WriteFile = -5, smb_io_sema free
 smbvmc 512 512 1                   plain: DeviceWritePage = 1, DeviceReadPage = 1, DeviceReadPage before open = 1
                                    asan:  DeviceWritePage = 1, DeviceReadPage = 1, DeviceReadPage before open = 1
-smbvmc -5 -5 1                     plain: DeviceWritePage = 1, DeviceReadPage = 1, DeviceReadPage before open = 1
-                                   asan:  DeviceWritePage = 1, DeviceReadPage = 1, DeviceReadPage before open = 1
+smbvmc -5 -5 1                     plain: DeviceWritePage = 0, DeviceReadPage = 0, DeviceReadPage before open = 0
+                                   asan:  DeviceWritePage = 0, DeviceReadPage = 0, DeviceReadPage before open = 0
 smbvmc 0 0 1                       plain: DeviceWritePage = 0, DeviceReadPage = 0, DeviceReadPage before open = 0
                                    asan:  DeviceWritePage = 0, DeviceReadPage = 0, DeviceReadPage before open = 0
-smbvmc 512 512 -1                  plain: DeviceWritePage = 1, DeviceReadPage = 1, DeviceReadPage before open = 1
-                                   asan:  DeviceWritePage = 1, DeviceReadPage = 1, DeviceReadPage before open = 1
+smbvmc 512 512 -1                  plain: DeviceWritePage = 1, DeviceReadPage = 1, DeviceReadPage before open = 0
+                                   asan:  DeviceWritePage = 1, DeviceReadPage = 1, DeviceReadPage before open = 0
 bgmLoad default_bgm_path           plain: format string = "%s" | bgmLoad = -2
                                    asan:  format string = "%s" | bgmLoad = -2
