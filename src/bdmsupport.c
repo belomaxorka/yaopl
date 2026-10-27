@@ -377,13 +377,14 @@ void bdmLaunchGame(item_list_t *itemList, int id, config_set_t *configSet)
     }
 
     char vmc_name[32], vmc_path[256], have_error = 0;
-    int vmc_id, size_mcemu_irx = 0;
+    int vmc_id, vmc_frags, size_mcemu_irx = 0;
     bdm_vmc_infos_t bdm_vmc_infos;
     vmc_superblock_t vmc_superblock;
 
     for (vmc_id = 0; vmc_id < 2; vmc_id++) {
         memset(&bdm_vmc_infos, 0, sizeof(bdm_vmc_infos_t));
         have_error = 0; // An error in slot 1 must not be reported again for slot 2
+        vmc_frags = 0;
         configGetVMC(configSet, vmc_name, sizeof(vmc_name), vmc_id);
         if (vmc_name[0]) {
             have_error = 1;
@@ -417,7 +418,9 @@ void bdmLaunchGame(item_list_t *itemList, int id, config_set_t *configSet)
                             bdm_vmc_infos.start_sector = startingLBA;
                             LOG("BDMSUPPORT VMC slot %d start: 0x%08x%08x\n", vmc_id, ((u32 *)&startingLBA)[1], ((u32 *)&startingLBA)[0]);
                         } else {
-                            LOG("BDMSUPPORT Cluster Chain NG\n");
+                            // Count the fragments for the message: mcemu maps the VMC as one extent.
+                            vmc_frags = fileXioIoctl2(iop_fd, USBMASS_IOCTL_GET_FRAGLIST, NULL, 0, NULL, 0);
+                            LOG("BDMSUPPORT Cluster Chain NG: %d fragments\n", vmc_frags);
                             have_error = 2;
                         }
                     }
@@ -430,11 +433,15 @@ void bdmLaunchGame(item_list_t *itemList, int id, config_set_t *configSet)
         if (gAutoLaunchBDMGame == NULL) {
             if (have_error) {
                 char error[256];
-                if (have_error == 2) // VMC file is fragmented
+                if (vmc_frags > 1)
+                    snprintf(error, sizeof(error), _l(_STR_ERR_VMC_FRAGMENTS_CONTINUE), vmc_name, vmc_frags, (vmc_id + 1));
+                else if (have_error == 2) // VMC file is fragmented
                     snprintf(error, sizeof(error), _l(_STR_ERR_VMC_FRAGMENTED_CONTINUE), vmc_name, (vmc_id + 1));
                 else
                     snprintf(error, sizeof(error), _l(_STR_ERR_VMC_CONTINUE), vmc_name, (vmc_id + 1));
                 if (!guiMsgBox(error, 1, NULL)) {
+                    if (vmc_frags > 1)
+                        guiMsgBox(_l(_STR_VMC_DEFRAGMENT_HINT), 0, NULL);
                     return;
                 }
             }

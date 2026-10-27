@@ -751,3 +751,7 @@ gui_strings:
 - comment: IGR Boot Card Slot(s) choice; the cards in both slots switch back.
   label: BOTH
   string: Both
+- label: ERR_VMC_FRAGMENTS_CONTINUE
+  string: VMC %s is in %d fragments. Continue with Memory Card in slot %d?
+- label: VMC_DEFRAGMENT_HINT
+  string: To defragment the VMC, move the file to a PC and copy it back.
