@@ -1,0 +1,86 @@
+# YAOPL documentation site, built from docs/ by Zensical (.github/workflows/docs.yml).
+# Preview: pip install zensical==0.0.70, then "zensical serve" in the repository root.
+site_name: YAOPL documentation
+site_url: https://belomaxorka.github.io/yaopl/
+site_description: How to install and use YAOPL, a game and application loader for the PlayStation 2.
+repo_url: https://github.com/belomaxorka/yaopl
+repo_name: belomaxorka/yaopl
+edit_uri: edit/master/docs/
+copyright: YAOPL is licensed under the Academic Free License 3.0. It is not an official OPL build.
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - Install and launch: getting-started.md
+      - The interface: interface.md
+  - Devices:
+      - Choosing a device: devices/index.md
+      - USB, MX4SIO and iLink: devices/usb.md
+      - Internal HDD: devices/hdd.md
+      - Network setup: devices/network.md
+      - SMB share: devices/smb.md
+      - UDPBD: devices/udpbd.md
+      - MMCE: devices/mmce.md
+  - Games:
+      - Adding games: games.md
+      - Game settings: game-settings.md
+  - Settings reference: settings.md
+  - Features:
+      - Apps: features/apps.md
+      - Cheats: features/cheats.md
+      - Virtual memory cards: features/vmc.md
+      - In-game reset and screenshots: features/igr.md
+      - Art, themes and languages: features/customizing.md
+      - NBD server: features/nbd.md
+  - Troubleshooting: troubleshooting.md
+  - Reference:
+      - Configuration files: config-files.md
+      - Building from source: building.md
+      - Changelog: https://github.com/belomaxorka/yaopl/blob/master/CHANGELOG.md
+
+theme:
+  language: en
+  features:
+    - content.action.edit
+    - content.code.copy
+    - content.tabs.link
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.path
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: lucide/sun-moon
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: lucide/sun
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: lucide/moon
+        name: Switch to system preference
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
