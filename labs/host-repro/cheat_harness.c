@@ -94,6 +94,17 @@ static int code_count(const cheat_entry_t *cheat)
     return j;
 }
 
+/* Bytes of 0x80 and above are printed as \xNN, so the output does not depend on the console code page */
+static void print_name(const char *name)
+{
+    for (; *name != '\0'; name++) {
+        if ((unsigned char)*name >= 0x80)
+            printf("\\x%02X", (unsigned char)*name);
+        else
+            putchar(*name);
+    }
+}
+
 static int run(const char *path, int engine, int sweep)
 {
     FILE *f = fopen(path, "rb");
@@ -116,8 +127,11 @@ static int run(const char *path, int engine, int sweep)
     free(buf);
 
     if (!engine) {
-        for (i = 0; i < MAX_CODES && gCheats[i].name[0] != NUL; i++)
-            printf("cheat %3d name=\"%s\" enabled=%d codes=%d first=%08X\n", i, gCheats[i].name, gCheats[i].enabled, code_count(&gCheats[i]), gCheats[i].codes[0].addr);
+        for (i = 0; i < MAX_CODES && gCheats[i].name[0] != NUL; i++) {
+            printf("cheat %3d name=\"", i);
+            print_name(gCheats[i].name);
+            printf("\" enabled=%d codes=%d first=%08X\n", gCheats[i].enabled, code_count(&gCheats[i]), gCheats[i].codes[0].addr);
+        }
         printf("total cheats: %d\n", i);
         return 0;
     }

@@ -32,6 +32,7 @@ regenerate the file from a run on this tree:
 |---|---|---|
 | `cheat` | `src/cheatman.c` `make_code()` | writes `digits[16]`, one byte past the array, for every code |
 | `cheat` | `parse_buf()`, `trim_str()` | an indented comment becomes a cheat named `" "` |
+| `cheat` | `is_empty_str()`, `is_empty_substr()` | a name without ASCII letters (Cyrillic, Japanese) is dropped and its codes join the cheat before it |
 | `cheat` | `parse_buf()` | the 251st cheat is written to `gCheats[250]` |
 | `cheat` | `parse_buf()` | a last line over 255 bytes without LF overflows `line[]` |
 | `cheat` | `parse_buf()` | a last line without LF reads past the buffer |

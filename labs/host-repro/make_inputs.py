@@ -22,6 +22,11 @@ def cheats(out):
         # Same shape as SLUS_210.09.cht (Sega Classics Collection): a Mastercode with 9 hook lines
         "cht_9hooks.cht": b"Mastercode\r\n" + b"".join(b"9%07X 0C047714\r\n" % (0x01B9920 + n * 0x100) for n in range(9))
         + b"\r\nCheat\r\n2039FCF8 3FAAAAAB\r\n",
+        # Cheat names in Cyrillic (UTF-8): one followed by a comment, one with no ASCII at all, one with ASCII
+        "cht_utf8.cht": b"Mastercode\r\n90106418 0c0418ae\r\n"
+        + "Бессмертие // by X\r\n20142E50 00000001\r\n".encode()
+        + "Деньги\r\n20142E60 00000002\r\n".encode()
+        + "Макс (P1)\r\n20142E70 00000003\r\n".encode(),
         # 100 cheats of 3 codes: 300 codes for the engine's list of 250 when all are enabled
         "cht_many.cht": b"".join(
             b"Cheat %d\r\n2%07X 00000001\r\n2%07X 00000002\r\n2%07X 00000003\r\n" % (n, 0x100000 + n * 16, 0x100004 + n * 16, 0x100008 + n * 16)

@@ -87,7 +87,7 @@ function Test([string]$Name, [string]$Exe, [string[]]$Arguments) {
 if (Want "cheat") {
     $cheatFuncs = "make_code", "is_cheat_code", "parse_line", "is_cmt_str", "chr_idx", "term_str", "is_empty_str", "trim_str", "is_empty_substr", "parse_buf", "CHEAT_LINE_MAX", "set_cheats_list"
     Build cheat t "src\cheatman.c" $cheatFuncs -Source2 "ee_core\src\cheat_api.c" -Funcs2 "SetupCheats"
-    foreach ($t in "cht_plain", "cht_indented", "cht_251", "cht_long_last", "cht_no_lf") { Test "cheat $t" cheat-t (Join-Path $inputs "$t.cht") }
+    foreach ($t in "cht_plain", "cht_indented", "cht_251", "cht_long_last", "cht_no_lf", "cht_utf8") { Test "cheat $t" cheat-t (Join-Path $inputs "$t.cht") }
     # every cheat enabled, then the list for the EE core and the engine's hook and code tables
     foreach ($t in "cht_addr0", "cht_9hooks", "cht_many") { Test "cheat engine $t" cheat-t "-e", (Join-Path $inputs "$t.cht") }
     if ((Get-Content -Raw (Join-Path $Opl "src\cheatman.c")).Contains("char digits[CODE_DIGITS];")) {
