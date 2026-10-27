@@ -9,12 +9,12 @@ release notes of v1.0.0 and v1.1.0.
 How to read the entries:
 
 - YAOPL sections are named after the day the change reached `master`, the day its build was published as
-  the `latest` pre-release. References are commits of this repository; `FORK.md` explains each fork fix in
-  more detail.
+  the `latest` pre-release. References are commits of this repository; each commit message explains the
+  fix, its origin and its reproduction.
 - Upstream sections follow upstream's versions. `#N` there is pull request N of
   [ps2homebrew/Open-PS2-Loader](https://github.com/ps2homebrew/Open-PS2-Loader/pulls), and `Beta-N` is the
   first upstream build that has the change (the revision in the version string of upstream builds; YAOPL
-  builds count their revisions differently, see `FORK.md`).
+  builds count their revisions differently, see `CONTRIBUTING.md`).
 - Translations, code cleanups, warning fixes and CI changes that users do not see are summed up in one line
   per section.
 

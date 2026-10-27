@@ -1,6 +1,6 @@
 # usbd_mini.irx built from the ps2sdk USBD sources from before the "USBD feature update" (ps2sdk
 # b1f7ff96), which download_usbd.sh fetches into ps2sdk/. It is built the way ps2sdk built it then:
-# the sources of iop/usb/usbd with -DMINI_DRIVER (iop/usb/usbd_mini/Makefile of that tree). See FORK.md.
+# the sources of iop/usb/usbd with -DMINI_DRIVER (iop/usb/usbd_mini/Makefile of that tree). See CONTRIBUTING.md.
 IOP_BIN = usbd_mini.irx
 IOP_OBJS = hcd.o hub.o interface.o mem.o usbd.o usbio.o driver.o imports.o exports.o
 

@@ -2,7 +2,7 @@
 
 ## Fetch the UDPBD IOP modules (smap, ministack, udpbd) of rickgaiser/neutrino at a pinned commit: OPL builds
 ## and embeds them for UDPBD, a block device served over UDP by a PC on the LAN. The modules are AFL-3.0
-## licensed like OPL, see CREDITS; FORK.md says why this fork carries them.
+## licensed like OPL, see CREDITS; CONTRIBUTING.md says why this fork carries them.
 REPO_URL="https://github.com/rickgaiser/neutrino.git"
 REPO_FOLDER="modules/network/neutrino"
 COMMIT="7be8de2798c99af433c91993e021746a54d6800d"

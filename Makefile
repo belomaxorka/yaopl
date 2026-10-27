@@ -36,7 +36,7 @@ IGS ?= $(EXTRA_FEATURES)
 #Enables/disables pad emulator
 PADEMU ?= 1
 
-#A/B build for the console: MMCE games keep the game's own SIO2MAN instead of the SDK sio2man (see FORK.md)
+#A/B build for the console: MMCE games keep the game's own SIO2MAN instead of the SDK sio2man (see CONTRIBUTING.md)
 MMCE_NO_SDK_SIO2MAN ?= 0
 
 #Enables/disables building of an edition of OPL that will support the DTL-T10000 (SDK v2.3+)
@@ -527,14 +527,14 @@ modules/isofs/isofs.irx: modules/isofs
 $(EE_ASM_DIR)isofs.c: modules/isofs/isofs.irx | $(EE_ASM_DIR)
 	$(BIN2C) $< $@ $(*F)_irx
 
-# Not the SDK's usbd_mini.irx: it is built from the USBD sources from before the ps2sdk rewrite, see FORK.md.
+# Not the SDK's usbd_mini.irx: it is built from the USBD sources from before the ps2sdk rewrite, see CONTRIBUTING.md.
 modules/usb/usbd_mini/usbd_mini.irx: download_usbd
 	$(MAKE) -C modules/usb/usbd_mini
 
 $(EE_ASM_DIR)usbd.c: modules/usb/usbd_mini/usbd_mini.irx | $(EE_ASM_DIR)
 	$(BIN2C) $< $@ $(*F)_irx
 
-# The MMCE modules are built from ps2-mmce/mmceman, which download_mmce.sh fetches; see FORK.md and CREDITS.
+# The MMCE modules are built from ps2-mmce/mmceman, which download_mmce.sh fetches; see CONTRIBUTING.md and CREDITS.
 modules/mmce/mmceman/mmceman/irx/mmceman.irx: download_mmce
 	$(MAKE) -C modules/mmce/mmceman/mmceman
 
@@ -553,7 +553,7 @@ modules/mmce/mmceman/mmceigr/irx/mmceigr.irx: download_mmce
 $(EE_ASM_DIR)mmceigr.c: modules/mmce/mmceman/mmceigr/irx/mmceigr.irx | $(EE_ASM_DIR)
 	$(BIN2C) $< $@ $(*F)_irx
 
-# The UDPBD modules are built from rickgaiser/neutrino, which download_udpbd.sh fetches; see FORK.md and CREDITS.
+# The UDPBD modules are built from rickgaiser/neutrino, which download_udpbd.sh fetches; see CONTRIBUTING.md and CREDITS.
 # Their exports.tab defines _retonly before the export table, which srxfixup's zero-.text check rejects; every
 # table entry is filled, so the jal 0x0 hazard that check guards against cannot happen.
 UDPBD_IOP_FLAGS = IOP_SRXFIXUP_FLAGS="--rb --irx1 --allow-zero-text"

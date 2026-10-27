@@ -53,13 +53,13 @@ jobs:
         echo "ps2sdk: $TOOLCHAIN_PS2SDK"
         cd "$PS2SDK/iop/irx" && sha256sum $(grep -o 'iop/irx/[A-Za-z0-9_-]*\.irx' "$GITHUB_WORKSPACE/Makefile" | sed 's|^iop/irx/||' | sort -u)
 
-    - name: Report the embedded USBD (built from pre-rewrite ps2sdk sources, see FORK.md)
+    - name: Report the embedded USBD (built from pre-rewrite ps2sdk sources, see CONTRIBUTING.md)
       run: |
         ls -l modules/usb/usbd_mini/usbd_mini.irx "$PS2SDK/iop/irx/usbd_mini.irx"
         sha256sum modules/usb/usbd_mini/usbd_mini.irx "$PS2SDK/iop/irx/usbd_mini.irx"
         git -C modules/usb/usbd_mini/ps2sdk log -1 --format='ps2sdk USBD sources: %H (%cs)'
 
-    - name: Report the MMCE modules (built from ps2-mmce/mmceman, see FORK.md)
+    - name: Report the MMCE modules (built from ps2-mmce/mmceman, see CONTRIBUTING.md)
       run: |
         ls -l modules/mmce/mmceman/mmceman/irx/mmceman.irx modules/mmce/mmceman/mmcedrv/irx/mmcedrv.irx modules/mmce/mmceman/mmceigr/irx/mmceigr.irx
         sha256sum modules/mmce/mmceman/mmceman/irx/mmceman.irx modules/mmce/mmceman/mmcedrv/irx/mmcedrv.irx modules/mmce/mmceman/mmceigr/irx/mmceigr.irx
@@ -263,7 +263,7 @@ jobs:
         {
           echo "Automatic YAOPL (Yet Another Open PS2 Loader) build of ${{ env.OPL_VERSION }} from $GITHUB_SHA."
           echo
-          echo "Not an official OPL build: see FORK.md for what differs from upstream OPL."
+          echo "Not an official OPL build: see CHANGELOG.md for what differs from upstream OPL."
           echo
           echo "$changes_title"
           echo

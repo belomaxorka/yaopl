@@ -2,7 +2,7 @@
 
 ## Fetch the MMCE IOP modules (mmceman, mmcedrv, mmceigr) of ps2-mmce/mmceman at a pinned commit: OPL builds
 ## and embeds them for the MMCE device (SD2PSX, MemCard PRO 2 and other memory-card emulators). The modules
-## are MIT licensed, see CREDITS; FORK.md says why this fork carries them.
+## are MIT licensed, see CREDITS; CONTRIBUTING.md says why this fork carries them.
 REPO_URL="https://github.com/ps2-mmce/mmceman.git"
 REPO_FOLDER="modules/mmce/mmceman"
 COMMIT="de28936fdf45fe445554cfa0b8f058b05fa8212f"

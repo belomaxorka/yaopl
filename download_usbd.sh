@@ -2,7 +2,7 @@
 
 ## Fetch the ps2sdk USBD sources from before the "USBD feature update" (ps2sdk b1f7ff96, merged 2024-09-24).
 ## OPL embeds a usbd_mini.irx built from them (modules/usb/usbd_mini): the rewritten USBD of today's
-## ps2sdk hangs some games on USB (upstream issue #1751, ps2sdk issue #908). See FORK.md.
+## ps2sdk hangs some games on USB (upstream issue #1751, ps2sdk issue #908). See CONTRIBUTING.md.
 REPO_URL="https://github.com/ps2dev/ps2sdk.git"
 REPO_FOLDER="modules/usb/usbd_mini/ps2sdk"
 COMMIT="2dc6b32f4ce43593609d895207c720fc6e02e0e4"

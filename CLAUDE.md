@@ -3,9 +3,9 @@
 YAOPL (Yet Another Open PS2 Loader) is our fork of Open PS2 Loader that we develop ourselves. Users install the
 ELF that CI publishes from `master`. Its PC-side companion is YAOPLM (Yet Another OPL Manager), a separate project.
 
-Read before working: `FORK.md` (what differs from upstream and why), `README.md` (header), `CONTRIBUTING.md`
-(upstream's code rules), `labs/host-repro/README.md`. If the local knowledge base `kb/` exists, start with
-`kb/README.md` and `kb/ROADMAP.md`.
+Read before working: `README.md`, `CONTRIBUTING.md` (upstream's code rules and how this fork works),
+`CHANGELOG.md` (what differs from upstream), `docs/USAGE.md` (the user guide), `labs/host-repro/README.md`.
+If the local knowledge base `kb/` exists, start with `kb/README.md` and `kb/ROADMAP.md`.
 
 ## Knowledge base
 - `kb/` is local only: it is listed in `.git/info/exclude` and must never be committed or pushed, to our GitHub or
@@ -24,12 +24,12 @@ Read before working: `FORK.md` (what differs from upstream and why), `README.md`
    finished, checked work. Prepare bigger changes on a short-lived branch and delete it after the merge.
    Only the build of master's tip is published: a commit that does not change the ELF (`labs/`, docs) may say
    `[skip ci]`, but push it only after the running build has published, or that build is not released.
-3. **Keep `FORK.md` current.** Every fix or behaviour change updates the table in `FORK.md` (area, fix, origin)
-   in the same push. Update the README header if what YAOPL is or how to get it changes. Every user-visible
-   change also adds a line to `CHANGELOG.md` in the same push (see "Changelog" below).
+3. **Keep the docs current.** Every user-visible change adds a line to `CHANGELOG.md` in the same push (see
+   "Changelog" below). Update `docs/USAGE.md` when a change affects how YAOPL is used, `README.md` if what
+   YAOPL is or how to get it changes, and `CONTRIBUTING.md` if how the fork works changes.
 4. **One fix per commit.** Subject `<component>: <summary>`. The body states the problem, the fix, its origin
    (credit the RiptOPL commit for ported fixes) and the reproduction with the result before and after.
-5. **Check every fix** (details in `FORK.md`, "How fixes are checked"):
+5. **Check every fix** (details in `CONTRIBUTING.md`, "How fixes are checked"):
    - reproduce on an upstream tree first (`labs/host-repro/run_all.ps1 -Opl <tree>`, or a console test);
    - rerun the same check after the fix, then all checks for regressions;
    - format with clang-format 12 (`make format`, or the `clang-format` 12.0.1 Python wheel on Windows);
@@ -64,4 +64,4 @@ Read before working: `FORK.md` (what differs from upstream and why), `README.md`
 - Host checks: `powershell -ExecutionPolicy Bypass -File labs\host-repro\run_all.ps1 [-Opl <tree>] [-Only cheat,cfg,...] [-Images <dir of .iso>]`
 - Console test files: `python labs/host-repro/make_console_kit.py <bootable.iso> <out dir>`
 - CI: `gh run list -R belomaxorka/yaopl`, `gh workflow run compilation.yml -R belomaxorka/yaopl --ref master`
-- Upstream sync: see `FORK.md`, "Pulling in upstream changes".
+- Upstream sync: see `CONTRIBUTING.md`, "Pulling in upstream changes".

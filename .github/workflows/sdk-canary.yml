@@ -2,7 +2,7 @@ name: CI-sdk-canary
 
 # Builds OPL with the newest toolchain image (ghcr.io/ps2homebrew/ps2homebrew:main) instead of the
 # digest that compilation.yml pins, and lists the ps2sdk modules the ELF embeds that changed.
-# It publishes nothing. A warning means ps2sdk moved: review it and bump the pin (see FORK.md).
+# It publishes nothing. A warning means ps2sdk moved: review it and bump the pin (see CONTRIBUTING.md, "Updating ps2sdk").
 on:
   schedule:
     - cron: '0 6 * * 1'
