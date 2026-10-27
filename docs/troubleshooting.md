@@ -21,7 +21,7 @@ replaced an image with another game under the same name, delete `games.bin` in t
 
 **Settings are not kept.**
 Choose **Save Changes** in the main menu (or in the game menu for game settings). With *Notifications* on, YAOPL
-says where it saved them; see [Where settings are saved](getting-started.md#where-settings-saved).
+says where it saved them; see [Where settings are saved](getting-started.md#where-settings-are-saved).
 
 ## Starting games
 

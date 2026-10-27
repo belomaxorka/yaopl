@@ -55,7 +55,7 @@ START opens the main menu:
 | Start NBD Server | Share the internal HDD with a PC over the network. [Details](features/nbd.md) |
 | MMCE Settings | Memory-card emulators that hold games. [Details](devices/mmce.md#settings) |
 | About | Version, build options and credits |
-| Save Changes | Write all settings to the [settings files](getting-started.md#where-settings-saved) |
+| Save Changes | Write all settings to the [settings files](getting-started.md#where-settings-are-saved) |
 | Exit | Leave YAOPL for the console's browser |
 | Power Off | Turn the console off |
 
