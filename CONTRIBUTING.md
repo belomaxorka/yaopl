@@ -20,7 +20,8 @@ changes.
 * Keep diffs small and close to upstream's code, so that upstream changes can still be merged.
 * Add a line to `CHANGELOG.md` for every change users see (see the top of that file). CI fails a push that
   changes code without a `CHANGELOG.md` line; for a change users do not see, add a line `[no changelog]` to
-  the commit message. Update `docs/USAGE.md` when a change affects how YAOPL is used.
+  the commit message. Update the documentation in `docs/` when a change affects how YAOPL is used (see
+  "Documentation" below).
 * Format with clang-format 12 exactly, as `CI-format-check` does; other versions format differently.
 * YAOPL is licensed under AFL-3.0 like OPL. Do not copy code from projects under an incompatible licence,
   such as GPL.
@@ -41,6 +42,21 @@ upstream's numbering.
 
 The logo (`gfx/logo.png`, shown on the greeting screen, and `docs/logo.svg`) is drawn by
 `labs/logo/make_logo.py`; change the script and rerun it rather than editing the images.
+
+## Documentation
+
+The user documentation is the site at <https://belomaxorka.github.io/yaopl/>, built from the Markdown pages in
+`docs/` and the page list in `mkdocs.yml` by [Zensical](https://zensical.org/) (`.github/workflows/docs.yml`).
+The workflow builds the site with `--strict` for every push or pull request that changes `docs/`,
+`mkdocs.yml` or the workflow, so a broken link or anchor fails it, and publishes it to GitHub Pages from
+`master`. To preview: `pip install zensical==0.0.70`, then `zensical serve` (the version is pinned in the
+workflow and in `mkdocs.yml`; change them together).
+
+- One topic per page; add a new page to `nav` in `mkdocs.yml`.
+- Check what a page says against the code (labels in `lng_tmpl/_base.yml`, defaults in `setDefaults()` in
+  `src/opl.c`), and say in the commit message what was only read in the code and what was seen on a console.
+- `[skip ci]` skips the docs workflow too, so do not use it for a commit that changes the documentation. Such
+  a push also runs `CI-compile`, which republishes `latest` with the same ELF.
 
 ## How fixes are checked
 
@@ -105,7 +121,8 @@ git push origin master           # CI builds and publishes the new pre-release
 
 Do not use GitHub's "Sync fork" button with "Discard commits": it would drop this fork's fixes.
 Before pushing a merge, run `labs/host-repro/run_all.ps1` if upstream touched the files it covers. Upstream's
-`README.md` was replaced by YAOPL's and `docs/USAGE.md`: port changes to its user documentation by hand.
+`README.md` was replaced by YAOPL's README and the documentation in `docs/`: port changes to its user
+documentation by hand.
 
 ## Updating ps2sdk
 

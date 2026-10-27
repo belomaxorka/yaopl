@@ -6,6 +6,6 @@ contact_links:
   - name: What YAOPL changes
     url: https://github.com/belomaxorka/yaopl/blob/master/CHANGELOG.md
     about: Every fix and new feature of this fork, build by build.
-  - name: User guide
-    url: https://github.com/belomaxorka/yaopl/blob/master/docs/USAGE.md
-    about: Folders, devices, formats, apps, cheats and frequent issues.
+  - name: Documentation
+    url: https://belomaxorka.github.io/yaopl/
+    about: Installing, devices, settings, game settings and troubleshooting.

@@ -47,7 +47,9 @@ Every change to `master` is built and published as the [`latest` release](https:
 
 ## Documentation
 
-- [User guide](https://github.com/belomaxorka/yaopl/blob/master/docs/USAGE.md): installing, folders, devices, formats, apps, cheats, NBD, frequent issues.
+- [Documentation](https://belomaxorka.github.io/yaopl/): installing and launching, every menu and setting,
+  preparing each device (USB, MX4SIO, HDD, SMB, UDPBD, MMCE), adding games, cheats, VMCs, troubleshooting.
+  Its source is [`docs/`](docs/).
 - [Changelog](CHANGELOG.md): what changed in each build, and what YAOPL changed compared with OPL.
 - [Contributing](CONTRIBUTING.md): how changes are made, checked and released, and how upstream is merged.
 - [Issues](https://github.com/belomaxorka/yaopl/issues): bug reports and feature requests for YAOPL builds.

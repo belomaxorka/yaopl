@@ -4,7 +4,8 @@ YAOPL (Yet Another Open PS2 Loader) is our fork of Open PS2 Loader that we devel
 ELF that CI publishes from `master`. Its PC-side companion is YAOPLM (Yet Another OPL Manager), a separate project.
 
 Read before working: `README.md`, `CONTRIBUTING.md` (upstream's code rules and how this fork works),
-`CHANGELOG.md` (what differs from upstream), `docs/USAGE.md` (the user guide), `labs/host-repro/README.md`.
+`CHANGELOG.md` (what differs from upstream), `docs/` (the user documentation site, `mkdocs.yml`),
+`labs/host-repro/README.md`.
 If the local knowledge base `kb/` exists, start with `kb/README.md` and `kb/ROADMAP.md`.
 
 ## Knowledge base
@@ -22,11 +23,12 @@ If the local knowledge base `kb/` exists, start with `kb/README.md` and `kb/ROAD
 1. **Licence.** YAOPL is AFL-3.0 like OPL. Never copy code from YAOPLM (GPL-3.0) into YAOPL, or the other way.
 2. **`master` is the release.** Every push to `master` publishes the public `latest` pre-release. Push only
    finished, checked work. Prepare bigger changes on a short-lived branch and delete it after the merge.
-   Only the build of master's tip is published: a commit that does not change the ELF (`labs/`, docs) may say
-   `[skip ci]`, but push it only after the running build has published, or that build is not released.
+   Only the build of master's tip is published: a commit that does not change the ELF (`labs/`) may say `[skip ci]`,
+   but push it only after the running build has published, or that build is not released. A commit that
+   changes `docs/` must not say `[skip ci]`: it would skip the docs site workflow too.
 3. **Keep the docs current.** Every user-visible change adds a line to `CHANGELOG.md` in the same push (see
-   "Changelog" below). Update `docs/USAGE.md` when a change affects how YAOPL is used, `README.md` if what
-   YAOPL is or how to get it changes, and `CONTRIBUTING.md` if how the fork works changes.
+   "Changelog" below). Update the pages in `docs/` when a change affects how YAOPL is used, `README.md` if
+   what YAOPL is or how to get it changes, and `CONTRIBUTING.md` if how the fork works changes.
 4. **One fix per commit.** Subject `<component>: <summary>`. The body states the problem, the fix, its origin
    (credit the RiptOPL commit for ported fixes) and the reproduction with the result before and after.
 5. **Check every fix** (details in `CONTRIBUTING.md`, "How fixes are checked"):
