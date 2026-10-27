@@ -554,20 +554,24 @@ $(EE_ASM_DIR)mmceigr.c: modules/mmce/mmceman/mmceigr/irx/mmceigr.irx | $(EE_ASM_
 	$(BIN2C) $< $@ $(*F)_irx
 
 # The UDPBD modules are built from rickgaiser/neutrino, which download_udpbd.sh fetches; see FORK.md and CREDITS.
+# Their exports.tab defines _retonly before the export table, which srxfixup's zero-.text check rejects; every
+# table entry is filled, so the jal 0x0 hazard that check guards against cannot happen.
+UDPBD_IOP_FLAGS = IOP_SRXFIXUP_FLAGS="--rb --irx1 --allow-zero-text"
+
 modules/network/neutrino/iop/smap/irx/smap.irx: download_udpbd
-	$(MAKE) -C modules/network/neutrino/iop/smap
+	$(MAKE) -C modules/network/neutrino/iop/smap $(UDPBD_IOP_FLAGS)
 
 $(EE_ASM_DIR)udpbd_smap.c: modules/network/neutrino/iop/smap/irx/smap.irx | $(EE_ASM_DIR)
 	$(BIN2C) $< $@ udpbd_smap_irx
 
 modules/network/neutrino/iop/ministack/irx/ministack.irx: download_udpbd
-	$(MAKE) -C modules/network/neutrino/iop/ministack
+	$(MAKE) -C modules/network/neutrino/iop/ministack $(UDPBD_IOP_FLAGS)
 
 $(EE_ASM_DIR)udpbd_ministack.c: modules/network/neutrino/iop/ministack/irx/ministack.irx | $(EE_ASM_DIR)
 	$(BIN2C) $< $@ udpbd_ministack_irx
 
 modules/network/neutrino/iop/udpbd/irx/udpbd.irx: download_udpbd
-	$(MAKE) -C modules/network/neutrino/iop/udpbd
+	$(MAKE) -C modules/network/neutrino/iop/udpbd $(UDPBD_IOP_FLAGS)
 
 $(EE_ASM_DIR)udpbd.c: modules/network/neutrino/iop/udpbd/irx/udpbd.irx | $(EE_ASM_DIR)
 	$(BIN2C) $< $@ $(*F)_irx
