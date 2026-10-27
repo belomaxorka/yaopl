@@ -7,6 +7,9 @@ its development. It tracks upstream OPL and adds its own fixes, starting with cr
 errors on malformed cheat files, ISO and ZSO images, `SYSTEM.CNF`, `ul.cfg` and `games.bin`. It is the
 loader-side companion of YAOPLM (Yet Another OPL Manager), the PC manager for OPL game libraries.
 
+Besides upstream's devices, YAOPL can load games over the LAN with UDPBD, a disk or disk image that a PC
+serves with a UDPBD server (Settings → BDM Devices → UDPBD; see [FORK.md](FORK.md)).
+
 YAOPL is not an official OPL build and is not affiliated with the OPL project.
 
 ## Download
