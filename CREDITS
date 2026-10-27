@@ -50,6 +50,9 @@ by Eric Young (eay@mincom.oz.au)
 CI/CD Implementation using Dockers and GiHubActions
 by fjtrujy
 
+UDPBD modules (smap, ministack, udpbd) built from rickgaiser/neutrino
+by Maximus32 (Rick Gaiser), AFL 3.0
+
 MMCE modules (mmceman, mmcedrv, mmceigr) built from ps2-mmce/mmceman
 by qnox32, bbsan2k and the MMCE authors; their SIO2MAN hook comes from Maximus32 (MX4SIO driver, AFL 2.0).
 The modules are MIT licensed; this is their notice:

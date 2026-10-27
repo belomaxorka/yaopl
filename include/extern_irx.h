@@ -16,6 +16,8 @@ IMPORT_BIN2C(bdm_ata_cdvdman_irx);
 
 IMPORT_BIN2C(bdm_cdvdman_irx);
 
+IMPORT_BIN2C(bdm_udp_cdvdman_irx);
+
 IMPORT_BIN2C(bdm_mcemu_irx);
 
 IMPORT_BIN2C(bdmevent_irx);
@@ -133,6 +135,12 @@ IMPORT_BIN2C(smsutils_irx);
 IMPORT_BIN2C(tifinet_irx);
 
 IMPORT_BIN2C(tifinet_ingame_irx);
+
+IMPORT_BIN2C(udpbd_irx);
+
+IMPORT_BIN2C(udpbd_ministack_irx);
+
+IMPORT_BIN2C(udpbd_smap_irx);
 
 IMPORT_BIN2C(udptty_irx);
 

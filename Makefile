@@ -88,6 +88,7 @@ IOP_OBJS =	iomanx.o filexio.o ps2fs.o usbd.o bdmevent.o \
 		bdm.o bdmfs_fatfs.o usbmass_bd.o iLinkman.o IEEE1394_bd.o mx4sio_bd.o \
 		ps2atad.o hdpro_atad.o poweroff.o ps2hdd.o xhdd.o genvmc.o lwnbdsvr.o \
 		ps2dev9.o smsutils.o ps2ip.o smap.o isofs.o nbns-iop.o \
+		udpbd_smap.o udpbd_ministack.o udpbd.o \
 		sio2man.o padman.o mcman.o mcserv.o mmceman.o mmcedrv.o mmceigr.o \
 		httpclient-iop.o netman.o ps2ips.o \
 		bdm_mcemu.o hdd_mcemu.o smb_mcemu.o \
@@ -96,7 +97,7 @@ IOP_OBJS =	iomanx.o filexio.o ps2fs.o usbd.o bdmevent.o \
 
 EECORE_OBJS = ee_core.o ioprp.o util.o \
 		udnl.o imgdrv.o eesync.o \
-		bdm_cdvdman.o bdm_ata_cdvdman.o IOPRP_img.o smb_cdvdman.o \
+		bdm_cdvdman.o bdm_ata_cdvdman.o bdm_udp_cdvdman.o IOPRP_img.o smb_cdvdman.o \
 		hdd_cdvdman.o hdd_hdpro_cdvdman.o mmce_cdvdman.o cdvdfsv.o \
 		ingame_smstcpip.o smap_ingame.o smbman.o smbinit.o
 
@@ -236,7 +237,7 @@ EE_LDFLAGS += -fdata-sections -ffunction-sections -Wl,--gc-sections
 
 .SILENT:
 
-.PHONY: all release debug iopcore_debug eesio_debug ingame_debug deci2_debug debug_ppctty iopcore_ppctty_debug ingame_ppctty_debug clean rebuild pc_tools pc_tools_win32 oplversion format format-check ps2sdk-not-setup download_lng download_lwNBD download_usbd download_mmce languages
+.PHONY: all release debug iopcore_debug eesio_debug ingame_debug deci2_debug debug_ppctty iopcore_ppctty_debug ingame_ppctty_debug clean rebuild pc_tools pc_tools_win32 oplversion format format-check ps2sdk-not-setup download_lng download_lwNBD download_usbd download_mmce download_udpbd languages
 
 ifdef PS2SDK
 
@@ -287,6 +288,7 @@ clean:	download_lwNBD
 	echo " -cdvdman"
 	$(MAKE) -C modules/iopcore/cdvdman USE_BDM=1 clean
 	$(MAKE) -C modules/iopcore/cdvdman USE_BDM_ATA=1 clean
+	$(MAKE) -C modules/iopcore/cdvdman USE_BDM_UDP=1 clean
 	$(MAKE) -C modules/iopcore/cdvdman USE_MMCE=1 clean
 	$(MAKE) -C modules/iopcore/cdvdman USE_SMB=1 clean
 	$(MAKE) -C modules/iopcore/cdvdman USE_HDD=1 clean
@@ -345,6 +347,10 @@ clean:	download_lwNBD
 	$(MAKE) -C modules/usb/usbd_mini clean
 	echo " -mmce modules"
 	test ! -d modules/mmce/mmceman/mmceman || $(MAKE) -C modules/mmce/mmceman clean
+	echo " -udpbd modules"
+	test ! -d modules/network/neutrino/iop/smap || $(MAKE) -C modules/network/neutrino/iop/smap clean
+	test ! -d modules/network/neutrino/iop/ministack || $(MAKE) -C modules/network/neutrino/iop/ministack clean
+	test ! -d modules/network/neutrino/iop/udpbd || $(MAKE) -C modules/network/neutrino/iop/udpbd clean
 	echo "-pc tools"
 	$(MAKE) -C pc clean
 
@@ -430,6 +436,12 @@ modules/iopcore/cdvdman/bdm_ata_cdvdman.irx: modules/iopcore/cdvdman
 
 $(EE_ASM_DIR)bdm_ata_cdvdman.c: modules/iopcore/cdvdman/bdm_ata_cdvdman.irx | $(EE_ASM_DIR)
 	$(BIN2C) $< $@ bdm_ata_cdvdman_irx
+
+modules/iopcore/cdvdman/bdm_udp_cdvdman.irx: modules/iopcore/cdvdman
+	$(MAKE) $(CDVDMAN_PS2LOGO_FLAGS) $(CDVDMAN_DEBUG_FLAGS) USE_BDM_UDP=1 -C $< all
+
+$(EE_ASM_DIR)bdm_udp_cdvdman.c: modules/iopcore/cdvdman/bdm_udp_cdvdman.irx | $(EE_ASM_DIR)
+	$(BIN2C) $< $@ bdm_udp_cdvdman_irx
 
 modules/iopcore/cdvdman/mmce_cdvdman.irx: modules/iopcore/cdvdman
 	$(MAKE) $(CDVDMAN_PS2LOGO_FLAGS) $(CDVDMAN_DEBUG_FLAGS) USE_MMCE=1 -C $< all
@@ -539,6 +551,25 @@ modules/mmce/mmceman/mmceigr/irx/mmceigr.irx: download_mmce
 	$(MAKE) -C modules/mmce/mmceman/mmceigr
 
 $(EE_ASM_DIR)mmceigr.c: modules/mmce/mmceman/mmceigr/irx/mmceigr.irx | $(EE_ASM_DIR)
+	$(BIN2C) $< $@ $(*F)_irx
+
+# The UDPBD modules are built from rickgaiser/neutrino, which download_udpbd.sh fetches; see FORK.md and CREDITS.
+modules/network/neutrino/iop/smap/irx/smap.irx: download_udpbd
+	$(MAKE) -C modules/network/neutrino/iop/smap
+
+$(EE_ASM_DIR)udpbd_smap.c: modules/network/neutrino/iop/smap/irx/smap.irx | $(EE_ASM_DIR)
+	$(BIN2C) $< $@ udpbd_smap_irx
+
+modules/network/neutrino/iop/ministack/irx/ministack.irx: download_udpbd
+	$(MAKE) -C modules/network/neutrino/iop/ministack
+
+$(EE_ASM_DIR)udpbd_ministack.c: modules/network/neutrino/iop/ministack/irx/ministack.irx | $(EE_ASM_DIR)
+	$(BIN2C) $< $@ udpbd_ministack_irx
+
+modules/network/neutrino/iop/udpbd/irx/udpbd.irx: download_udpbd
+	$(MAKE) -C modules/network/neutrino/iop/udpbd
+
+$(EE_ASM_DIR)udpbd.c: modules/network/neutrino/iop/udpbd/irx/udpbd.irx | $(EE_ASM_DIR)
 	$(BIN2C) $< $@ $(*F)_irx
 
 $(EE_ASM_DIR)libsd.c: $(PS2SDK)/iop/irx/libsd.irx | $(EE_ASM_DIR)
@@ -842,6 +873,9 @@ download_usbd:
 
 download_mmce:
 	./download_mmce.sh
+
+download_udpbd:
+	./download_udpbd.sh
 
 download_cfla:
 	./download_cfla.sh
