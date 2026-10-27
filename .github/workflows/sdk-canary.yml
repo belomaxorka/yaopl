@@ -1,0 +1,60 @@
+name: CI-sdk-canary
+
+# Builds OPL with the newest toolchain image (ghcr.io/ps2homebrew/ps2homebrew:main) instead of the
+# digest that compilation.yml pins, and lists the ps2sdk modules the ELF embeds that changed.
+# It publishes nothing. A warning means ps2sdk moved: review it and bump the pin (see FORK.md).
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/sdk-canary.yml'
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    env:
+      NEWEST: ghcr.io/ps2homebrew/ps2homebrew:main
+    steps:
+    - name: git checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Compare the pinned and the newest toolchain image
+      run: |
+        pinned=$(grep -o 'ghcr.io/ps2homebrew/ps2homebrew@sha256:[0-9a-f]\{64\}' .github/workflows/compilation.yml | head -n 1)
+        docker pull -q "$NEWEST"
+        newest=$(docker inspect --format '{{index .RepoDigests 0}}' "$NEWEST")
+        echo "pinned: $pinned"
+        echo "newest: $newest"
+        # The modules of $(PS2SDK)/iop/irx that the Makefile embeds, hashed in an image.
+        list=$(grep -o 'iop/irx/[A-Za-z0-9_-]*\.irx' Makefile | sed 's|^iop/irx/||' | sort -u | tr '\n' ' ')
+        hashes() { docker run --rm "$1" sh -c "cd \"\$PS2SDK/iop/irx\" && ls -l $list && sha256sum $list"; }
+        hashes "$NEWEST" > newest.txt
+        {
+          echo "### Toolchain image"
+          echo "- pinned: \`$pinned\`"
+          echo "- newest: \`$newest\`"
+        } >> "$GITHUB_STEP_SUMMARY"
+        if [ "${newest#*@}" = "${pinned#*@}" ]; then
+          echo "The pinned image is the newest one." >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+        fi
+        docker pull -q "$pinned"
+        hashes "$pinned" > pinned.txt
+        changed=$({ diff <(grep -v '^[-l]' pinned.txt) <(grep -v '^[-l]' newest.txt) || true; } | sed -n 's/^> [0-9a-f]*  //p' | tr '\n' ' ')
+        echo "::warning::The toolchain image moved: $newest. Changed ps2sdk modules: ${changed:-none}"
+        {
+          echo
+          echo "Changed embedded ps2sdk modules: ${changed:-none}"
+          echo '```'
+          cat newest.txt
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Compile with the newest image -> make release
+      run: |
+        docker run --rm -v "$PWD:/src" -w /src "$NEWEST" \
+          sh -c 'git config --global --add safe.directory /src && make --trace release'

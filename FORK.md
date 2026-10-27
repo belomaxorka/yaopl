@@ -134,7 +134,8 @@ toolchain image, so a ps2sdk change reaches its builds unannounced; here the ima
 in `.github/workflows/compilation.yml` (`TOOLCHAIN_IMAGE`, the `container:` lines and the ps2sdk commit
 in `TOOLCHAIN_PS2SDK`).
 
-To move to a newer image:
+`CI-sdk-canary` (weekly, or by hand) builds with the newest image and warns when it differs from the
+pinned one, listing the embedded modules that changed. To move to it:
 
 1. Read the ps2sdk commits since `TOOLCHAIN_PS2SDK` for the modules OPL embeds, in-game ones first.
 2. On a short-lived branch, change only the digest and the ps2sdk commit, in one commit
