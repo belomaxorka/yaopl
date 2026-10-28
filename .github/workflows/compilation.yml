@@ -229,7 +229,7 @@ jobs:
       contents: write
     concurrency:
       group: release-${{ github.ref }}
-    if: startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/master'
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/tags/yaopl-v') || github.ref == 'refs/heads/master'
     env:
       USERNAME: ${{ secrets.USERNAME }}
       PASSWORD: ${{ secrets.PASSWORD }}
@@ -301,6 +301,46 @@ jobs:
         } > notes.md
         gh release create latest $files SHA256SUMS --repo "$GITHUB_REPOSITORY" --prerelease \
           --target "$GITHUB_SHA" --title "${{ env.OPL_VERSION }}" --notes-file notes.md
+
+    - name: Publish a YAOPL release
+      if: github.repository != 'ps2homebrew/Open-PS2-Loader' && startsWith(github.ref, 'refs/tags/yaopl-v')
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        tag=${GITHUB_REF#refs/tags/}
+        files="OPNPS2LD.ELF OPNPS2LD-${{ env.OPL_VERSION }}.7z OPNPS2LD-VARIANTS-${{ env.OPL_VERSION }}.7z OPNPS2LD-LANGS-${{ env.OPL_VERSION }}.7z"
+        sha256sum $files > SHA256SUMS
+        cat SHA256SUMS
+        # The notes list the CHANGELOG.md entries added since the previous release; the first one lists them all.
+        prev=$(git describe --tags --abbrev=0 --match 'yaopl-v*' --exclude 'yaopl-v*-*' "$GITHUB_SHA^" 2>/dev/null || true)
+        if [ -n "$prev" ] && changes=$(sh .github/changelog.sh since "$prev"); then
+          [ -n "$changes" ] || changes="No user-visible changes."
+          changes_title="Changes since $prev:"
+        else
+          changes=$(awk '/^## / { p = /^## YAOPL / } p' CHANGELOG.md)
+          changes_title="Changes from upstream OPL:"
+        fi
+        case "$tag" in
+        *-*) kind=--prerelease ;;
+        *) kind=--latest ;;
+        esac
+        {
+          echo "YAOPL (Yet Another Open PS2 Loader) ${{ env.OPL_VERSION }}, built from $GITHUB_SHA."
+          echo
+          echo "Not an official OPL build: see CHANGELOG.md for what differs from upstream OPL."
+          echo
+          echo "$changes_title"
+          echo
+          echo "$changes"
+          echo
+          echo "All changes: https://github.com/$GITHUB_REPOSITORY/blob/$tag/CHANGELOG.md"
+          echo
+          echo "SHA-256 checksums of the files are in SHA256SUMS."
+          echo
+          echo "Built with ps2sdk $TOOLCHAIN_PS2SDK (toolchain image $TOOLCHAIN_IMAGE)."
+        } > notes.md
+        gh release create "$tag" $files SHA256SUMS --repo "$GITHUB_REPOSITORY" --verify-tag $kind \
+          --title "${{ env.OPL_VERSION }}" --notes-file notes.md
 
     - name: Create prerelease
       if: github.repository == 'ps2homebrew/Open-PS2-Loader' && github.ref == 'refs/heads/master'
