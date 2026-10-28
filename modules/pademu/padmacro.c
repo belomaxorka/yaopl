@@ -23,6 +23,7 @@ typedef union
         u32 rx_invert            : 1;
         u32 ry_invert            : 1;
         u32 turbo_speed          : 2;
+        u32 button_remap         : 2;
     };
     u32 raw;
 } PadMacroSettings_t;
@@ -64,6 +65,7 @@ static bool gTurboButtonWaiting = false; // Waiting for user to choose which but
 static u16 gTurboButtonMask = 0;         // bit 1 for each button added to turbo
 static u8 gTurboSpeed = 0;
 static u8 gTurboButtonCounter = 0;
+static u8 gButtonRemap = PadMacroRemapOff;
 
 void padMacroInit(u32 padMacroSettings)
 {
@@ -92,6 +94,8 @@ void padMacroInit(u32 padMacroSettings)
         (settings.ry_invert << PadMacroAxisRY);
 
     gTurboSpeed = settings.turbo_speed + TURBO_MIN_DELAY;
+
+    gButtonRemap = settings.button_remap;
 }
 
 static u8 scaleAnalogStick(u16 buttons, u8 stick_input, u8 axis)
@@ -245,12 +249,47 @@ static void performTurbo(struct ds2report *rep)
     }
 }
 
+// Swap two pressure-sensitive buttons: the bit and its pressure byte
+static void swapButtons(struct ds2report *rep, u8 bit_a, u8 bit_b)
+{
+    u16 a = (rep->nButtonState >> bit_a) & 1;
+    u16 b = (rep->nButtonState >> bit_b) & 1;
+    rep->nButtonState &= ~((1 << bit_a) | (1 << bit_b));
+    rep->nButtonState |= (a << bit_b) | (b << bit_a);
+
+    u8 *pressure_a = &((u8 *)rep)[button_to_analog_lookup[bit_a - DS2BtnBit_Up]];
+    u8 *pressure_b = &((u8 *)rep)[button_to_analog_lookup[bit_b - DS2BtnBit_Up]];
+    u8 tmp = *pressure_a;
+    *pressure_a = *pressure_b;
+    *pressure_b = tmp;
+}
+
+static void performRemap(struct ds2report *rep)
+{
+    switch (gButtonRemap) {
+        case PadMacroRemapTriggersFace:
+            swapButtons(rep, DS2BtnBit_L2, DS2BtnBit_Square);
+            swapButtons(rep, DS2BtnBit_R2, DS2BtnBit_Cross);
+            break;
+
+        case PadMacroRemapTriggersShoulders:
+            swapButtons(rep, DS2BtnBit_L2, DS2BtnBit_L1);
+            swapButtons(rep, DS2BtnBit_R2, DS2BtnBit_R1);
+            break;
+
+        default:
+            break;
+    }
+}
+
 bool padMacroPerform(struct ds2report *rep, bool special_button)
 {
     bool action_happened = changeInternalState(rep, special_button);
 
     scaleAnalogSticks(rep);
     performTurbo(rep);
+    // Last, so the macros above see the physical buttons
+    performRemap(rep);
 
     return action_happened;
 }

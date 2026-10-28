@@ -180,16 +180,16 @@ readPads tick counter wrap         plain: held button: countdown 590 ms before t
                                    asan:  held button: countdown 590 ms before the wrap, 580 ms after it (10 ms later)
 padMacroPerform off                plain: pressed: R2 Cross pressure: R2=200 Cross=255 LX=128
                                    asan:  pressed: R2 Cross pressure: R2=200 Cross=255 LX=128
-padMacroPerform face-triggers      plain: pressed: L2 R2 pressure: L2=40 R2=200 LX=128
-                                   asan:  pressed: L2 R2 pressure: L2=40 R2=200 LX=128
-padMacroPerform face-cross         plain: pressed: Circle Cross pressure: Circle=255 Cross=255 LX=128
-                                   asan:  pressed: Circle Cross pressure: Circle=255 Cross=255 LX=128
-padMacroPerform shoulders          plain: pressed: R2 L1 pressure: R2=180 L1=255 LX=128
-                                   asan:  pressed: R2 L1 pressure: R2=180 L1=255 LX=128
+padMacroPerform face-triggers      plain: pressed: Cross Square pressure: Cross=200 Square=40 LX=128
+                                   asan:  pressed: Cross Square pressure: Cross=200 Square=40 LX=128
+padMacroPerform face-cross         plain: pressed: R2 Circle pressure: R2=255 Circle=255 LX=128
+                                   asan:  pressed: R2 Circle pressure: R2=255 Circle=255 LX=128
+padMacroPerform shoulders          plain: pressed: L2 R1 pressure: L2=255 R1=180 LX=128
+                                   asan:  pressed: L2 R1 pressure: L2=255 R1=180 LX=128
 padMacroPerform reserved           plain: pressed: R2 pressure: R2=200 LX=128
                                    asan:  pressed: R2 pressure: R2=200 LX=128
-padMacroPerform slowdown           plain: pressed: R2 pressure: R2=255 LX=219
-                                   asan:  pressed: R2 pressure: R2=255 LX=219
+padMacroPerform slowdown           plain: pressed: Cross pressure: Cross=255 LX=219
+                                   asan:  pressed: Cross pressure: Cross=255 LX=219
 genvmc write ok                    plain: write ok: mc_writecluster = 0, abort semaphore released
                                    asan:  write ok: mc_writecluster = 0, abort semaphore released
 genvmc write short                 plain: write short: mc_writecluster = -1, abort semaphore released
