@@ -40,3 +40,7 @@ YAOPL lists up to 15 language files. A language whose script is not in the built
 file next to it. Right-to-left languages need an `EXTRA_FEATURES` build.
 
 With *Notifications* on, YAOPL shows which device a theme or language was loaded from.
+
+The translations are made in [yaopl/yaopl-lang](https://github.com/yaopl/yaopl-lang), a fork of OPL's
+language repository; its README says how to translate a string or add a language. A string that is not
+translated yet is shown in English.

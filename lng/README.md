@@ -2,7 +2,7 @@
 
 ## For translators
 
-All translation files moved to the separate repository: <https://github.com/ps2homebrew/Open-PS2-Loader-lang>\\
+YAOPL takes its translations from <https://github.com/yaopl/yaopl-lang>, a fork of OPL's language repository\\
 Provide your submissions there.\\
 Languages were moved there for reducing commit stress for the main repository.\\
 Check if your `.yml` file has untranslated strings. Example:
@@ -39,8 +39,8 @@ then you should update the base file like:
   string: '%d: Network startup error.'
 ```
 
-After running `make languages` propose your changes into [the language repo](https://github.com/ps2homebrew/Open-PS2-Loader-lang).\\
-Folder `lng_src` will contain updated files.
+After running `make languages` propose the new entries to [the language repo](https://github.com/yaopl/yaopl-lang);\\
+its README says how they are added without reformatting the files.
 
 It is not recommended to rename or remove already existing strings.\\
 In such a case, you will need to edit all language yml files manually.
