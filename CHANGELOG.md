@@ -65,6 +65,8 @@ with the commit (or upstream `#N`) at the end.
 - With "Send the game ID" on, a game starts only after the MMCE card has switched to the game's memory card
   (up to 7.5 s): an SD2PSX does not answer while it swaps the cards, and YAOPL took that silence for "done"
   and started the game about 0.3 s after the command, while the card was still switching. (19578cc6)
+- The choices of IGR Boot Card Slot(s) are translated: "Off" (was "None") and "Both" were fixed English
+  text. (999bb6d3)
 
 ### HDD
 - In game, an LBA48 transfer of 65536 sectors or more no longer loops forever on 0-sector commands
@@ -83,6 +85,8 @@ with the commit (or upstream `#N`) at the end.
 ### Translations
 - Russian is translated completely, YAOPL's MMCE and UDPBD strings included, and 18 older Russian strings
   that said something else than the English or had typos are corrected. (yaopl-lang c459ea4, 2084550)
+- The Button Remap of the Pad Macro settings and the new "Both" are translated into Russian; in the other
+  languages they show in English until translated. (yaopl-lang 33afafa, 5985982)
 - The Persian message about a fragmented VMC no longer crashes the menu: it read the slot number as text.
   The Cebuano VMC messages and auto-start countdown put a space before the name and the number instead of
   gluing them to the word before. (yaopl-lang 55d1ec2, 7fbdcb9)
