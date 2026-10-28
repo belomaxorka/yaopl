@@ -325,6 +325,9 @@ unsigned int USBA_crc32(const char *string)
     return crc;
 }
 
+// The N-command semaphore of libcdvd (ee/rpc/cdvd/src/ncmd.c).
+extern int nCmdSemaId;
+
 int sysGetDiscID(char *hexDiscID)
 {
     u8 key[16];
@@ -363,6 +366,12 @@ int sysGetDiscID(char *hexDiscID)
         LOG("SYSTEM Disc stopped\n");
         return -3;
     }
+
+    // ps2sdk's sceCdReadKey() keeps the N-command semaphore after a successful read, so every later N-command
+    // fails: the sceCdStop() below and the next Load From Disc. Release it; PollSema() first keeps the count
+    // at 1 with a libcdvd that releases it itself.
+    PollSema(nCmdSemaId);
+    SignalSema(nCmdSemaId);
 
     sceCdStop();
 

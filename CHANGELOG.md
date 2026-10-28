@@ -88,6 +88,11 @@ with the commit (or upstream `#N`) at the end.
   before, there were always five, one per device slot, slots 0 and 2 left the first device without dots and
   a single device in slot 2 still got them. Themes with their own five-dot pictures keep them. (f84b227d)
 
+### Game settings
+- Game ID → Load From Disc works more than once: before, every try after the first said *Error while loading
+  the Game ID* until YAOPL was restarted, and the drive kept spinning after the first read (upstream issue
+  #651). (7f1018e7)
+
 ### Translations
 - Russian is translated completely, YAOPL's MMCE and UDPBD strings included, and 18 older Russian strings
   that said something else than the English or had typos are corrected. (yaopl-lang c459ea4, 2084550)
