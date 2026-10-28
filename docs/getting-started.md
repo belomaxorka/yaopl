@@ -21,8 +21,8 @@ console are published as [releases](https://github.com/yaopl/yaopl/releases) wit
 | `OPNPS2LD-LANGS-<version>.7z` | Translations and their fonts, for the `LNG` folder. |
 | `SHA256SUMS` | Checksums of the files above. |
 
-The `.7z` files also come without the version in their name, for links that should always get the newest
-build.
+Only the ELF keeps its name in every build: <https://github.com/yaopl/yaopl/releases/download/latest/OPNPS2LD.ELF>
+always gets the newest nightly. The `.7z` files carry the version in their name.
 
 Which ELF to take:
 
