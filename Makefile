@@ -387,10 +387,6 @@ $(EE_ASM_DIR):
 $(EE_OBJS_DIR):
 	@mkdir -p $@
 
-.PHONY: DETAILED_CHANGELOG
-DETAILED_CHANGELOG:
-	sh make_changelog.sh
-
 $(EE_BIN_STRIPPED): $(EE_BIN)
 	echo "Stripping..."
 	$(EE_STRIP) -o $@ $<
