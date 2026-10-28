@@ -7,8 +7,8 @@ git clone https://github.com/belomaxorka/yaopl.git && cd yaopl
 docker run --rm -v "$PWD:/src" -w /src <TOOLCHAIN_IMAGE> sh -c 'git config --global --add safe.directory /src && make release'
 ```
 
-`make` builds the ELF, `make release` also the 7z package, as CI does. Use a full clone: the revision in the
-version counts the commits.
+`make` builds the ELF, `make release` also a ZIP of it with `LICENSE` and `CREDITS`. Use a full clone: the
+revision in the version counts the commits.
 
 The options are at the top of the `Makefile`:
 

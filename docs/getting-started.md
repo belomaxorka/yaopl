@@ -15,8 +15,8 @@ Every change to `master` is built and published as the
 | File | Contents |
 | --- | --- |
 | `OPNPS2LD.ELF` | The loader, ready to run. PADEMU is on, IGS and RTL are off. |
-| `OPNPS2LD-<version>.7z` | The same ELF with `CHANGELOG.md`, `CREDITS`, `LICENSE` and `README.md`. |
-| `OPNPS2LD-VARIANTS-<version>.7z` | Four ELFs, one for each combination of `PADEMU=0/1` and `EXTRA_FEATURES=0/1`. |
+| `OPNPS2LD-<version>.7z` | The same ELF with `LICENSE` and `CREDITS`. |
+| `OPNPS2LD-VARIANTS-<version>.7z` | Four ELFs, one for each combination of `PADEMU=0/1` and `EXTRA_FEATURES=0/1`, with `LICENSE` and `CREDITS`. |
 | `OPNPS2LD-LANGS-<version>.7z` | Translations and their fonts, for the `LNG` folder. |
 | `SHA256SUMS` | Checksums of the files above. |
 
