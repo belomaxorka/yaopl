@@ -20,7 +20,6 @@
 *.s
 *.zip
 *.ZIP
-*.a
 *.d
 
 #
@@ -33,11 +32,13 @@
 !.clang-format
 !.clang-format-ignore
 !modules/debug/*.irx
+# assembler sources: Git on Windows ignores case, so *.s above would hide them
+!*.S
 
 #
 # Generated source files
 #
-pc/iso2usbld/bin/iso2usbld
+pc/*/bin/
 IOPRP_img.c
 asm/*.c
 
