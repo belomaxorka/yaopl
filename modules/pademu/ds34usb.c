@@ -55,6 +55,7 @@ static u8 rgbled_patterns[][2][3] =
 };
 
 static u8 usb_buf[MAX_BUFFER_SIZE + 32] __attribute((aligned(4))) = {0};
+static u8 data_buf[MAX_PADS][MAX_BUFFER_SIZE + 32] __attribute((aligned(4)));
 
 int usb_probe(int devId);
 int usb_connect(int devId);
@@ -202,11 +203,10 @@ static void usb_release(int pad)
     ds34pad[pad].outEndp = -1;
     ds34pad[pad].devId = -1;
     ds34pad[pad].status = DS34USB_STATE_DISCONNECTED;
+    ds34pad[pad].data_pending = 0;
 
     SignalSema(ds34pad[pad].sema);
 }
-
-static int usb_resulCode;
 
 static void usb_data_cb(int resultCode, int bytes, void *arg)
 {
@@ -214,9 +214,10 @@ static void usb_data_cb(int resultCode, int bytes, void *arg)
 
     // DPRINTF("DS34USB: usb_data_cb: res %d, bytes %d, arg %p \n", resultCode, bytes, arg);
 
-    usb_resulCode = resultCode;
+    ds34pad[pad].data_result = resultCode;
+    ds34pad[pad].data_pending = 0;
 
-    SignalSema(ds34pad[pad].sema);
+    SignalSema(ds34pad[pad].data_sema);
 }
 
 static void usb_cmd_cb(int resultCode, int bytes, void *arg)
@@ -453,18 +454,23 @@ int ds34usb_get_data(u8 *dst, int size, int port)
 
     WaitSema(ds34pad[port].sema);
 
-    PollSema(ds34pad[port].sema);
+    // A transfer whose wait timed out stays queued; start the next one only after it has completed.
+    if (!ds34pad[port].data_pending) {
+        if (PollSema(ds34pad[port].data_sema) == 0 && !ds34pad[port].data_result) // it completed late
+            readReport(data_buf[port], port);
 
-    ret = UsbInterruptTransfer(ds34pad[port].interruptEndp, usb_buf, MAX_BUFFER_SIZE, usb_data_cb, (void *)port);
+        ds34pad[port].data_pending = 1;
+        ret = UsbInterruptTransfer(ds34pad[port].interruptEndp, data_buf[port], MAX_BUFFER_SIZE, usb_data_cb, (void *)port);
+        if (ret != USB_RC_OK) {
+            ds34pad[port].data_pending = 0;
+            DPRINTF("DS34USB: ds34usb_get_data usb transfer error %d\n", ret);
+        }
+    }
 
-    if (ret == USB_RC_OK) {
-        TransferWait(ds34pad[port].sema);
-        if (!usb_resulCode)
-            readReport(usb_buf, port);
-
-        usb_resulCode = 1;
-    } else {
-        DPRINTF("DS34USB: ds34usb_get_data usb transfer error %d\n", ret);
+    if (ds34pad[port].data_pending) {
+        TransferWait(ds34pad[port].data_sema);
+        if (!ds34pad[port].data_pending && !ds34pad[port].data_result)
+            readReport(data_buf[port], port);
     }
 
     mips_memcpy(dst, ds34pad[port].data, size);
@@ -543,6 +549,8 @@ int ds34usb_init(u8 pads, u8 options)
         ds34pad[pad].update_rum = 1;
         ds34pad[pad].sema = -1;
         ds34pad[pad].cmd_sema = -1;
+        ds34pad[pad].data_sema = -1;
+        ds34pad[pad].data_pending = 0;
         ds34pad[pad].controlEndp = -1;
         ds34pad[pad].interruptEndp = -1;
         ds34pad[pad].enabled = (pads >> pad) & 1;
@@ -557,8 +565,9 @@ int ds34usb_init(u8 pads, u8 options)
 
         ds34pad[pad].sema = CreateMutex(IOP_MUTEX_UNLOCKED);
         ds34pad[pad].cmd_sema = CreateMutex(IOP_MUTEX_UNLOCKED);
+        ds34pad[pad].data_sema = CreateMutex(IOP_MUTEX_LOCKED);
 
-        if (ds34pad[pad].sema < 0 || ds34pad[pad].cmd_sema < 0) {
+        if (ds34pad[pad].sema < 0 || ds34pad[pad].cmd_sema < 0 || ds34pad[pad].data_sema < 0) {
             DPRINTF("DS34USB: Failed to allocate I/O semaphore.\n");
             return 0;
         }
