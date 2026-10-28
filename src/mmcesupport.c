@@ -155,8 +155,10 @@ int mmceIGRSlots(void)
 
 // Tells the MMCE card(s) which game starts, so a card switches to that game's own memory card. It must run
 // after the last write to the real memory card (last played, OSD history): from then on mc0: or mc1: is
-// the game's card. The card is busy for a moment after the command; the wait is bounded, as in wOPL
-// dca04cf (200 ms, then up to 20 x 100 ms). Only while the MMCE device is on, as for mmceIGRSlots().
+// the game's card. The card is busy for a moment after the command: it reports busy while it loads the new
+// card and does not answer at all while it swaps them (an SD2PSX is silent for 500 ms and more), so a status
+// < 0 counts as busy, as in mmceigr. The wait is bounded like mmceigr's (7.5 s). Only while the MMCE device
+// is on, as for mmceIGRSlots().
 void mmceSendGameID(const char *bootpath)
 {
     static const char *const devices[2] = {"mmce0:/", "mmce1:/"};
@@ -195,12 +197,13 @@ void mmceSendGameID(const char *bootpath)
             LOG("MMCESUPPORT the card did not take the game ID\n");
             continue;
         }
-        for (i = 0; i < 20; i++) {
+        for (i = 0; i < 75; i++) {
             DelayThread(100 * 1000);
             status = fileXioDevctl(devices[port - 2], MMCE_DEVCTL_GET_STATUS, NULL, 0, NULL, 0);
-            if (status < 0 || (status & 1) == 0)
+            if (status >= 0 && (status & 1) == 0)
                 break;
         }
+        LOG("MMCESUPPORT card status %d after %d x 100 ms\n", status, (i < 75) ? i + 1 : i);
     }
 }
 
