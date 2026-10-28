@@ -35,6 +35,10 @@ with the commit (or upstream `#N`) at the end.
 - With the HDD (APA) page on, the ATA driver is loaded before UDPBD, so its reset of the DEV9 ATA interface
   no longer cuts UDPBD off. (2a79d23b)
 - The UDPBD device has its own icon instead of the generic one. (be2dbef1)
+- A game over UDPBD no longer hangs at its first screen when a USB device is plugged in: the USB host
+  controller that the menu's USB driver left running is stopped. (15eee615)
+- A game over UDPBD no longer waits forever for the disk when the first request to the server went out
+  before the network link was up: the request is repeated until the server answers. (68de38f8)
 
 ### In-game
 - The SDK `sio2man` goes into a game only when a VMC, PadEmu, MX4SIO or MMCE needs it; other games keep
