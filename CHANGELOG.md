@@ -77,6 +77,8 @@ with the commit (or upstream `#N`) at the end.
 - The language package is built from YAOPL's own translation repository,
   <https://github.com/yaopl/yaopl-lang>, a fork of OPL's: it has all of OPL's translations and lists YAOPL's
   new strings (MMCE, UDPBD) for translators. Strings not translated yet are still shown in English.
+- The language package has Vietnamese: the packing script always left out the last language of the list,
+  in upstream's packages too (32 of 33 languages).
 
 ## YAOPL 2026-10-27
 
