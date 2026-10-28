@@ -18,7 +18,7 @@ Main menu → **MMCE Settings**:
 | --- | --- | --- |
 | MMCE Start Mode | Off | Off, Manual or Auto, as for other devices |
 | MMCE Slot | Auto | The memory card slot of the card that holds the games: 1, 2, or Auto (the first slot where a card answers) |
-| IGR Boot Card Slot(s) | Auto | On [in-game reset](../features/igr.md), the cards in these slots switch back to their boot card: None, 1, 2, Both, or Auto (the slots where a card answered) |
+| IGR Boot Card Slot(s) | Auto | On [in-game reset](../features/igr.md), the cards in these slots switch back to their boot card: Off, 1, 2, Both, or Auto (the slots where a card answered) |
 | MMCE Prefix Path | empty | A folder on the SD card that holds `CD`, `DVD` and the other folders |
 | Send the game ID to the card | On | When a game starts, from any device, the card switches to the game's own memory card |
 

@@ -748,3 +748,6 @@ gui_strings:
 - comment: Button remap choice; L2/R2 and L1/R1 trade places.
   label: PADMACRO_REMAP_TRIGGERS_SHOULDERS
   string: L2/R2 <-> L1/R1
+- comment: IGR Boot Card Slot(s) choice; the cards in both slots switch back.
+  label: BOTH
+  string: Both

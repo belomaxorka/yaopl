@@ -128,7 +128,7 @@ See [MMCE](devices/mmce.md#settings).
 | --- | --- | --- |
 | MMCE Start Mode | Off | `mmce_mode` |
 | MMCE Slot | Auto | `mmce_slot` (0 = slot 1, 1 = slot 2, 2 = Auto) |
-| IGR Boot Card Slot(s) | Auto | `mmceigr_slot` (0 None, 1 slot 1, 2 slot 2, 3 both, 4 Auto) |
+| IGR Boot Card Slot(s) | Auto | `mmceigr_slot` (0 Off, 1 slot 1, 2 slot 2, 3 both, 4 Auto) |
 | MMCE Prefix Path | empty | `mmce_prefix` |
 | Send the game ID to the card | On | `mmce_gameid` |
 
