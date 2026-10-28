@@ -55,6 +55,11 @@ with the commit (or upstream `#N`) at the end.
   the shoulder buttons. Off by default, saved only per game; a DualShock 2 in the controller port is not
   changed. (eb1a6c96, ae8540cb)
 
+### MMCE
+- With "Send the game ID" on, a game starts only after the MMCE card has switched to the game's memory card
+  (up to 7.5 s): an SD2PSX does not answer while it swaps the cards, and YAOPL took that silence for "done"
+  and started the game about 0.3 s after the command, while the card was still switching. (19578cc6)
+
 ### HDD
 - In game, an LBA48 transfer of 65536 sectors or more no longer loops forever on 0-sector commands
   (hardening, no known trigger; same fix as ps2sdk f30f05eb). (e09f5482)
