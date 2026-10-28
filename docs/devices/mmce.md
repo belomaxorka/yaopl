@@ -28,7 +28,12 @@ made in its firmware or menu.
 ## How it works with games
 
 - With *Send the game ID to the card* on, every game started from YAOPL, also from USB, MX4SIO or the HDD, makes
-  the card switch to the memory card for that game.
+  the card switch to the memory card for that game. YAOPL waits until the card has finished switching (an
+  SD2PSX shows a progress bar meanwhile), up to 7.5 s, and then starts the game, so the game finds its own
+  memory card ready.
+- An SD2PSX also switches by itself: it notices the game in the memory card's history, which YAOPL writes when
+  a game starts, and switches a few seconds later, also with *Send the game ID to the card* off or MMCE Start Mode
+  Off. To keep the card on its current memory card, turn off game ID in the SD2PSX's own menu.
 - On IGR, the cards in the IGR slots switch back to their boot card, so the console boots it again (for
   example into FreeMcBoot on that card).
 - These commands are sent only while *MMCE Start Mode* is Manual or Auto. With it Off, YAOPL sends nothing to the
