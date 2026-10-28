@@ -449,10 +449,40 @@ int getButtonDelay(int button)
     return paddelay[button - 1];
 }
 
+/** Waits up to 1 s until the pad is stable with no request running, or disconnected. The first 50 ms (three
+ * frames) are always waited, as padman updates the state it reports once a frame.
+ * @return the pad state */
+static int waitPadIdle(struct pad_data_t *pad)
+{
+    u32 start = cpu_ticks();
+    u32 elapsed;
+    int state;
+
+    do {
+        state = padGetState(pad->port, pad->slot);
+        elapsed = cpu_ticks() - start;
+        if (elapsed >= 50 * CLOCKS_PER_MILISEC &&
+            (state == PAD_STATE_DISCONN || (state == PAD_STATE_STABLE && padGetReqState(pad->port, pad->slot) != PAD_RSTAT_BUSY)))
+            break;
+    } while (elapsed < 1000 * CLOCKS_PER_MILISEC);
+
+    return state;
+}
+
 /** Unloads a single pad.
+ * The pad keeps its mode through the IOP reset into the game or ELF, as it is not powered off. So a DualShock
+ * is put back as it powers up (digital, unlocked, no pressure), as after the OSD: Gran Turismo 4 now and then
+ * failed to take over a DualShock 2 left locked in DualShock mode with pressure on, until it was replugged.
  * @see unloadPads */
 static void unloadPad(struct pad_data_t *pad)
 {
+    if (waitPadIdle(pad) == PAD_STATE_STABLE && padInfoMode(pad->port, pad->slot, PAD_MODECUREXID, 0) != 0) {
+        padExitPressMode(pad->port, pad->slot);
+        waitPadIdle(pad);
+        padSetMainMode(pad->port, pad->slot, PAD_MMODE_DIGITAL, PAD_MMODE_UNLOCK);
+        waitPadIdle(pad);
+    }
+
     padPortClose(pad->port, pad->slot);
 }
 
