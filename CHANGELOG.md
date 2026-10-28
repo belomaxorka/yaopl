@@ -49,6 +49,8 @@ with the commit (or upstream `#N`) at the end.
 ### GUI and themes
 - The greeting screen shows a YAOPL logo, drawn in the style of OPL's logo by Berion, instead of OPL's.
   (fca82aea)
+- The device bar of the default theme shows all five pages, MMCE included, on every page: before, MMCE
+  appeared only when it was selected and the bar jumped from four icons to five. Icons by Berion.
 
 ### Translations
 - Russian is translated completely, YAOPL's MMCE and UDPBD strings included, and 18 older Russian strings
