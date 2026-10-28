@@ -68,6 +68,17 @@ with the commit (or upstream `#N`) at the end.
 - The choices of IGR Boot Card Slot(s) are translated: "Off" (was "None") and "Both" were fixed English
   text. (999bb6d3)
 
+### SMB
+- A game over SMB whose connection broke (for example after Samba dropped an idle PS2) no longer blocks
+  every later disc read and IGR: a failed read or write releases the SMB lock, and a connection closed in
+  the middle of a reply ends the read instead of looping forever. IGR then gets back to YAOPL. (f2c3a673,
+  e16e2d15)
+- A VMC over SMB reports a failed read or write, or a card that cannot be opened, to the game as an error
+  instead of as a page done. (964e4178)
+- The [SMB share](https://yaopl.github.io/yaopl/devices/smb/#a-game-freezes-after-an-idle-time) page gives
+  the Samba settings that keep a game from freezing after the console was left idle (upstream issue #79).
+  (36e07200)
+
 ### HDD
 - In game, an LBA48 transfer of 65536 sectors or more no longer loops forever on 0-sector commands
   (hardening, no known trigger; same fix as ps2sdk f30f05eb). (e09f5482)
