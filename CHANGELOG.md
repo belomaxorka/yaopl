@@ -72,6 +72,12 @@ with the commit (or upstream `#N`) at the end.
 - In game, an LBA48 transfer of 65536 sectors or more no longer loops forever on 0-sector commands
   (hardening, no known trigger; same fix as ps2sdk f30f05eb). (e09f5482)
 
+### VMC
+- A fragmented VMC on a BDM device (USB, MX4SIO, iLink, exFAT HDD), as exFAT often makes them (upstream
+  issue #1695), is reported with the number of its fragments: *VMC ... is in N fragments. Continue with
+  Memory Card in slot ...?*. Backing out says how to make the file one piece: move it to a PC and copy it
+  back. The game still cannot use such a card. (c19eed08)
+
 ### GUI and themes
 - The greeting screen shows a YAOPL logo, drawn in the style of OPL's logo by Berion, instead of OPL's.
   (fca82aea)

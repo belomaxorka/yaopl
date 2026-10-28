@@ -25,8 +25,9 @@ Modifying or deleting an existing card needs *Write Operations* on in Settings; 
 - YAOPL creates cards of 8, 16, 32 and 64 MB. It leaves cards of other sizes (4 MB, 128 MB, PCSX2 `.ps2`) alone
   and asks before it changes one.
 - On a BDM device (USB, MX4SIO, iLink, exFAT HDD) the VMC file must be in one piece. If it is fragmented, YAOPL
-  asks *VMC ... file is fragmented. Continue with Memory Card in slot N?* and the game uses the real card if
-  you continue. Copy the card to a PC and back, or create it on a freshly formatted drive.
+  asks *VMC ... is in N fragments. Continue with Memory Card in slot ...?* and the game uses the real card if
+  you continue; if you back out, it reminds you how to fix it. Move the card to a PC and copy it back, or
+  create it on a freshly formatted drive. exFAT drives fragment new files more often than FAT32.
 - If the card cannot be opened, YAOPL asks *Error accessing VMC ... Continue with the Memory Card in slot N?*.
 - PC tools (for example `pc/genvmc` in the YAOPL repository, or memory card managers that read raw `.bin`
   images) can create and edit VMCs.
