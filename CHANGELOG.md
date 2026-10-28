@@ -45,6 +45,9 @@ with the commit (or upstream `#N`) at the end.
   their own SIO2MAN and pad and memory-card drivers, as before upstream Beta-2248 (#1785). Suspected cause
   of games that freeze after some minutes while the sound goes on (upstream issues #1795, #1790); not yet
   confirmed on a console. (5ef1b9e2)
+- A DualShock 2 is handed to the game as it powers up (digital, unlocked, no button pressure), as after the
+  PS2 browser: the menu left it locked in analog mode with pressure on, and Gran Turismo 4 now and then did
+  not take it over, so the pad did nothing until it was replugged. (c56a91b6)
 
 ### PADEMU
 - Pad Macro settings have a per-game Button Remap for a DualShock 3/4 on PADEMU: "L2/R2 <-> Square/Cross"
