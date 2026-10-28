@@ -1,0 +1,72 @@
+diff --git a/iop/udpbd/src/imports.lst b/iop/udpbd/src/imports.lst
+index c717f7c..86f8f0c 100644
+--- a/iop/udpbd/src/imports.lst
++++ b/iop/udpbd/src/imports.lst
+@@ -13,6 +13,8 @@ I_SetAlarm
+ I_CancelAlarm
+ I_USec2SysClock
+ I_DelayThread
++I_CreateThread
++I_StartThread
+ thbase_IMPORTS_end
+ 
+ stdio_IMPORTS_start
+diff --git a/iop/udpbd/src/udpbd.c b/iop/udpbd/src/udpbd.c
+index 8d199b4..fe6f43f 100644
+--- a/iop/udpbd/src/udpbd.c
++++ b/iop/udpbd/src/udpbd.c
+@@ -401,13 +401,33 @@ static int udpbd_isr(udp_socket_t *socket, void *arg, const uint8_t *hdr, uint16
+     return 0;
+ }
+ 
++// Ask the server for the block device until it answers. The first broadcast goes out while the link may still be
++// negotiating (smap_transmit waits for it for 2 seconds only) and is then lost; without the device the game waits
++// forever.
++static void udpbd_info_thread(void *arg)
++{
++    udpbd_pkt_t pkt;
++
++    (void)arg;
++
++    while (bdm_connected == 0) {
++        udp_packet_init((udp_packet_t *)&pkt, IP_ADDR(255,255,255,255), UDPBD_SERVER_PORT);
++        pkt.bd.cmd    = UDPBD_CMD_INFO;
++        pkt.bd.cmdid  = g_cmdid;
++        pkt.bd.cmdpkt = 0;
++        udp_packet_send(udpbd_socket, (udp_packet_t *)&pkt, sizeof(struct SUDPBDv2_Header));
++
++        DelayThread(500 * 1000);
++    }
++}
++
+ //
+ // Public functions
+ //
+ int udpbd_init(void)
+ {
+-    udpbd_pkt_t pkt;
+     iop_event_t EventFlagData;
++    iop_thread_t ThreadData;
+ 
+     M_DEBUG("Starting UDPBD BDM driver by Maximus32\n");
+ 
+@@ -431,12 +451,13 @@ int udpbd_init(void)
+     // Bind to UDP socket
+     udpbd_socket = udp_bind(UDPBD_CLIENT_PORT, udpbd_isr, NULL);
+ 
+-    // Broadcast request for block device information
+-    udp_packet_init((udp_packet_t *)&pkt, IP_ADDR(255,255,255,255), UDPBD_SERVER_PORT);
+-    pkt.bd.cmd    = UDPBD_CMD_INFO;
+-    pkt.bd.cmdid  = g_cmdid;
+-    pkt.bd.cmdpkt = 0;
+-    udp_packet_send(udpbd_socket, (udp_packet_t *)&pkt, sizeof(struct SUDPBDv2_Header));
++    // Broadcast requests for block device information until the server answers
++    ThreadData.attr      = TH_C;
++    ThreadData.thread    = udpbd_info_thread;
++    ThreadData.option    = 0;
++    ThreadData.priority  = 0x30;
++    ThreadData.stacksize = 0x800;
++    StartThread(CreateThread(&ThreadData), NULL);
+ 
+     return 0;
+ }

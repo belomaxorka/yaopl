@@ -19,3 +19,9 @@ fi
 # the game hung, while 12 and 24 packet bursts never did. 16 KiB is the size of the SMAP receive FIFO.
 sed -i 's|^#define UDPBD_MAX_SECTOR_READ .*|#define UDPBD_MAX_SECTOR_READ  32 // OPL: see download_udpbd.sh|' "$REPO_FOLDER/iop/udpbd/src/udpbd.h" || { exit 1; }
 grep -q "UDPBD_MAX_SECTOR_READ  32 " "$REPO_FOLDER/iop/udpbd/src/udpbd.h" || { echo "download_udpbd.sh: UDPBD_MAX_SECTOR_READ not found"; exit 1; }
+# Repeat the INFO broadcast until the server answers: the driver sent it once, and when it went out before the link was
+# up the game waited for the device forever after an IOP reset (console test, 1 in 6 launches).
+PATCH="$PWD/modules/network/udpbd-info-retry.diff"
+if ! (cd "$REPO_FOLDER" && git apply --reverse --check "$PATCH" 2>/dev/null); then
+  (cd "$REPO_FOLDER" && git apply "$PATCH") || { echo "download_udpbd.sh: $PATCH does not apply"; exit 1; }
+fi

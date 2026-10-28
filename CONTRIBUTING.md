@@ -109,12 +109,13 @@ Some modules are not taken from ps2sdk but built from other trees, which `downlo
   and later) is written for. `make MMCE_NO_SDK_SIO2MAN=1` (`-nosio2man` in the version) gives MMCE games their
   own SIO2MAN instead, for a console A/B with PadEmu off; RiptOPL does that with the older mmcedrv of mmceman
   v2.1.1, so this build is a comparison, not a fix.
-* **UDPBD** (`smap`, `ministack`, `udpbd`, `download_udpbd.sh`): built from `rickgaiser/neutrino` (AFL-3.0, see
-  `CREDITS`). In game they run with `bdm_udp_cdvdman.irx` (BDM with DEV9), and the game's DEV9 and SMAP modules
-  are faked. The driver asks for at most 16 KiB per request (neutrino: 256 KiB), because longer bursts of
-  reply packets were lost on a real console and hung the game. The ATA driver resets the DEV9's ATA interface
-  when it starts, which cuts UDPBD off if it is already running, so with the APA HDD page enabled it is loaded
-  before UDPBD.
+* **UDPBD** (`smap`, `ministack`, `udpbd`, `download_udpbd.sh`): built from `rickgaiser/neutrino` (AFL-3.0,
+  see `CREDITS`). In game they run with `bdm_udp_cdvdman.irx` (BDM with DEV9), and the game's DEV9 and SMAP
+  modules are faked. The driver asks for at most 16 KiB per request (neutrino: 256 KiB), because longer bursts
+  of reply packets were lost on a real console and hung the game, and it repeats its first request until the
+  server answers (`modules/network/udpbd-info-retry.diff`), as one sent before the link is up is lost. The ATA
+  driver resets the DEV9's ATA interface when it starts, which cuts UDPBD off if it is already running, so
+  with the APA HDD page enabled it is loaded before UDPBD.
 
 ## Branches
 

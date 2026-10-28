@@ -60,3 +60,6 @@ tmp/
 
 # Documentation site built by zensical (docs/, mkdocs.yml)
 /site/
+
+# Patches that the download scripts apply to the fetched sources
+!/modules/network/udpbd-info-retry.diff
