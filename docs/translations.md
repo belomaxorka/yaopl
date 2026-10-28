@@ -19,39 +19,39 @@ of yaopl-lang.
 
 | Language | Ready | Untranslated | Own font |
 | --- | ---: | ---: | --- |
-| Albanian | 72% | 96 | |
-| Arabic | 56% | 149 | yes |
-| Bulgarian | 81% | 64 | yes |
-| Cebuano | 65% | 121 | |
-| Croatian | 67% | 114 | yes |
-| Czech | 90% | 32 | yes |
-| Danish | 67% | 113 | yes |
-| Dutch | 53% | 162 | yes |
-| Filipino | 62% | 129 | yes |
-| French | 70% | 102 | yes |
-| Galician | 90% | 32 | yes |
-| German | 88% | 40 | yes |
-| Greek | 72% | 94 | yes |
-| Hungarian | 82% | 61 | yes |
-| Indonesian | 64% | 123 | yes |
-| Italian | 90% | 34 | yes |
-| Japanese | 88% | 40 | yes |
-| Korean | 89% | 36 | yes |
-| Laotian | 52% | 166 | yes |
-| Persian | 72% | 95 | yes |
-| Polish | 80% | 67 | yes |
-| Portuguese | 85% | 51 | yes |
-| Portuguese_BR | 86% | 45 | yes |
-| Romana | 56% | 151 | yes |
+| Albanian | 71% | 101 | |
+| Arabic | 56% | 154 | yes |
+| Bulgarian | 80% | 69 | yes |
+| Cebuano | 64% | 126 | |
+| Croatian | 66% | 119 | yes |
+| Czech | 89% | 37 | yes |
+| Danish | 66% | 118 | yes |
+| Dutch | 52% | 167 | yes |
+| Filipino | 61% | 134 | yes |
+| French | 69% | 107 | yes |
+| Galician | 89% | 37 | yes |
+| German | 87% | 45 | yes |
+| Greek | 71% | 99 | yes |
+| Hungarian | 81% | 66 | yes |
+| Indonesian | 63% | 128 | yes |
+| Italian | 88% | 39 | yes |
+| Japanese | 87% | 45 | yes |
+| Korean | 88% | 41 | yes |
+| Laotian | 51% | 171 | yes |
+| Persian | 71% | 100 | yes |
+| Polish | 79% | 72 | yes |
+| Portuguese | 84% | 56 | yes |
+| Portuguese_BR | 85% | 50 | yes |
+| Romana | 55% | 156 | yes |
 | Russian | 100% | 0 | yes |
-| Ryukyuan | 89% | 36 | |
-| SChinese | 86% | 45 | yes |
-| Serbian | 94% | 20 | |
-| Spanish | 90% | 32 | yes |
-| Swedish | 67% | 111 | yes |
-| TChinese | 70% | 101 | yes |
-| Turkish | 87% | 43 | yes |
-| Vietnamese | 57% | 147 | yes |
+| Ryukyuan | 88% | 41 | |
+| SChinese | 85% | 50 | yes |
+| Serbian | 92% | 25 | |
+| Spanish | 89% | 37 | yes |
+| Swedish | 66% | 116 | yes |
+| TChinese | 69% | 106 | yes |
+| Turkish | 86% | 48 | yes |
+| Vietnamese | 56% | 152 | yes |
 
 The names are those of the files, `lang_<Language>.lng`: Romana is Romanian, SChinese and TChinese are
 Simplified and Traditional Chinese, Portuguese_BR is Brazilian Portuguese.
