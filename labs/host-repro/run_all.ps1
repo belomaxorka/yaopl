@@ -226,6 +226,12 @@ if (Want "theme") {
     Test "theme without ItemsList" theme-t "itemslist"
 }
 
+if (Want "bdmindex") {
+    Build bdmindex t "src\themes.c" "drawBDMIndex"
+    foreach ($s in "one", "two", "gap", "slot2", "three", "four", "five", "late") { Test "BdmIndex $s" bdmindex-t $s }
+    Test "BdmIndex gap, own 5-dot pictures" bdmindex-t "gap", "fixed"
+}
+
 if (Want "lang") {
     Build lang t "src\lang.c" "lngReadEntry"
     Test "lngReadEntry file names" lang-t "lang_Russian.lng", "abcd.lng", "ru.lng"

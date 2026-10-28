@@ -146,6 +146,24 @@ image file missing                 plain: image file missing: no texture, elemen
                                    asan:  image file missing: no texture, element disabled | freed
 theme without ItemsList            plain: theme without ItemsList: gamesItemsList set, appsItemsList set
                                    asan:  theme without ItemsList: gamesItemsList set, appsItemsList set
+BdmIndex one                       plain: 0:- 5:- 6:- 7:- 8:- 
+                                   asan:  0:- 5:- 6:- 7:- 8:- 
+BdmIndex two                       plain: 0:Index_0 1:Index_1 6:- 7:- 8:- 
+                                   asan:  0:Index_0 1:Index_1 6:- 7:- 8:- 
+BdmIndex gap                       plain: 0:- 2:Index_2 5:- 6:- 7:- 8:- 
+                                   asan:  0:- 2:Index_2 5:- 6:- 7:- 8:- 
+BdmIndex slot2                     plain: 2:Index_2 5:- 6:- 7:- 8:- 
+                                   asan:  2:Index_2 5:- 6:- 7:- 8:- 
+BdmIndex three                     plain: 0:Index_0 1:Index_1 3:Index_3 5:- 6:- 7:- 8:- 
+                                   asan:  0:Index_0 1:Index_1 3:Index_3 5:- 6:- 7:- 8:- 
+BdmIndex four                      plain: 0:Index_0 1:Index_1 2:Index_2 3:Index_3 5:- 6:- 7:- 8:- 
+                                   asan:  0:Index_0 1:Index_1 2:Index_2 3:Index_3 5:- 6:- 7:- 8:- 
+BdmIndex five                      plain: 0:Index_0 1:Index_1 2:Index_2 3:Index_3 4:Index_4 5:- 6:- 7:- 8:- 
+                                   asan:  0:Index_0 1:Index_1 2:Index_2 3:Index_3 4:Index_4 5:- 6:- 7:- 8:- 
+BdmIndex late                      plain: 5:- 6:- 7:- 8:- 0:Index_0 1:Index_1 
+                                   asan:  5:- 6:- 7:- 8:- 0:Index_0 1:Index_1 
+BdmIndex gap, own 5-dot pictures   plain: 0:- 2:Index_2 5:- 6:- 7:- 8:- 
+                                   asan:  0:- 2:Index_2 5:- 6:- 7:- 8:- 
 lngReadEntry file names            plain: lang_Russian.lng: language "Russian" from mc0:/OPL/lang_Russian.lng | abcd.lng: skipped | ru.lng: skipped
                                    asan:  lang_Russian.lng: language "Russian" from mc0:/OPL/lang_Russian.lng | abcd.lng: skipped | ru.lng: skipped
 GetBootFilename                    plain: cdrom0:\SLUS_200.62;1: record "SLUS_200.62" (11 characters) | cdrom0:\DATA\ABCDEFGHIJKLMNOPQRST.ELF;1: record "ABCDEFGHIJKLMNOP" (16 characters)
