@@ -54,7 +54,7 @@ body:
     attributes:
       label: "YAOPL version"
       description: "Open YAOPL, press START and look for the About option; the version number will be at the top."
-      placeholder: "e.g. v1.2.0-Beta-2310-1a2b3c4-yaopl (Note: 'Latest Version' is not a valid answer)"
+      placeholder: "e.g. v2.0.0-nightly.12-1a2b3c4-yaopl (Note: 'Latest Version' is not a valid answer)"
     validations:
       required: true
 

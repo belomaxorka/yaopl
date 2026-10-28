@@ -36,9 +36,25 @@ published. The release notes list the `CHANGELOG.md` entries added since the pre
 embedded MMCE modules require to go with every copy. A commit that does not change the ELF may say
 `[skip ci]`, but push it only after the running build has published, or that build is not released.
 
-Versions carry the suffix `-yaopl` (`LOCALVERSION` in the `Makefile`), for example
-`v1.2.0-Beta-2310-1a2b3c4-yaopl`. The revision number counts this repository's commits, so it does not match
-upstream's numbering.
+YAOPL numbers its own versions; `YAOPL_VERSION` in the `Makefile` names the next release:
+
+* A release is the commit on `master` tagged `yaopl-vX.Y.Z`, and its version is `vX.Y.Z-yaopl`. A release
+  candidate is tagged `yaopl-vX.Y.Z-rcN` (version `vX.Y.Z-rcN-yaopl`) and published as a pre-release.
+* Any other build is a nightly towards the next release, `vX.Y.Z-nightly.N-<commit>-yaopl`: N counts the
+  commits on `master` since the last release, an upstream merge counting once (before the first release, since
+  the fork from upstream, `YAOPL_FORK`). `latest` is the nightly of `master`'s tip.
+* Every version ends in `-yaopl` (`LOCALVERSION`), so YAOPL builds are told from OPL's. The major version 2
+  puts them after the `v1.2.0-Beta-N-<commit>-yaopl` builds, as YAOPL was numbered before like upstream.
+  YAOPLM reads these versions: a change of the format needs a change there too.
+
+A release is published only with the owner's OK:
+
+1. Check the nightly of the commit to release on a console; `YAOPL_VERSION` must be the version to release.
+2. Tag the commit on `master` and push the tag: `git tag -a yaopl-vX.Y.Z -m "YAOPL vX.Y.Z"`, then
+   `git push origin yaopl-vX.Y.Z`. CI checks that the tag matches `YAOPL_VERSION` and is on `master`, and
+   publishes the release with the `CHANGELOG.md` entries added since the previous release.
+3. After a final release, raise `YAOPL_VERSION` in the next commit: CI fails `master` until then, so that
+   nightlies do not carry the version that is already out.
 
 The logo (`gfx/logo.png`, shown on the greeting screen, and `docs/logo.svg`) is drawn by
 `labs/logo/make_logo.py`; change the script and rerun it rather than editing the images.

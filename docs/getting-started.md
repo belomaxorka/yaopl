@@ -9,8 +9,9 @@
 
 ## Download
 
-Every change to `master` is built and published as the
-[`latest` release](https://github.com/yaopl/yaopl/releases/tag/latest):
+Every change to `master` is built and published as the nightly
+[`latest` pre-release](https://github.com/yaopl/yaopl/releases/tag/latest). Versions checked on a
+console are published as [releases](https://github.com/yaopl/yaopl/releases) with the same files:
 
 | File | Contents |
 | --- | --- |
@@ -95,9 +96,15 @@ Hold these while YAOPL starts:
 
 ## Version
 
-START → About shows the version, for example `v1.2.0-Beta-2310-1a2b3c4-yaopl`. Builds of YAOPL end in
-`-yaopl`, so they are easy to tell from official OPL builds. Quote it in
-[issue reports](https://github.com/yaopl/yaopl/issues).
+START → About shows the version. Builds of YAOPL end in `-yaopl`, so they are easy to tell from official OPL
+builds:
+
+- A release is called like `v2.0.0-yaopl`, a release candidate like `v2.0.0-rc1-yaopl`.
+- A nightly build from `latest` is called like `v2.0.0-nightly.12-1a2b3c4-yaopl`: the 12th change on
+  `master` since the last release, on the way to 2.0.0, built from commit `1a2b3c4`.
+- Builds before 2.0.0 were called like `v1.2.0-Beta-2415-ac3cf25-yaopl`, numbered like upstream OPL.
+
+Quote the version in [issue reports](https://github.com/yaopl/yaopl/issues).
 
 ## PS3
 

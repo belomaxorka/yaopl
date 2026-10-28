@@ -41,9 +41,11 @@ its own fixes and new devices.
 
 ## Download
 
-Every change to `master` is built and published as the [`latest` release](https://github.com/yaopl/yaopl/releases/tag/latest):
-`OPNPS2LD.ELF`, the 7z packages and `SHA256SUMS`. YAOPL versions end in `-yaopl`, for example
-`v1.2.0-Beta-2310-1a2b3c4-yaopl` (START → About), so they are easy to tell apart from official OPL builds.
+Every change to `master` is built and published as the nightly [`latest` pre-release](https://github.com/yaopl/yaopl/releases/tag/latest):
+`OPNPS2LD.ELF`, the 7z packages and `SHA256SUMS`. Versions checked on a console are published as
+[releases](https://github.com/yaopl/yaopl/releases) with the same files. YAOPL versions end in `-yaopl`
+(START → About): a release is `v2.0.0-yaopl`, a nightly `v2.0.0-nightly.12-1a2b3c4-yaopl`, so they are easy
+to tell apart from official OPL builds.
 
 ## Documentation
 

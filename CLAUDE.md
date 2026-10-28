@@ -21,7 +21,9 @@ If the local knowledge base `kb/` exists, start with `kb/README.md` and `kb/ROAD
 
 ## Rules
 1. **Licence.** YAOPL is AFL-3.0 like OPL. Never copy code from YAOPLM (GPL-3.0) into YAOPL, or the other way.
-2. **`master` is the release.** Every push to `master` publishes the public `latest` pre-release. Push only
+2. **`master` is the release.** Every push to `master` publishes the public `latest` pre-release (the nightly).
+   Pushing a `yaopl-v*` tag publishes a release: only with the owner's OK, as `CONTRIBUTING.md`, "Builds and
+   versions", describes; after a final release raise `YAOPL_VERSION` in the `Makefile`. Push only
    finished, checked work. Prepare bigger changes on a short-lived branch and delete it after the merge.
    Only the build of master's tip is published: a commit that does not change the ELF (`labs/`) may say `[skip ci]`,
    but push it only after the running build has published, or that build is not released. A commit that

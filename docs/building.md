@@ -7,8 +7,8 @@ git clone https://github.com/yaopl/yaopl.git && cd yaopl
 docker run --rm -v "$PWD:/src" -w /src <TOOLCHAIN_IMAGE> sh -c 'git config --global --add safe.directory /src && make release'
 ```
 
-`make` builds the ELF, `make release` also a ZIP of it with `LICENSE` and `CREDITS`. Use a full clone: the
-revision in the version counts the commits.
+`make` builds the ELF, `make release` also a ZIP of it with `LICENSE` and `CREDITS`. Use a full clone with
+its tags: the version counts the commits since the last `yaopl-v*` release tag (`make oplversion` prints it).
 
 The options are at the top of the `Makefile`:
 
@@ -19,7 +19,7 @@ The options are at the top of the `Makefile`:
 | `RTL`, `IGS` | `EXTRA_FEATURES` | Each one on its own |
 | `DTL_T10000` | 0 | A build for the DTL-T10000 development kit |
 | `NOT_PACKED` | 0 | Do not strip and compress the ELF |
-| `LOCALVERSION` | `yaopl` | The suffix of the version |
+| `LOCALVERSION` | `yaopl` | The end of the version |
 
 For example `make PADEMU=0 EXTRA_FEATURES=1`. `make format` formats the code with clang-format 12. The debug
 builds (`make debug`, `make iopcore_debug`, ...) are listed in the `Makefile`.
