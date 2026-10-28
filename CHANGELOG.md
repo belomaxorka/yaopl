@@ -42,6 +42,12 @@ with the commit (or upstream `#N`) at the end.
   of games that freeze after some minutes while the sound goes on (upstream issues #1795, #1790); not yet
   confirmed on a console. (5ef1b9e2)
 
+### PADEMU
+- Pad Macro settings have a per-game Button Remap for a DualShock 3/4 on PADEMU: "L2/R2 <-> Square/Cross"
+  puts gas and brake of most racing games on R2/L2, with the trigger's pressure, and "L2/R2 <-> L1/R1" swaps
+  the shoulder buttons. Off by default, saved only per game; a DualShock 2 in the controller port is not
+  changed. (eb1a6c96, ae8540cb)
+
 ### HDD
 - In game, an LBA48 transfer of 65536 sectors or more no longer loops forever on 0-sector commands
   (hardening, no known trigger; same fix as ps2sdk f30f05eb). (e09f5482)
