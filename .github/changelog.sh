@@ -57,7 +57,7 @@ check)
 		exit 0
 	fi
 	# Host checks, docs, CI and repository files do not change what users get.
-	code=$(echo "$files" | grep -vE '^(labs/|notes/|\.github/|[^/]*\.md$|CREDITS$|LICENSE$|\.[^/]*$)')
+	code=$(echo "$files" | grep -vE '^(labs/|notes/|docs/|\.github/|[^/]*\.md$|mkdocs\.yml$|CREDITS$|LICENSE$|\.[^/]*$)')
 	if [ -n "$code" ]; then
 		echo "::error::These files change what users get, but CHANGELOG.md has no new line (see CLAUDE.md;" \
 			"if nothing user-visible changed, add a line [no changelog] to a commit message):"
