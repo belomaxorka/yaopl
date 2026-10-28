@@ -122,6 +122,7 @@ typedef struct theme
     theme_element_t *itemsList;
     theme_element_t *loadingIcon;
     int loadingIconCount;
+    int bdmIndexFixed; //!< The theme has its own five-dot BdmIndex pictures but none for fewer devices
 
     GSTEXTURE textures[TEXTURES_COUNT];
     int fonts[THM_MAX_FONTS]; //!< Storage of font handles for removal once not needed

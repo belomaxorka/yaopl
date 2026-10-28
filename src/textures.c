@@ -27,6 +27,15 @@ extern void *Index_1_png;
 extern void *Index_2_png;
 extern void *Index_3_png;
 extern void *Index_4_png;
+extern void *Index2_0_png;
+extern void *Index2_1_png;
+extern void *Index3_0_png;
+extern void *Index3_1_png;
+extern void *Index3_2_png;
+extern void *Index4_0_png;
+extern void *Index4_1_png;
+extern void *Index4_2_png;
+extern void *Index4_3_png;
 
 extern void *left_png;
 extern void *right_png;
@@ -152,6 +161,15 @@ static texture_t internalDefault[TEXTURES_COUNT] = {
     {INDEX_2, "Index_2", &Index_2_png},
     {INDEX_3, "Index_3", &Index_3_png},
     {INDEX_4, "Index_4", &Index_4_png},
+    {INDEX2_0, "Index2_0", &Index2_0_png},
+    {INDEX2_1, "Index2_1", &Index2_1_png},
+    {INDEX3_0, "Index3_0", &Index3_0_png},
+    {INDEX3_1, "Index3_1", &Index3_1_png},
+    {INDEX3_2, "Index3_2", &Index3_2_png},
+    {INDEX4_0, "Index4_0", &Index4_0_png},
+    {INDEX4_1, "Index4_1", &Index4_1_png},
+    {INDEX4_2, "Index4_2", &Index4_2_png},
+    {INDEX4_3, "Index4_3", &Index4_3_png},
     {LEFT_ICON, "left", &left_png},
     {RIGHT_ICON, "right", &right_png},
     {CROSS_ICON, "cross", &cross_png},

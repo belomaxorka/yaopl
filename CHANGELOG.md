@@ -51,6 +51,9 @@ with the commit (or upstream `#N`) at the end.
   (fca82aea)
 - The device bar of the default theme shows all five pages, MMCE included, on every page: before, MMCE
   appeared only when it was selected and the bar jumped from four icons to five. Icons by Berion.
+- The dots above the device bar show as many dots as mass devices are connected, with the current one lit:
+  before, there were always five, one per device slot, slots 0 and 2 left the first device without dots and
+  a single device in slot 2 still got them. Themes with their own five-dot pictures keep them.
 
 ### Translations
 - Russian is translated completely, YAOPL's MMCE and UDPBD strings included, and 18 older Russian strings

@@ -122,7 +122,8 @@ PNG_ASSETS = load0 load1 load2 load3 load4 load5 load6 load7 usb usb_bd ilk_bd \
 	Rating_1 Rating_2 Rating_3 Rating_4 Rating_5 Scan_240p Scan_240p1 Scan_480i Scan_480p \
 	Scan_480p1 Scan_480p2 Scan_480p3 Scan_480p4 Scan_480p5 Scan_576i Scan_576p Scan_720p \
 	Scan_1080i Scan_1080i2 Scan_1080p Vmode_multi Vmode_ntsc Vmode_pal logo case apps_case\
-	Index_0 Index_1 Index_2 Index_3 Index_4 mmce
+	Index_0 Index_1 Index_2 Index_3 Index_4 Index2_0 Index2_1 Index3_0 Index3_1 Index3_2 Index4_0 \
+	Index4_1 Index4_2 Index4_3 mmce
 	# unused icons - up down l1 l2 l3 r1 r2 r3
 
 GFX_OBJS = $(PNG_ASSETS:%=%_png.o) poeveticanew.o icon_sys.o icon_icn.o

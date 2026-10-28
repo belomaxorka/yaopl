@@ -843,12 +843,29 @@ static void drawBDMIndex(struct menu_list *menu, struct submenu_list *item, conf
     if (itemList->mode >= ETH_MODE || menu->item->visible == 0)
         return;
 
+    // Count the visible mass devices and find the position of the current one among them
+    struct menu_list *cur = menu;
+    while (cur->prev)
+        cur = cur->prev;
+
+    int count = 0, pos = 0;
+    for (; cur; cur = cur->next) {
+        if (cur->item->visible && ((item_list_t *)cur->item->userdata)->mode < ETH_MODE) {
+            if (cur == menu)
+                pos = count;
+            count++;
+        }
+    }
+
     // Only render if multiple mass devices are connected
-    if (itemList->mode == 0 && menu->next->item->visible == 0)
+    if (count < 2)
         return;
 
     char imgName[32];
-    snprintf(imgName, sizeof(imgName), "Index_%d", itemList->mode);
+    if (count < MAX_BDM_DEVICES && !gTheme->bdmIndexFixed)
+        snprintf(imgName, sizeof(imgName), "Index%d_%d", count, pos);
+    else
+        snprintf(imgName, sizeof(imgName), "Index_%d", itemList->mode);
 
     GSTEXTURE *indexTex = thmGetTexture(texLookupInternalTexId(&imgName[0]));
     if (indexTex && indexTex->Mem)
@@ -1392,8 +1409,18 @@ static void thmLoad(const char *themePath)
     newT->loadingIconCount = i;
 
     // Customizable icons
-    for (i = BDM_ICON; i <= START_ICON; i++)
-        thmLoadResource(&newT->textures[i], i, themePath, GS_PSM_CT32, newT->useDefault);
+    int customIndex = 0, customIndexCount = 0;
+    for (i = BDM_ICON; i <= START_ICON; i++) {
+        if (thmLoadResource(&newT->textures[i], i, themePath, GS_PSM_CT32, newT->useDefault) >= 0) {
+            if (i == INDEX_0)
+                customIndex = 1;
+            else if (i == INDEX2_0)
+                customIndexCount = 1;
+        }
+    }
+
+    // A theme with its own five-dot BdmIndex pictures but none for fewer devices keeps its five dots
+    newT->bdmIndexFixed = customIndex && !customIndexCount;
 
     /* Not customizable icons - currently unused.
     for (i = L1_ICON; i <= R3_ICON; i++)
