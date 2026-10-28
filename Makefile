@@ -80,6 +80,20 @@ ifneq ($(GIT_TAG),latest)
 endif
 endif
 
+# YAOPL numbers its own versions (CONTRIBUTING.md, "Builds and versions"): the commit tagged yaopl-vX.Y.Z is
+# vX.Y.Z-yaopl, any other is vX.Y.Z-nightly.N-<commit>-yaopl, a build towards the release YAOPL_VERSION, where N
+# counts master's commits since the last release (before the first one, since YAOPL_FORK, where it left upstream).
+YAOPL_VERSION = 2.0.0
+YAOPL_FORK = b3a21997
+YAOPL_TAG = $(or $(shell git describe --exact-match --tags --match 'yaopl-v*' --exclude 'yaopl-v*-*' 2>/dev/null),$(shell git describe --exact-match --tags --match 'yaopl-v*' 2>/dev/null))
+YAOPL_LAST = $(shell git describe --tags --abbrev=0 --match 'yaopl-v*' --exclude 'yaopl-v*-*' 2>/dev/null)
+YAOPL_NIGHTLY = $(shell git rev-list --count --first-parent $(or $(YAOPL_LAST),$(YAOPL_FORK))..HEAD 2>/dev/null)
+ifneq ($(YAOPL_TAG),)
+  OPL_VERSION = v$(YAOPL_TAG:yaopl-v%=%)$(DIRTY)$(if $(LOCALVERSION),-$(LOCALVERSION))
+else
+  OPL_VERSION = v$(YAOPL_VERSION)-nightly.$(YAOPL_NIGHTLY)$(if $(GIT_HASH),-$(GIT_HASH))$(DIRTY)$(if $(LOCALVERSION),-$(LOCALVERSION))
+endif
+
 FRONTEND_OBJS = pad.o xparam.o fntsys.o renderman.o menusys.o OSDHistory.o system.o lang.o lang_internal.o config.o hdd.o dialogs.o \
 		dia.o ioman.o texcache.o themes.o supportbase.o bdmsupport.o ethsupport.o hddsupport.o zso.o lz4.o \
 		appsupport.o mmcesupport.o gui.o guigame.o vmc_groups.o textures.o opl.o atlas.o nbns.o httpclient.o gsm.o cheatman.o cheatconfig.o sound.o ps2cnf.o

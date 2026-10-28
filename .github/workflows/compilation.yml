@@ -29,7 +29,33 @@ jobs:
 
     - run: |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-        git fetch --prune --unshallow
+        git fetch --prune --unshallow --tags
+
+    - name: Check the YAOPL version (YAOPL_VERSION in the Makefile, the yaopl-v* tags)
+      run: |
+        version=$(sed -n 's/^YAOPL_VERSION = //p' Makefile)
+        case "$GITHUB_REF" in
+        refs/tags/yaopl-v*)
+          tag=${GITHUB_REF#refs/tags/}
+          case "$tag" in
+          "yaopl-v$version" | "yaopl-v$version"-rc[0-9]*) ;;
+          *) echo "::error::tag $tag does not match YAOPL_VERSION = $version in the Makefile"; exit 1 ;;
+          esac
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/master; then
+            echo "::error::tag $tag is not on master"
+            exit 1
+          fi
+          ;;
+        refs/heads/master)
+          # After a release the nightlies build towards the next one.
+          if git rev-parse -q --verify "refs/tags/yaopl-v$version" >/dev/null &&
+            [ "$(git rev-parse "yaopl-v$version^{commit}")" != "$GITHUB_SHA" ]; then
+            echo "::error::yaopl-v$version is released: raise YAOPL_VERSION in the Makefile"
+            exit 1
+          fi
+          ;;
+        esac
+        echo "Version: $(make -s oplversion)"
 
     - name: Check that CHANGELOG.md lists what this push changes
       if: github.event_name == 'push' || github.event_name == 'pull_request'
@@ -96,7 +122,7 @@ jobs:
 
     - run: |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-        git fetch --prune --unshallow
+        git fetch --prune --unshallow --tags
 
     - name: Get version
       run: |
@@ -133,7 +159,7 @@ jobs:
 
     - run: |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-        git fetch --prune --unshallow
+        git fetch --prune --unshallow --tags
 
     - name: Compile -> make download_lng languages
       run: make --trace download_lng languages
@@ -164,7 +190,7 @@ jobs:
 
     - run: |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-        git fetch --prune --unshallow
+        git fetch --prune --unshallow --tags
 
     - name: Get version
       run: |
@@ -211,7 +237,7 @@ jobs:
     - name: git checkout
       uses: actions/checkout@v4
 
-    - run: git fetch --prune --unshallow
+    - run: git fetch --prune --unshallow --tags
 
     - name: Get version
       run: |
@@ -259,7 +285,7 @@ jobs:
         gh release delete latest --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes || true
         git push --delete origin latest || true
         {
-          echo "Automatic YAOPL (Yet Another Open PS2 Loader) build of ${{ env.OPL_VERSION }} from $GITHUB_SHA."
+          echo "Nightly YAOPL (Yet Another Open PS2 Loader) build of ${{ env.OPL_VERSION }} from $GITHUB_SHA."
           echo
           echo "Not an official OPL build: see CHANGELOG.md for what differs from upstream OPL."
           echo
