@@ -54,6 +54,10 @@ with the commit (or upstream `#N`) at the end.
   puts gas and brake of most racing games on R2/L2, with the trigger's pressure, and "L2/R2 <-> L1/R1" swaps
   the shoulder buttons. Off by default, saved only per game; a DualShock 2 in the controller port is not
   changed. (eb1a6c96, ae8540cb)
+- A DualShock 3/4 on USB PADEMU reads its buttons more reliably when it is slow to answer, as a DualShock 3
+  plugged in after the game has started: no more input lag and uneven LED blinking in that case. Its start
+  command and LED/vibration report no longer share a buffer with the button reports. (1ef5b49c, 4b1106e4,
+  c4a82e95)
 
 ### MMCE
 - With "Send the game ID" on, a game starts only after the MMCE card has switched to the game's memory card
