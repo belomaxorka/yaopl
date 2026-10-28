@@ -4,3 +4,4 @@
 ./thirdparty/clang-format-lint-action
 ./modules/usb/usbd_mini/ps2sdk
 ./modules/mmce/mmceman
+./modules/network/neutrino
