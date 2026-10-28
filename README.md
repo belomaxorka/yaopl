@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/belomaxorka/yaopl/actions/workflows/compilation.yml"><img alt="CI" src="https://github.com/belomaxorka/yaopl/actions/workflows/compilation.yml/badge.svg?branch=master"></a>
-  <a href="https://github.com/belomaxorka/yaopl/releases/tag/latest"><img alt="Latest build" src="https://img.shields.io/github/release-date-pre/belomaxorka/yaopl?label=latest%20build"></a>
+  <a href="https://github.com/yaopl/yaopl/actions/workflows/compilation.yml"><img alt="CI" src="https://github.com/yaopl/yaopl/actions/workflows/compilation.yml/badge.svg?branch=master"></a>
+  <a href="https://github.com/yaopl/yaopl/releases/tag/latest"><img alt="Latest build" src="https://img.shields.io/github/release-date-pre/yaopl/yaopl?label=latest%20build"></a>
   <a href="LICENSE"><img alt="License: AFL-3.0" src="https://img.shields.io/badge/license-AFL--3.0-blue"></a>
 </p>
 
@@ -41,18 +41,18 @@ its own fixes and new devices.
 
 ## Download
 
-Every change to `master` is built and published as the [`latest` release](https://github.com/belomaxorka/yaopl/releases/tag/latest):
+Every change to `master` is built and published as the [`latest` release](https://github.com/yaopl/yaopl/releases/tag/latest):
 `OPNPS2LD.ELF`, the 7z packages and `SHA256SUMS`. YAOPL versions end in `-yaopl`, for example
 `v1.2.0-Beta-2310-1a2b3c4-yaopl` (START → About), so they are easy to tell apart from official OPL builds.
 
 ## Documentation
 
-- [Documentation](https://belomaxorka.github.io/yaopl/): installing and launching, every menu and setting,
+- [Documentation](https://yaopl.github.io/yaopl/): installing and launching, every menu and setting,
   preparing each device (USB, MX4SIO, HDD, SMB, UDPBD, MMCE), adding games, cheats, VMCs, troubleshooting.
   Its source is [`docs/`](docs/).
 - [Changelog](CHANGELOG.md): what changed in each build, and what YAOPL changed compared with OPL.
 - [Contributing](CONTRIBUTING.md): how changes are made, checked and released, and how upstream is merged.
-- [Issues](https://github.com/belomaxorka/yaopl/issues): bug reports and feature requests for YAOPL builds.
+- [Issues](https://github.com/yaopl/yaopl/issues): bug reports and feature requests for YAOPL builds.
   Problems with official OPL builds belong to [upstream](https://github.com/ps2homebrew/Open-PS2-Loader/issues).
 
 ## Credits and license

@@ -37,7 +37,7 @@ returns from games with [in-game reset](features/igr.md).
 ## Getting help
 
 - Quote the version from START → About (YAOPL versions end in `-yaopl`) when you
-  [report a problem](https://github.com/belomaxorka/yaopl/issues).
-- What changed in each build is in the [changelog](https://github.com/belomaxorka/yaopl/blob/master/CHANGELOG.md).
+  [report a problem](https://github.com/yaopl/yaopl/issues).
+- What changed in each build is in the [changelog](https://github.com/yaopl/yaopl/blob/master/CHANGELOG.md).
 - Problems with official OPL builds belong to
   [upstream OPL](https://github.com/ps2homebrew/Open-PS2-Loader/issues).

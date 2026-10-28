@@ -27,7 +27,7 @@ says where it saved them; see [Where settings are saved](getting-started.md#wher
 
 **A game does not start or freezes.**
 Try the [compatibility modes](game-settings.md#compatibility-modes) one at a time with **Test Changes**. Check
-whether official OPL behaves the same before you [report it](https://github.com/belomaxorka/yaopl/issues).
+whether official OPL behaves the same before you [report it](https://github.com/yaopl/yaopl/issues).
 
 **A game freezes on a white screen.**
 Its main executable could not be read: the image is fragmented or damaged.
@@ -69,6 +69,6 @@ That is what IGR does when *IGR Path* is empty: set it to the path of `OPNPS2LD.
 
 ## Reporting a problem
 
-[Open an issue](https://github.com/belomaxorka/yaopl/issues) with the YAOPL version (START → About), the device and
+[Open an issue](https://github.com/yaopl/yaopl/issues) with the YAOPL version (START → About), the device and
 how it is formatted, the game and its ID, the compatibility modes you tried, and whether official OPL behaves the
 same.

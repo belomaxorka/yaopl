@@ -4,8 +4,8 @@ contact_links:
     url: https://github.com/ps2homebrew/Open-PS2-Loader/issues
     about: Problems with official OPL builds go to the upstream project, not here.
   - name: What YAOPL changes
-    url: https://github.com/belomaxorka/yaopl/blob/master/CHANGELOG.md
+    url: https://github.com/yaopl/yaopl/blob/master/CHANGELOG.md
     about: Every fix and new feature of this fork, build by build.
   - name: Documentation
-    url: https://belomaxorka.github.io/yaopl/
+    url: https://yaopl.github.io/yaopl/
     about: Installing, devices, settings, game settings and troubleshooting.

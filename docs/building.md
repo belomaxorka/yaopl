@@ -3,7 +3,7 @@
 YAOPL builds with the ps2dev toolchain image pinned in `.github/workflows/compilation.yml` (`TOOLCHAIN_IMAGE`):
 
 ```sh
-git clone https://github.com/belomaxorka/yaopl.git && cd yaopl
+git clone https://github.com/yaopl/yaopl.git && cd yaopl
 docker run --rm -v "$PWD:/src" -w /src <TOOLCHAIN_IMAGE> sh -c 'git config --global --add safe.directory /src && make release'
 ```
 
@@ -33,4 +33,4 @@ pip install zensical==0.0.70
 zensical serve
 ```
 
-How changes to YAOPL are made and checked is in [CONTRIBUTING.md](https://github.com/belomaxorka/yaopl/blob/master/CONTRIBUTING.md).
+How changes to YAOPL are made and checked is in [CONTRIBUTING.md](https://github.com/yaopl/yaopl/blob/master/CONTRIBUTING.md).

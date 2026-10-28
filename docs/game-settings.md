@@ -41,7 +41,7 @@ If a game does not start, freezes or has glitches, try these modes, one at a tim
 | Mode 6 | Disable IGR | Turns off [in-game reset](features/igr.md) and its button combinations for this game. For games that conflict with them. |
 
 If no mode helps, check whether the game works in official OPL, and whether the image is good, before
-[reporting it](https://github.com/belomaxorka/yaopl/issues).
+[reporting it](https://github.com/yaopl/yaopl/issues).
 
 ### Other fields
 

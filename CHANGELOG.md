@@ -71,6 +71,9 @@ with the commit (or upstream `#N`) at the end.
   HDD as exFAT or APA, SMB with PC setup, UDPBD, MMCE), adding games, game settings, cheats, VMCs, in-game
   reset, NBD and troubleshooting, all checked against the code. It replaces `docs/USAGE.md`.
   (2e28eebd..30d34adc)
+- YAOPL moved to the `yaopl` organization on GitHub, <https://github.com/yaopl/yaopl>, and the documentation
+  site to <https://yaopl.github.io/yaopl/>. Old repository, release and download links lead to the new place;
+  the old site address does not.
 
 ## YAOPL 2026-10-27
 

@@ -8,7 +8,7 @@ body:
       value: |
         ### __Disclaimer:__
         This is the issue tracker of YAOPL, a fork of Open PS2 Loader. Only builds from this repository's
-        [`latest` pre-release](https://github.com/belomaxorka/yaopl/releases/tag/latest) are accepted; their version ends in `-yaopl`.
+        [`latest` pre-release](https://github.com/yaopl/yaopl/releases/tag/latest) are accepted; their version ends in `-yaopl`.
         For official OPL builds, report to [Open PS2 Loader](https://github.com/ps2homebrew/Open-PS2-Loader/issues) instead.
         Issue reports for 3rd party HDD adapters (like Gamestar) are not accepted.
         Issue reports for consoles with installed and enabled modchip are not accepted.
@@ -20,9 +20,9 @@ body:
       label: Checks
       description: "Check before posting"
       options:
-        - label: I have checked existing [__YAOPL issues__](https://github.com/belomaxorka/yaopl/issues?q=is%3Aissue) for duplicates and found none
+        - label: I have checked existing [__YAOPL issues__](https://github.com/yaopl/yaopl/issues?q=is%3Aissue) for duplicates and found none
           required: true
-        - label: I am using the [latest YAOPL build](https://github.com/belomaxorka/yaopl/releases/tag/latest).
+        - label: I am using the [latest YAOPL build](https://github.com/yaopl/yaopl/releases/tag/latest).
           required: true
 
   - type: textarea

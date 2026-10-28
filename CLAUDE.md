@@ -64,5 +64,5 @@ If the local knowledge base `kb/` exists, start with `kb/README.md` and `kb/ROAD
 ## Commands
 - Host checks: `powershell -ExecutionPolicy Bypass -File labs\host-repro\run_all.ps1 [-Opl <tree>] [-Only cheat,cfg,...] [-Images <dir of .iso>]`
 - Console test files: `python labs/host-repro/make_console_kit.py <bootable.iso> <out dir>`
-- CI: `gh run list -R belomaxorka/yaopl`, `gh workflow run compilation.yml -R belomaxorka/yaopl --ref master`
+- CI: `gh run list -R yaopl/yaopl`, `gh workflow run compilation.yml -R yaopl/yaopl --ref master`
 - Upstream sync: see `CONTRIBUTING.md`, "Pulling in upstream changes".

@@ -45,7 +45,7 @@ The logo (`gfx/logo.png`, shown on the greeting screen, and `docs/logo.svg`) is 
 
 ## Documentation
 
-The user documentation is the site at <https://belomaxorka.github.io/yaopl/>, built from the Markdown pages in
+The user documentation is the site at <https://yaopl.github.io/yaopl/>, built from the Markdown pages in
 `docs/` and the page list in `mkdocs.yml` by [Zensical](https://zensical.org/) (`.github/workflows/docs.yml`).
 The workflow builds the site with `--strict` for every push or pull request that changes `docs/`,
 `mkdocs.yml` or the workflow, so a broken link or anchor fails it, and publishes it to GitHub Pages from

@@ -10,7 +10,7 @@
 ## Download
 
 Every change to `master` is built and published as the
-[`latest` release](https://github.com/belomaxorka/yaopl/releases/tag/latest):
+[`latest` release](https://github.com/yaopl/yaopl/releases/tag/latest):
 
 | File | Contents |
 | --- | --- |
@@ -97,7 +97,7 @@ Hold these while YAOPL starts:
 
 START → About shows the version, for example `v1.2.0-Beta-2310-1a2b3c4-yaopl`. Builds of YAOPL end in
 `-yaopl`, so they are easy to tell from official OPL builds. Quote it in
-[issue reports](https://github.com/belomaxorka/yaopl/issues).
+[issue reports](https://github.com/yaopl/yaopl/issues).
 
 ## PS3
 

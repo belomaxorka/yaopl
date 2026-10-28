@@ -9,7 +9,7 @@ body:
       label: Checks
       description: "Check before posting"
       options:
-        - label: I have checked existing [__YAOPL feature requests__](https://github.com/belomaxorka/yaopl/issues?q=is%3Aissue+label%3Aenhancement) for duplicates and found none
+        - label: I have checked existing [__YAOPL feature requests__](https://github.com/yaopl/yaopl/issues?q=is%3Aissue+label%3Aenhancement) for duplicates and found none
           required: true
 
   - type: textarea
