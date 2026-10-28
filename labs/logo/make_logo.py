@@ -1,7 +1,8 @@
 # Draws the YAOPL logo in the style of OPL's logo (by Berion): square outlined capitals with a
 # cyan-to-blue gradient and a white edge, and a small subtitle.
-# One geometry, two outputs: gfx/logo.png (512x128 RGBA, the greeting screen, embedded in the ELF)
-# and docs/logo.svg (README). Run from anywhere: python labs/logo/make_logo.py
+# One geometry, three outputs: gfx/logo.png (512x128 RGBA, the greeting screen, embedded in the ELF),
+# docs/logo.svg (README) and labs/logo/avatar.png (the GitHub organization's avatar).
+# Run from anywhere: python labs/logo/make_logo.py
 import os
 import struct
 import zlib
@@ -133,6 +134,34 @@ def write_png(path, w, h, rows):
 
 
 write_png(os.path.join(ROOT, 'gfx', 'logo.png'), W, H, px)
+
+
+def avatar(text, size, k, name, bg=(28, 28, 28, 255)):
+    """A square avatar (GitHub organization): the big letters k times larger, centred on a dark square,
+    with the gradient and the white edge computed per output pixel. Not used by the build."""
+    xs = [i * (BW + BG) for i in range(len(text))]
+    ox = (size - (xs[-1] + BW) * k) // 2
+    oy = (size - BH * k) // 2
+    img = [[bg] * size for _ in range(size)]
+    for lx, ch in zip(xs, text):
+        x0 = ox + lx * k
+        for x, y, w, h in big(ch, lx):
+            for yy in range(oy + (y - BY) * k, oy + (y - BY + h) * k):
+                base = grad(TG, (yy - oy) / (BH * k - 1)) + (255,)
+                for xx in range(ox + x * k, ox + (x + w) * k):
+                    img[yy][xx] = base
+        for yy in range(oy, oy + BH * k):
+            for xx in range(x0, x0 + BW * k):
+                if img[yy][xx] == bg:
+                    continue
+                if yy < oy + k:
+                    img[yy][xx] = whiten(img[yy][xx], fadeout((xx - x0) / (BW * k), HTOP))
+                elif xx < x0 + k:
+                    img[yy][xx] = whiten(img[yy][xx], fadeout((yy - oy) / (BH * k), HLEFT))
+    write_png(os.path.join(ROOT, 'labs', 'logo', name), size, size, img)
+
+
+avatar('Y', 840, 10, 'avatar.png')
 
 
 def svg_stops(stops):
