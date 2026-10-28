@@ -79,6 +79,10 @@ with the commit (or upstream `#N`) at the end.
   new strings (MMCE, UDPBD) for translators. Strings not translated yet are still shown in English.
 - The language package has Vietnamese: the packing script always left out the last language of the list,
   in upstream's packages too (32 of 33 languages).
+- YAOPL numbers its own versions: a release is `v2.0.0-yaopl` (tag `yaopl-v2.0.0`), and `latest` is a
+  nightly, `v2.0.0-nightly.N-<commit>-yaopl`, the Nth change on `master` since the last release. Builds were
+  called `v1.2.0-Beta-N-<commit>-yaopl` before, with N counting all commits, upstream's too. Releases are
+  published from the tags, with the changes since the previous release in their notes. (b764a48e, cc70a691)
 
 ## YAOPL 2026-10-27
 
