@@ -737,3 +737,14 @@ gui_strings:
   string: The network adapter is used by UDPBD. Turn UDPBD off and restart OPL to use SMB or the network.
 - label: UDPBD_SMB_ACTIVE
   string: The network adapter is used by SMB. Restart OPL to use UDPBD.
+- label: PADMACRO_REMAP
+  string: Button Remap
+- comment: Hint for the per-game PADMACRO button remap.
+  label: HINT_PADMACRO_REMAP
+  string: Per game only. Swaps buttons of a DS3/DS4 on PADEMU, not of a pad in the controller port.
+- comment: Button remap choice; R2/L2 then act as Cross/Square (gas/brake in most racing games), and the other way round.
+  label: PADMACRO_REMAP_TRIGGERS_FACE
+  string: L2/R2 <-> Square/Cross
+- comment: Button remap choice; L2/R2 and L1/R1 trade places.
+  label: PADMACRO_REMAP_TRIGGERS_SHOULDERS
+  string: L2/R2 <-> L1/R1

@@ -854,6 +854,11 @@ struct UIItem diaPadMacroConfig[] = {
     {UI_INT, PADMACRO_TURBO_SPEED, 1, 1, _STR_HINT_TURBO_SPEED, -10, 0, {.intvalue = {4, 3, 1, 4}}},
     {UI_BREAK},
 
+    {UI_LABEL, 0, 1, 1, -1, -20, 0, {.label = {NULL, _STR_PADMACRO_REMAP}}},
+    {UI_SPACER},
+    {UI_ENUM, PADMACRO_REMAP, 1, 1, _STR_HINT_PADMACRO_REMAP, 0, 0, {.intvalue = {0, 0}}},
+    {UI_BREAK},
+
     {UI_OK, 0, 1, 1, -1, 0, 0, {.label = {NULL, _STR_OK}}},
     {UI_BREAK},
 

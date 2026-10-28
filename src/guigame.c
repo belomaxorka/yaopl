@@ -61,6 +61,7 @@ static union
     };
     int raw;
 } PadMacroSettings;
+static int PadMacroRemap; // per game only, never global
 #endif
 
 static char hexid[32];
@@ -876,6 +877,8 @@ static int guiGamePadMacroUpdater(int modified)
     diaGetInt(diaPadMacroConfig, PADMACRO_TURBO_SPEED, &turbo_speed);
     PadMacroSettings.turbo_speed = 4 - turbo_speed;
 
+    diaGetInt(diaPadMacroConfig, PADMACRO_REMAP, &PadMacroRemap);
+
     return 0;
 }
 
@@ -884,9 +887,11 @@ void guiGameShowPadMacroConfig(int forceGlobal)
     const char *settingsSource[] = {_l(_STR_GLOBAL_SETTINGS), _l(_STR_PERGAME_SETTINGS), NULL};
     forceGlobalPadMacro = forceGlobal;
     diaSetEnabled(diaPadMacroConfig, PADMACRO_CFG_SOURCE, !forceGlobalPadMacro);
+    diaSetEnabled(diaPadMacroConfig, PADMACRO_REMAP, !forceGlobalPadMacro);
 
     if (forceGlobalPadMacro) {
         guiGameLoadPadMacroConfig(NULL, configGetByType(CONFIG_GAME));
+        diaSetInt(diaPadMacroConfig, PADMACRO_REMAP, 0);
     }
 
     diaSetEnum(diaPadMacroConfig, PADMACRO_CFG_SOURCE, settingsSource);
@@ -895,6 +900,8 @@ void guiGameShowPadMacroConfig(int forceGlobal)
     const char *toggle_enum[] = {_l(_STR_ACT_WHILE_PRESSED), _l(_STR_ACT_TOGGLED), NULL};
     diaSetEnum(diaPadMacroConfig, PADMACRO_SLOWDOWN_TOGGLE_L, toggle_enum);
     diaSetEnum(diaPadMacroConfig, PADMACRO_SLOWDOWN_TOGGLE_R, toggle_enum);
+    const char *remap_enum[] = {_l(_STR_OFF), _l(_STR_PADMACRO_REMAP_TRIGGERS_FACE), _l(_STR_PADMACRO_REMAP_TRIGGERS_SHOULDERS), NULL};
+    diaSetEnum(diaPadMacroConfig, PADMACRO_REMAP, remap_enum);
 
     int result = -1;
     while (result != 0) {
@@ -934,6 +941,11 @@ static int guiGameSavePadMacroGameConfig(config_set_t *configSet, int result)
         else
             configRemoveKey(configSet, CONFIG_ITEM_PADMACROSETTINGS);
     }
+
+    if (PadMacroRemap != 0)
+        result = configSetInt(configSet, CONFIG_ITEM_PADMACROREMAP, PadMacroRemap);
+    else
+        configRemoveKey(configSet, CONFIG_ITEM_PADMACROREMAP);
 
     return result;
 }
@@ -1185,6 +1197,7 @@ void guiGameRemoveSettings(config_set_t *configSet)
         configRemoveKey(configSet, CONFIG_ITEM_PADEMUSETTINGS);
         configRemoveKey(configSet, CONFIG_ITEM_PADMACROSETTINGS);
         configRemoveKey(configSet, CONFIG_ITEM_PADMACROSOURCE);
+        configRemoveKey(configSet, CONFIG_ITEM_PADMACROREMAP);
 #endif
         // VMC
         configRemoveVMC(configSet, 0);
@@ -1337,6 +1350,16 @@ static void guiGameLoadPadMacroConfig(config_set_t *configSet, config_set_t *con
     diaSetInt(diaPadMacroConfig, PADMACRO_INVERT_RX, PadMacroSettings.rx_invert);
     diaSetInt(diaPadMacroConfig, PADMACRO_INVERT_RY, PadMacroSettings.ry_invert);
     diaSetInt(diaPadMacroConfig, PADMACRO_TURBO_SPEED, 4 - PadMacroSettings.turbo_speed);
+}
+
+static void guiGameLoadPadMacroRemapConfig(config_set_t *configSet)
+{
+    PadMacroRemap = 0;
+    configGetInt(configSet, CONFIG_ITEM_PADMACROREMAP, &PadMacroRemap);
+    if (PadMacroRemap < 0 || PadMacroRemap > 2)
+        PadMacroRemap = 0;
+
+    diaSetInt(diaPadMacroConfig, PADMACRO_REMAP, PadMacroRemap);
 }
 #endif
 
@@ -1491,6 +1514,7 @@ void guiGameLoadConfig(item_list_t *support, config_set_t *configSet)
 #ifdef PADEMU
     guiGameLoadPadEmuConfig(configSet, configGame);
     guiGameLoadPadMacroConfig(configSet, configGame);
+    guiGameLoadPadMacroRemapConfig(configSet);
 #endif
 
     guiGameLoadOSDLanguageConfig(configSet, configGame);
