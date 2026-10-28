@@ -55,7 +55,7 @@ regenerate the file from a run on this tree:
 | `text` | `fntFitString()`, `drawAttributeText()` | the wrap scans past the terminator and writes over it; line breaks go into the config value (upstream #1713) |
 | `theme` | `initGameCountText()`, `initImageTexture()`, `validateGUIElems()` | a 1-byte count buffer; a missing image file leaves a garbage texture; a theme without `ItemsList` leaves it NULL |
 | `bdmindex` | `drawBDMIndex()` | the dots show the slot of five, not the connected devices: two devices give five dots, slots 0 and 2 give none on slot 0, one device in slot 2 gets dots |
-| `padmacro` | `modules/pademu/padmacro.c` `padMacroPerform()` | none: checks the per-game button remap (the bit and its pressure byte move, value 3 does nothing, the slow-down button is the physical one); upstream has no remap |
+| `padmacro` | `modules/pademu/padmacro.c` `padMacroPerform()` | none: checks the per-game button remap (the bit and its pressure byte move, value 3 does nothing, the slow-down button is the physical one, the IGR combo L1+L2+R1+R2 is not swapped); upstream has no remap |
 | `lang` | `lngReadEntry()` | a `.lng` name shorter than `lang_X.lng` gives a negative length |
 | `history` | `GetBootFilename()` | a boot file name over 16 characters overflows `filename[17]` |
 | `gsm` | `PrepareGSM()` | `$GSMVMode` indexes past the table of 29 modes |

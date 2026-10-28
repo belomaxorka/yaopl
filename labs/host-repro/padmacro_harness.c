@@ -158,6 +158,14 @@ int main(int argc, char **argv)
     } else if (!strcmp(s, "reserved")) { /* value 3 is not a remap */
         settings.raw = 3u << 18;
         press(&rep, DS2BtnBit_R2, 200);
+    } else if (!strcmp(s, "igr-face") || !strcmp(s, "igr-shoulders")) { /* the IGR combo L1+L2+R1+R2+Start+Select */
+        settings.raw = (s[4] == 'f' ? 1 : 2) << 18;
+        press(&rep, DS2BtnBit_L1, 255);
+        press(&rep, DS2BtnBit_L2, 255);
+        press(&rep, DS2BtnBit_R1, 255);
+        press(&rep, DS2BtnBit_R2, 255);
+        press(&rep, DS2BtnBit_Start, 0);
+        press(&rep, DS2BtnBit_Select, 0);
     } else if (!strcmp(s, "slowdown")) { /* left slow-down on R2 and remap 1: R2 slows the stick */
         settings.raw = (1 << 18) | (1 << 8) | DS2BtnBit_R2;
         press(&rep, DS2BtnBit_R2, 255);

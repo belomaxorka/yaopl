@@ -266,6 +266,10 @@ static void swapButtons(struct ds2report *rep, u8 bit_a, u8 bit_b)
 
 static void performRemap(struct ds2report *rep)
 {
+    // The IGR and GSM combos start with L1+L2+R1+R2: while all four are held, keep the physical buttons
+    if ((rep->nButtonState & ((1 << DS2BtnBit_L1) | (1 << DS2BtnBit_L2) | (1 << DS2BtnBit_R1) | (1 << DS2BtnBit_R2))) == 0)
+        return;
+
     switch (gButtonRemap) {
         case PadMacroRemapTriggersFace:
             swapButtons(rep, DS2BtnBit_L2, DS2BtnBit_Square);

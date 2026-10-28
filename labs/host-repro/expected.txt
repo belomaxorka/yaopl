@@ -188,6 +188,10 @@ padMacroPerform shoulders          plain: pressed: L2 R1 pressure: L2=255 R1=180
                                    asan:  pressed: L2 R1 pressure: L2=255 R1=180 LX=128
 padMacroPerform reserved           plain: pressed: R2 pressure: R2=200 LX=128
                                    asan:  pressed: R2 pressure: R2=200 LX=128
+padMacroPerform igr-face           plain: pressed: Select Start L2 R2 L1 R1 pressure: L2=255 R2=255 L1=255 R1=255 LX=128
+                                   asan:  pressed: Select Start L2 R2 L1 R1 pressure: L2=255 R2=255 L1=255 R1=255 LX=128
+padMacroPerform igr-shoulders      plain: pressed: Select Start L2 R2 L1 R1 pressure: L2=255 R2=255 L1=255 R1=255 LX=128
+                                   asan:  pressed: Select Start L2 R2 L1 R1 pressure: L2=255 R2=255 L1=255 R1=255 LX=128
 padMacroPerform slowdown           plain: pressed: Cross pressure: Cross=255 LX=219
                                    asan:  pressed: Cross pressure: Cross=255 LX=219
 genvmc write ok                    plain: write ok: mc_writecluster = 0, abort semaphore released

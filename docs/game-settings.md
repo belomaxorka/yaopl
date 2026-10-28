@@ -134,6 +134,8 @@ for games whose main pair of buttons is L1/R1. Notes:
 - Games with their own controller setup (Gran Turismo 4 has one) do not need it; use one or the other.
 - Do not use it with PS3 guitars: it swaps their frets.
 - The other macros (slow-down button, turbo, PS-button combos) use the buttons you press, before the swap.
+- While L1, L2, R1 and R2 are all held, nothing is swapped, so the IGR and GSM combos (L1+L2+R1+R2 with
+  Start+Select, L3+R3 or Up) work as without the remap.
 
 ## OSD Settings
 
