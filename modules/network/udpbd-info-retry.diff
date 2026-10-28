@@ -1,21 +1,22 @@
 diff --git a/iop/udpbd/src/imports.lst b/iop/udpbd/src/imports.lst
-index c717f7c..86f8f0c 100644
+index c717f7c..9beb57f 100644
 --- a/iop/udpbd/src/imports.lst
 +++ b/iop/udpbd/src/imports.lst
-@@ -13,6 +13,8 @@ I_SetAlarm
+@@ -13,6 +13,9 @@ I_SetAlarm
  I_CancelAlarm
  I_USec2SysClock
  I_DelayThread
 +I_CreateThread
 +I_StartThread
++I_ExitDeleteThread
  thbase_IMPORTS_end
  
  stdio_IMPORTS_start
 diff --git a/iop/udpbd/src/udpbd.c b/iop/udpbd/src/udpbd.c
-index 8d199b4..fe6f43f 100644
+index 8d199b4..e2e5809 100644
 --- a/iop/udpbd/src/udpbd.c
 +++ b/iop/udpbd/src/udpbd.c
-@@ -401,13 +401,33 @@ static int udpbd_isr(udp_socket_t *socket, void *arg, const uint8_t *hdr, uint16
+@@ -401,13 +401,36 @@ static int udpbd_isr(udp_socket_t *socket, void *arg, const uint8_t *hdr, uint16
      return 0;
  }
  
@@ -37,6 +38,9 @@ index 8d199b4..fe6f43f 100644
 +
 +        DelayThread(500 * 1000);
 +    }
++
++    // Give the stack back to the game
++    ExitDeleteThread();
 +}
 +
  //
@@ -50,7 +54,7 @@ index 8d199b4..fe6f43f 100644
  
      M_DEBUG("Starting UDPBD BDM driver by Maximus32\n");
  
-@@ -431,12 +451,13 @@ int udpbd_init(void)
+@@ -431,12 +454,13 @@ int udpbd_init(void)
      // Bind to UDP socket
      udpbd_socket = udp_bind(UDPBD_CLIENT_PORT, udpbd_isr, NULL);
  
