@@ -27,9 +27,10 @@ jobs:
     - name: git checkout
       uses: actions/checkout@v4
 
+    # For a tag push, checkout makes a lightweight tag; --force lets the annotated yaopl-v* tag replace it.
     - run: |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-        git fetch --prune --unshallow --tags
+        git fetch --prune --unshallow --tags --force
 
     - name: Check the YAOPL version (YAOPL_VERSION in the Makefile, the yaopl-v* tags)
       run: |
@@ -122,7 +123,7 @@ jobs:
 
     - run: |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-        git fetch --prune --unshallow --tags
+        git fetch --prune --unshallow --tags --force
 
     - name: Get version
       run: |
@@ -159,7 +160,7 @@ jobs:
 
     - run: |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-        git fetch --prune --unshallow --tags
+        git fetch --prune --unshallow --tags --force
 
     - name: Compile -> make download_lng languages
       run: make --trace download_lng languages
@@ -190,7 +191,7 @@ jobs:
 
     - run: |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-        git fetch --prune --unshallow --tags
+        git fetch --prune --unshallow --tags --force
 
     - name: Get version
       run: |
@@ -237,7 +238,7 @@ jobs:
     - name: git checkout
       uses: actions/checkout@v4
 
-    - run: git fetch --prune --unshallow --tags
+    - run: git fetch --prune --unshallow --tags --force
 
     - name: Get version
       run: |
