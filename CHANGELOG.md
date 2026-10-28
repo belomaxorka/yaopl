@@ -50,6 +50,15 @@ with the commit (or upstream `#N`) at the end.
 - The greeting screen shows a YAOPL logo, drawn in the style of OPL's logo by Berion, instead of OPL's.
   (fca82aea)
 
+### Translations
+- Russian is translated completely, YAOPL's MMCE and UDPBD strings included, and 18 older Russian strings
+  that said something else than the English or had typos are corrected. (yaopl-lang c459ea4, 2084550)
+- The Persian message about a fragmented VMC no longer crashes the menu: it read the slot number as text.
+  The Cebuano VMC messages and auto-start countdown put a space before the name and the number instead of
+  gluing them to the word before. (yaopl-lang 55d1ec2, 7fbdcb9)
+- The documentation has a [Translations](https://yaopl.github.io/yaopl/translations/) page with how complete
+  each language is. (ecbefe2c)
+
 ### Build and releases
 - The toolchain image (ps2sdk, gsKit, ps2sdk-ports) is pinned by digest, so the same commit always embeds
   the same SDK modules; the release notes name the ps2sdk commit. A weekly canary build warns when the
