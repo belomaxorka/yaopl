@@ -62,6 +62,7 @@ regenerate the file from a run on this tree:
 | `genvmc` | `mc_writecluster()` | a failed write leaves the abort semaphore taken |
 | `atad` | in-game `ata_device_sector_io_internal()` | an LBA48 transfer of 65536 sectors or more loops forever, issuing 0-sector commands |
 | `bgm` | `bgmLoad()` | the default BGM path is the format string |
+| `udpbdro` | `src/bdmsupport.c` `bdmCheckWritable()`, `bdmGetConfig()` with `src/supportbase.c` `sbPopulateConfig()` | none (upstream has no UDPBD); on YAOPL before the fix the settings of a game on a UDPBD server that drops what is written (udpbd-vexfat) are "saved" there and lost; the check also covers where they are read from and saved after the fix |
 
 ## Console test files
 

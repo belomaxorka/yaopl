@@ -268,6 +268,20 @@ if (Want "bgm") {
     Test "bgmLoad default_bgm_path" bgm-t "mass:/MUSIC/100%s.ogg"
 }
 
+if (Want "udpbdro") {
+    $probeDefine = if ((Get-Content -Raw (Join-Path $Opl "src\bdmsupport.c")).Contains("bdmCheckWritable(")) { "/DHAVE_PROBE" } else { "" }
+    Build udpbdro t "src\bdmsupport.c" "?bdmCheckWritable", "bdmGetConfig" -Source2 "src\supportbase.c" -Funcs2 "sbPopulateConfig" -Defines $probeDefine
+    $dir = Join-Path $build "udpbdro"
+    foreach ($case in "probe rw", "probe drop", "probe stale", "probe fail", "cfg rw", "cfg drop", "cfg drop-saved", "cfg usb") {
+        foreach ($v in "plain", "asan") {
+            if (Test-Path $dir) { Remove-Item -Recurse -Force $dir }
+            New-Item -ItemType Directory -Force $dir | Out-Null
+            $exe = if ($v -eq "plain") { "udpbdro-t" } else { "udpbdro-t-asan" }
+            Emit ("{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "UDPBD $case" } else { "" }), $v.PadRight(5), (Run $exe (@($dir) + $case.Split(" "))))
+        }
+    }
+}
+
 if ($Images) {
     Build gameid t "src\supportbase.c" "GetStartupExecName" -Source2 "modules\isofs\isofs.c" -Funcs2 "dirTocEntry", "cdvdman_trimspaces", "cdvdman_locatefile" -Source3 "src\ps2cnf.c" -Funcs3 "CNF_LEN_MAX", "CNFGetToken", "CNFAdvanceLine", "CNFGetKey", "ps2cnfGetBootFile" -Patch 'fopen(path, "r")=>fopen(path, "rb")'
     foreach ($f in Get-ChildItem $Images -File | Where-Object { $_.Extension -in ".iso" }) { Test "gameid $($f.Name)" gameid-t $f.FullName }
