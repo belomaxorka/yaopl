@@ -43,4 +43,4 @@ With *Notifications* on, YAOPL shows which device a theme or language was loaded
 
 The translations are made in [yaopl/yaopl-lang](https://github.com/yaopl/yaopl-lang), a fork of OPL's
 language repository; its README says how to translate a string or add a language. A string that is not
-translated yet is shown in English.
+translated yet is shown in English. [Translations](../translations.md) shows how complete each language is.

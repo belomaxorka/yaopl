@@ -32,6 +32,7 @@ nav:
       - In-game reset and screenshots: features/igr.md
       - Art, themes and languages: features/customizing.md
       - NBD server: features/nbd.md
+  - Translations: translations.md
   - Troubleshooting: troubleshooting.md
   - Reference:
       - Configuration files: config-files.md
