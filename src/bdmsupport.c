@@ -286,7 +286,9 @@ static int bdmNeedsUpdate(item_list_t *itemList)
             pDeviceData->LanguagesLoaded = 1;
     }
 
-    sbCreateFolders(pDeviceData->bdmPrefix, 1);
+    // Folders created on a read-only device would only seem to be there
+    if (!(itemList->flags & MODE_FLAG_READ_ONLY))
+        sbCreateFolders(pDeviceData->bdmPrefix, 1);
 
     return result;
 }
@@ -856,6 +858,36 @@ void bdmResolveLBA_UDMA(bdm_device_data_t *pDeviceData)
     hddSetTransferMode(0x40, pDeviceData->ataHighestUDMAMode);
 }
 
+// Write a sector of new data to a file on the device and read it back. A UDPBD server may only read (udpbd-vexfat,
+// udpbd-server on a read-only image), yet the protocol has no read-only flag and these servers acknowledge the writes
+// they drop, so a write that seems to succeed proves nothing. The data differs on every check: a dropped write must
+// not read back what an earlier check left in the same sectors.
+static int bdmCheckWritable(int unit)
+{
+    static u32 data[128], check[128];
+    char path[40];
+    u32 seed = (u32)GetTimerSystemTime();
+    int fd, i, result;
+
+    for (i = 0; i < 128; i++)
+        data[i] = seed + i * 0x9E3779B9;
+
+    sprintf(path, "mass%d:/yaopl_write_test.tmp", unit);
+    if ((fd = open(path, O_WRONLY | O_CREAT | O_TRUNC)) < 0)
+        return 0;
+    result = (write(fd, data, sizeof(data)) == sizeof(data));
+    close(fd);
+
+    if (result && (fd = open(path, O_RDONLY)) >= 0) {
+        result = (read(fd, check, sizeof(check)) == sizeof(check)) && (memcmp(data, check, sizeof(data)) == 0);
+        close(fd);
+    } else
+        result = 0;
+
+    remove(path);
+    return result;
+}
+
 int bdmUpdateDeviceData(item_list_t *itemList)
 {
     char path[16] = {0};
@@ -909,6 +941,11 @@ int bdmUpdateDeviceData(item_list_t *itemList)
             LOG("Mass device: %d (%d LBA%d UDMA%d) %s -> %s\n", itemList->mode, pDeviceData->massDeviceIndex, (pDeviceData->bdmHddIsLBA48 == 1 ? 48 : 28), pDeviceData->ataHighestUDMAMode, pDeviceData->bdmPrefix, pDeviceData->bdmDriver);
         } else
             LOG("Mass device: %d (%d) %s -> %s\n", itemList->mode, pDeviceData->massDeviceIndex, pDeviceData->bdmPrefix, pDeviceData->bdmDriver);
+
+        if (pDeviceData->bdmDeviceType == BDM_TYPE_UDPBD && !bdmCheckWritable(itemList->mode)) {
+            LOG("Mass device: %d is read-only\n", itemList->mode);
+            itemList->flags |= MODE_FLAG_READ_ONLY;
+        }
 
         // Make the menu item visible.
         if (itemList->owner != NULL) {

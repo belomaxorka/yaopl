@@ -61,6 +61,7 @@ enum ERROR_CODE {
 #define MODE_FLAG_NO_COMPAT  0x01 // no compat support
 #define MODE_FLAG_COMPAT_DMA 0x02 // Supports DMA compat flags
 #define MODE_FLAG_NO_UPDATE  0x04 // Network update not supported.
+#define MODE_FLAG_READ_ONLY  0x08 // The device does not keep what is written (a read-only UDPBD server).
 
 #define COMPAT_MODE_1 0x01 // Accurate Reads
 #define COMPAT_MODE_2 0x02 // Alternative data read method (Synchronous)
