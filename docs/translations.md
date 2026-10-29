@@ -13,45 +13,45 @@ for example), rounded down. *Own font* means the package has a font file for the
 its `.lng` file. Arabic and Persian are written right to left and need an `EXTRA_FEATURES=1` ELF from the
 `OPNPS2LD-VARIANTS` package.
 
-As of 2026-10-28; the current numbers are in the summary of the latest
+As of 2026-10-29; the current numbers are in the summary of the latest
 [CI-compile run](https://github.com/yaopl/yaopl-lang/actions/workflows/compilation.yml?query=branch%3Amain)
 of yaopl-lang.
 
 | Language | Ready | Untranslated | Own font |
 | --- | ---: | ---: | --- |
-| Albanian | 71% | 101 | |
-| Arabic | 56% | 154 | yes |
-| Bulgarian | 80% | 69 | yes |
-| Cebuano | 64% | 126 | |
-| Croatian | 66% | 119 | yes |
-| Czech | 89% | 37 | yes |
-| Danish | 66% | 118 | yes |
-| Dutch | 52% | 167 | yes |
-| Filipino | 61% | 134 | yes |
-| French | 69% | 107 | yes |
-| Galician | 89% | 37 | yes |
-| German | 87% | 45 | yes |
-| Greek | 71% | 99 | yes |
-| Hungarian | 81% | 66 | yes |
-| Indonesian | 63% | 128 | yes |
-| Italian | 88% | 39 | yes |
-| Japanese | 87% | 45 | yes |
-| Korean | 88% | 41 | yes |
-| Laotian | 51% | 171 | yes |
-| Persian | 71% | 100 | yes |
-| Polish | 79% | 72 | yes |
-| Portuguese | 84% | 56 | yes |
-| Portuguese_BR | 85% | 50 | yes |
-| Romana | 55% | 156 | yes |
+| Albanian | 72% | 97 | |
+| Arabic | 57% | 150 | yes |
+| Bulgarian | 81% | 65 | yes |
+| Cebuano | 65% | 122 | |
+| Croatian | 67% | 115 | yes |
+| Czech | 90% | 33 | yes |
+| Danish | 67% | 114 | yes |
+| Dutch | 53% | 163 | yes |
+| Filipino | 62% | 130 | yes |
+| French | 70% | 103 | yes |
+| Galician | 90% | 33 | yes |
+| German | 88% | 41 | yes |
+| Greek | 72% | 95 | yes |
+| Hungarian | 82% | 62 | yes |
+| Indonesian | 64% | 124 | yes |
+| Italian | 89% | 35 | yes |
+| Japanese | 88% | 41 | yes |
+| Korean | 89% | 37 | yes |
+| Laotian | 52% | 167 | yes |
+| Persian | 72% | 96 | yes |
+| Polish | 80% | 68 | yes |
+| Portuguese | 85% | 52 | yes |
+| Portuguese_BR | 86% | 46 | yes |
+| Romana | 56% | 152 | yes |
 | Russian | 100% | 0 | yes |
-| Ryukyuan | 88% | 41 | |
-| SChinese | 85% | 50 | yes |
-| Serbian | 92% | 25 | |
-| Spanish | 89% | 37 | yes |
-| Swedish | 66% | 116 | yes |
-| TChinese | 69% | 106 | yes |
-| Turkish | 86% | 48 | yes |
-| Vietnamese | 56% | 152 | yes |
+| Ryukyuan | 89% | 37 | |
+| SChinese | 86% | 46 | yes |
+| Serbian | 93% | 21 | |
+| Spanish | 90% | 33 | yes |
+| Swedish | 67% | 112 | yes |
+| TChinese | 70% | 102 | yes |
+| Turkish | 87% | 44 | yes |
+| Vietnamese | 57% | 148 | yes |
 
 The names are those of the files, `lang_<Language>.lng`: Romana is Romanian, SChinese and TChinese are
 Simplified and Traditional Chinese, Portuguese_BR is Brazilian Portuguese.
