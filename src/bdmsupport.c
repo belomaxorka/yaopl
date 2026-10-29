@@ -301,7 +301,10 @@ static int bdmUpdateGameList(item_list_t *itemList)
 {
     bdm_device_data_t *pDeviceData = (bdm_device_data_t *)itemList->priv;
 
+    // The games.bin list cache would only seem to be written on a read-only device
+    sbListCacheReadOnly = (itemList->flags & MODE_FLAG_READ_ONLY) != 0;
     sbReadList(&pDeviceData->bdmGames, pDeviceData->bdmPrefix, &pDeviceData->bdmULSizePrev, &pDeviceData->bdmGameCount);
+    sbListCacheReadOnly = 0;
     return pDeviceData->bdmGameCount;
 }
 

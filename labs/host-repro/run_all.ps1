@@ -132,12 +132,15 @@ if (Want "cnf") {
 }
 
 if (Want "sb") {
-    Build sb t "src\supportbase.c" "game_list_t", "game_cache_list", "sbReadList", "updateISOGameList" -Defines "/DHAVE_SBREADLIST /DHAVE_UPDATE"
+    $sbRoDefine = if ((Get-Content -Raw (Join-Path $Opl "src\supportbase.c")).Contains("sbListCacheReadOnly")) { " /DHAVE_SB_RO" } else { "" }
+    Build sb t "src\supportbase.c" "game_list_t", "game_cache_list", "sbReadList", "updateISOGameList" -Defines ("/DHAVE_SBREADLIST /DHAVE_UPDATE" + $sbRoDefine)
     foreach ($c in "ul64 0", "ul65 0", "ul129 0", "ul65 2", "ul129 2") {
         $a = $c.Split(" ")
         Test "sbReadList $c" sb-t "ul", (Join-Path $inputs $a[0]), $a[1]
     }
     foreach ($c in "2 2", "3 3 swap", "1 2") { Test "updateISOGameList $c" sb-t (@("cache", (Join-Path $inputs "cachedir")) + $c.Split(" ")) }
+    # A read-only UDPBD server: the changed list must not be written to the device
+    Test "updateISOGameList 1 2 read-only" sb-t (@("cachero", (Join-Path $inputs "cachedir")) + "1 2".Split(" "))
 }
 
 if (Want "name") {

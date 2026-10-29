@@ -43,7 +43,7 @@ regenerate the file from a run on this tree:
 | `zso` | `ziso_init()`, `read_raw_data()` | align > 11 divides by zero; a block size other than 2048 is read as the wrong sectors |
 | `zso` | `ziso_read_sector()` with the tree's LZ4 | a corrupt index writes in front of the buffer; a read over 256 sectors runs past the index cache |
 | `cnf` | `ps2cnfGetBootFile()` | `BOOT2` without `=` passes NULL to `CNFGetKey()` |
-| `sb` | `sbReadList()`, `updateISOGameList()` | a ul.cfg size that is not a multiple of 64 writes past the list; the cache compare reads past the cache |
+| `sb` | `sbReadList()`, `updateISOGameList()` | a ul.cfg size that is not a multiple of 64 writes past the list; the cache compare reads past the cache; `games.bin` is written to a read-only UDPBD server (`cachero`) |
 | `name` | `isValidIsoName()` | reads before the name for `..` |
 | `crc` | `USBA_crc32()` | non-ASCII titles index `crctab` negatively; `ref` is an independent unsigned implementation |
 | `cfg` | `readFileBuffer()`, `strToColor()`, `splitAssignment()`, `parsePrefix()`, `configReadLegacyIP()`, `CheckPS2Logo()` | a `#` last line without LF crashes; a read error corrupts memory; colours, keys, prefixes and `IPCONFIG.DAT` overflow; the HDD logo read is one sector too long |

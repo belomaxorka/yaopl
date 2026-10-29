@@ -41,6 +41,7 @@ int isValidIsoName(char *name, int *pNameLen);
 int sbIsSameSize(const char *prefix, int prevSize);
 int sbCreateSemaphore(void);
 int sbReadList(base_game_info_t **list, const char *prefix, int *fsize, int *gamecount);
+extern int sbListCacheReadOnly; // set around sbReadList() for a read-only device
 int sbPrepare(base_game_info_t *game, config_set_t *configSet, int size_cdvdman, void **cdvdman_irx, int *patchindex);
 void sbUnprepare(void *pCommon);
 int sbMcemuSlotWord(void *irx, int size, int slot, int *cache);

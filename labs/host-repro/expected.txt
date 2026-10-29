@@ -79,6 +79,8 @@ updateISOGameList 3 3 swap         plain: cache 3, listed 3 (reordered): games.b
                                    asan:  cache 3, listed 3 (reordered): games.bin kept
 updateISOGameList 1 2              plain: cache 1, listed 2: games.bin rewritten
                                    asan:  cache 1, listed 2: games.bin rewritten
+updateISOGameList 1 2 read-only    plain: cache 1, listed 2 (read-only): games.bin kept
+                                   asan:  cache 1, listed 2 (read-only): games.bin kept
 isValidIsoName                     plain: ..                       format=0 name_len=-1 | x.iso                    format=2 name_len=1 | SLUS_200.62.Title.iso    format=1 name_len=5
                                    asan:  ..                       format=0 name_len=-1 | x.iso                    format=2 name_len=1 | SLUS_200.62.Title.iso    format=1 name_len=5
 USBA_crc32                         plain: 4772616e64205468656674204175746f20494949 10D00014 | c8e3f0e0                 E857E311 | d098d0b3d180d0b0         E0598591
