@@ -27,6 +27,8 @@ with the commit (or upstream `#N`) at the end.
 ### PADEMU
 - The per-game Button Remap of the Pad Macro settings, added in the nightly builds of 2026-10-28, is
   removed again, with its strings; a game's saved `$PadMacroRemap` is ignored. (6faa44e4, yaopl-lang 1e42c1e)
+- IGR from a game with a DualShock 3/4 on USB PADEMU no longer hangs before the PS2 browser or the exit ELF
+  comes up: the USB host controller is stopped before the IOP reset. (e72c9f48)
 
 ## YAOPL 2026-10-28
 
