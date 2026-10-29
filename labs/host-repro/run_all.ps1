@@ -221,11 +221,15 @@ if (Want "vmc") {
 }
 
 if (Want "text") {
-    Build text t "src\themes.c" "drawAttributeText" -Source2 "src\fntsys.c" -Funcs2 "fntFitString"
+    $msgDefine = if ((Get-Content -Raw (Join-Path $Opl "src\gui.c")).Contains("guiDrawMsgText(")) { "/DHAVE_MSGTEXT" } else { "" }
+    Build text t "src\themes.c" "drawAttributeText" -Source2 "src\fntsys.c" -Funcs2 "fntFitString" -Source3 "src\gui.c" -Funcs3 "?guiDrawMsgText" -Defines $msgDefine
     Test "fntFitString fits, exact buffer" text-t "fit", "200", "two words"
     Test "fntFitString long word, exact buffer" text-t "fit", "40", "Averyveryverylongword"
     Test "fntFitString 255-char config value" text-t "cfgval", "100"
     Test "AttributeText wrap, config value" text-t "attr", "100", "The quick brown fox jumps over the lazy dog"
+    Test "message box, short" text-t "msgbox", "Please wait..."
+    Test "message box, read-only VMC note" text-t "msgbox", "This UDPBD server is read-only, so no VMC can be used on it; the game saves to the real memory card."
+    foreach ($t in "ru", "ar", "long") { Test "message box, $t" text-t "msgboxfile", (Join-Path $inputs "msg_$t.txt") }
 }
 
 if (Want "theme") {
