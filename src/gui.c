@@ -1682,6 +1682,30 @@ void guiUpdateScreenScale(void)
     fntUpdateAspectRatio();
 }
 
+// Draws a message centred on the screen, wrapped on spaces to the width of the message box
+static void guiDrawMsgText(const char *text)
+{
+    char buffer[1024];
+    char *line, *next;
+    int lines = 1, y;
+
+    strncpy(buffer, text, sizeof(buffer) - 1);
+    buffer[sizeof(buffer) - 1] = '\0';
+    fntFitString(gTheme->fonts[0], buffer, screenWidth - 100);
+
+    for (line = buffer; (line = strchr(line, '\n')) != NULL; line++)
+        lines++;
+
+    // the lines are as far apart as fntRenderString() puts them; one line stays where it was
+    y = (gTheme->usedHeight >> 1) - ((lines - 1) * MENU_ITEM_HEIGHT >> 1);
+    for (line = buffer; line != NULL; line = next, y += MENU_ITEM_HEIGHT) {
+        next = strchr(line, '\n');
+        if (next != NULL)
+            *next++ = '\0';
+        fntRenderString(gTheme->fonts[0], screenWidth >> 1, y, ALIGN_CENTER, 0, 0, line, gTheme->textColor);
+    }
+}
+
 int guiMsgBox(const char *text, int addAccept, struct UIItem *ui)
 {
     int terminate = 0;
@@ -1708,7 +1732,7 @@ int guiMsgBox(const char *text, int addAccept, struct UIItem *ui)
         rmDrawLine(50, 75, screenWidth - 50, 75, gColWhite);
         rmDrawLine(50, 410, screenWidth - 50, 410, gColWhite);
 
-        fntRenderString(gTheme->fonts[0], screenWidth >> 1, gTheme->usedHeight >> 1, ALIGN_CENTER, 0, 0, text, gTheme->textColor);
+        guiDrawMsgText(text);
         guiDrawIconAndText(gSelectButton == KEY_CIRCLE ? CROSS_ICON : CIRCLE_ICON, _STR_BACK, gTheme->fonts[0], 500, 417, gTheme->selTextColor);
         if (addAccept)
             guiDrawIconAndText(gSelectButton == KEY_CIRCLE ? CIRCLE_ICON : CROSS_ICON, _STR_ACCEPT, gTheme->fonts[0], 70, 417, gTheme->selTextColor);
@@ -1756,7 +1780,7 @@ void guiRenderTextScreen(const char *message)
 
     rmDrawRect(0, 0, screenWidth, screenHeight, gColDarker);
 
-    fntRenderString(gTheme->fonts[0], screenWidth >> 1, gTheme->usedHeight >> 1, ALIGN_CENTER, 0, 0, message, gTheme->textColor);
+    guiDrawMsgText(message);
 
     guiDrawOverlays();
 
@@ -1774,7 +1798,7 @@ void guiWarning(const char *text, int count)
     rmDrawLine(50, 75, screenWidth - 50, 75, gColWhite);
     rmDrawLine(50, 410, screenWidth - 50, 410, gColWhite);
 
-    fntRenderString(gTheme->fonts[0], screenWidth >> 1, gTheme->usedHeight >> 1, ALIGN_CENTER, screenWidth, screenHeight, text, gTheme->textColor);
+    guiDrawMsgText(text);
 
     guiEndFrame();
 
@@ -1810,7 +1834,7 @@ int guiConfirmVideoMode(void)
         rmDrawLine(50, 75, screenWidth - 50, 75, gColWhite);
         rmDrawLine(50, 410, screenWidth - 50, 410, gColWhite);
 
-        fntRenderString(gTheme->fonts[0], screenWidth >> 1, gTheme->usedHeight >> 1, ALIGN_CENTER, 0, 0, _l(_STR_CFM_VMODE_CHG), gTheme->textColor);
+        guiDrawMsgText(_l(_STR_CFM_VMODE_CHG));
         guiDrawIconAndText(gSelectButton == KEY_CIRCLE ? CROSS_ICON : CIRCLE_ICON, _STR_BACK, gTheme->fonts[0], 500, 417, gTheme->selTextColor);
         guiDrawIconAndText(gSelectButton == KEY_CIRCLE ? CIRCLE_ICON : CROSS_ICON, _STR_ACCEPT, gTheme->fonts[0], 70, 417, gTheme->selTextColor);
 
@@ -1855,7 +1879,7 @@ int guiGameShowRemoveSettings(config_set_t *configSet, config_set_t *configGame)
         rmDrawLine(50, 75, screenWidth - 50, 75, gColWhite);
         rmDrawLine(50, 410, screenWidth - 50, 410, gColWhite);
 
-        fntRenderString(gTheme->fonts[0], screenWidth >> 1, gTheme->usedHeight >> 1, ALIGN_CENTER, 0, 0, _l(_STR_GAME_SETTINGS_PROMPT), gTheme->textColor);
+        guiDrawMsgText(_l(_STR_GAME_SETTINGS_PROMPT));
 
         guiDrawIconAndText(gSelectButton == KEY_CIRCLE ? CROSS_ICON : CIRCLE_ICON, _STR_BACK, gTheme->fonts[0], 500, 417, gTheme->selTextColor);
         guiDrawIconAndText(SQUARE_ICON, _STR_GLOBAL_SETTINGS, gTheme->fonts[0], 213, 417, gTheme->selTextColor);
