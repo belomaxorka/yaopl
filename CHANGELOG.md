@@ -22,6 +22,14 @@ How to add an entry: see "Changelog" in `CLAUDE.md`. In short, every push that c
 a line here, under the heading for the day it reaches `master` and the right area, in user-facing words,
 with the commit (or upstream `#N`) at the end.
 
+## YAOPL 2026-10-29
+
+### PADEMU
+- The per-game Button Remap of the Pad Macro settings, added in the nightly builds of 2026-10-28, is
+  removed again, with its strings; a game's saved `$PadMacroRemap` is ignored. (6faa44e4, yaopl-lang 1e42c1e)
+- IGR from a game with a DualShock 3/4 on USB PADEMU no longer hangs before the PS2 browser or the exit ELF
+  comes up: the USB host controller is stopped before the IOP reset. (e72c9f48)
+
 ## YAOPL 2026-10-28
 
 ### UDPBD
@@ -50,12 +58,6 @@ with the commit (or upstream `#N`) at the end.
   not take it over, so the pad did nothing until it was replugged. (c56a91b6)
 
 ### PADEMU
-- Pad Macro settings have a per-game Button Remap for a DualShock 3/4 on PADEMU: "L2/R2 <-> Square/Cross"
-  puts gas and brake of most racing games on R2/L2, with the trigger's pressure, and "L2/R2 <-> L1/R1" swaps
-  the shoulder buttons. Off by default, saved only per game; a DualShock 2 in the controller port is not
-  changed. (eb1a6c96, ae8540cb)
-- IGR (L1+L2+R1+R2 with Start+Select) and the GSM combos also work with the Button Remap "L2/R2 <->
-  Square/Cross": while all four shoulder buttons are held, nothing is swapped. (c54cdc46)
 - A DualShock 3/4 on USB PADEMU reads its buttons more reliably when it is slow to answer, as a DualShock 3
   plugged in after the game has started: no more input lag and uneven LED blinking in that case. Its start
   command and LED/vibration report no longer share a buffer with the button reports. (1ef5b49c, 4b1106e4,
@@ -96,8 +98,8 @@ with the commit (or upstream `#N`) at the end.
 ### Translations
 - Russian is translated completely, YAOPL's MMCE and UDPBD strings included, and 18 older Russian strings
   that said something else than the English or had typos are corrected. (yaopl-lang c459ea4, 2084550)
-- The Button Remap of the Pad Macro settings and the new "Both" are translated into Russian; in the other
-  languages they show in English until translated. (yaopl-lang 33afafa, 5985982)
+- The new "Both" is translated into Russian; in the other languages it shows in English until translated.
+  (yaopl-lang 33afafa, 5985982)
 - The Persian message about a fragmented VMC no longer crashes the menu: it read the slot number as text.
   The Cebuano VMC messages and auto-start countdown put a space before the name and the number instead of
   gluing them to the word before. (yaopl-lang 55d1ec2, 7fbdcb9)

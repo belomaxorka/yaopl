@@ -178,22 +178,6 @@ PrepareGSM $GSMVMode=-1            plain: $GSMVMode=-1: mode used 2, interlace 1
                                    asan:  $GSMVMode=-1: mode used 2, interlace 1, ffmd 0, display 001BF9FF0182E2BC, cmdline "1 2 0 7874698008519356 56154283650848769 1 0 0 0 0 0"
 readPads tick counter wrap         plain: held button: countdown 590 ms before the wrap, 580 ms after it (10 ms later)
                                    asan:  held button: countdown 590 ms before the wrap, 580 ms after it (10 ms later)
-padMacroPerform off                plain: pressed: R2 Cross pressure: R2=200 Cross=255 LX=128
-                                   asan:  pressed: R2 Cross pressure: R2=200 Cross=255 LX=128
-padMacroPerform face-triggers      plain: pressed: Cross Square pressure: Cross=200 Square=40 LX=128
-                                   asan:  pressed: Cross Square pressure: Cross=200 Square=40 LX=128
-padMacroPerform face-cross         plain: pressed: R2 Circle pressure: R2=255 Circle=255 LX=128
-                                   asan:  pressed: R2 Circle pressure: R2=255 Circle=255 LX=128
-padMacroPerform shoulders          plain: pressed: L2 R1 pressure: L2=255 R1=180 LX=128
-                                   asan:  pressed: L2 R1 pressure: L2=255 R1=180 LX=128
-padMacroPerform reserved           plain: pressed: R2 pressure: R2=200 LX=128
-                                   asan:  pressed: R2 pressure: R2=200 LX=128
-padMacroPerform igr-face           plain: pressed: Select Start L2 R2 L1 R1 pressure: L2=255 R2=255 L1=255 R1=255 LX=128
-                                   asan:  pressed: Select Start L2 R2 L1 R1 pressure: L2=255 R2=255 L1=255 R1=255 LX=128
-padMacroPerform igr-shoulders      plain: pressed: Select Start L2 R2 L1 R1 pressure: L2=255 R2=255 L1=255 R1=255 LX=128
-                                   asan:  pressed: Select Start L2 R2 L1 R1 pressure: L2=255 R2=255 L1=255 R1=255 LX=128
-padMacroPerform slowdown           plain: pressed: Cross pressure: Cross=255 LX=219
-                                   asan:  pressed: Cross pressure: Cross=255 LX=219
 genvmc write ok                    plain: write ok: mc_writecluster = 0, abort semaphore released
                                    asan:  write ok: mc_writecluster = 0, abort semaphore released
 genvmc write short                 plain: write short: mc_writecluster = -1, abort semaphore released

@@ -12,13 +12,6 @@ enum PadMacroAxes {
     PadMacroAxisRY = 3,
 };
 
-// Per-game button swaps, applied after the other macros
-enum PadMacroRemaps {
-    PadMacroRemapOff = 0,
-    PadMacroRemapTriggersFace = 1,      // L2/R2 <-> Square/Cross
-    PadMacroRemapTriggersShoulders = 2, // L2/R2 <-> L1/R1
-};
-
 /**
  * Initialize macro settings
  * @param padMacroSettings Settings passed from the config

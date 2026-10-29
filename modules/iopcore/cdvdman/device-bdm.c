@@ -28,13 +28,6 @@ extern struct irx_export_table _exp_bdm;
 extern struct irx_export_table _exp_atad;
 #endif
 
-#ifdef USE_BDM_UDP
-// OHCI registers of the USB host controller
-#define OHCI_HcControl          (*(volatile u32 *)0xBF801604)
-#define OHCI_HcCommandStatus    (*(volatile u32 *)0xBF801608)
-#define OHCI_HcInterruptDisable (*(volatile u32 *)0xBF801614)
-#endif
-
 //
 // BDM exported functions
 //
@@ -94,16 +87,8 @@ void DeviceInit(void)
 
 #ifdef USE_BDM_UDP
     // The menu's USBD leaves the USB host controller running across IOP resets: it keeps walking its lists in memory
-    // that now holds other modules, and with a device plugged in the game hangs. Stop it the way USBD resets it.
-    if ((OHCI_HcControl & 0xC0) == 0x80) { // HCFS = UsbOperational
-        int i;
-
-        OHCI_HcInterruptDisable = ~0;
-        OHCI_HcCommandStatus = 1; // HCR
-        OHCI_HcControl = 0;
-        for (i = 0; (OHCI_HcCommandStatus & 1) && i < 1000; i++)
-            ;
-    }
+    // that now holds other modules, and with a device plugged in the game hangs.
+    cdvdman_usb_host_stop();
 #endif
 }
 

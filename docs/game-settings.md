@@ -114,28 +114,6 @@ Configure PADMACRO (PADEMU builds) changes how an emulated controller behaves:
 | Analog Slow-Down (Left Stick, Right Stick) | A button that reduces the stick's range, *While Button Pressed* or *Toggled By Button* |
 | Analog Axis Invert (LX, LY, RX, RY) | Invert a stick axis |
 | Turbo Button Speed | How fast a button repeats when turbo is active, 1–4 |
-| Button Remap | Per game only: swap buttons for this game, **Off** (the default), **L2/R2 <-> Square/Cross** or **L2/R2 <-> L1/R1** |
-
-PADMACRO works only on a DualShock 3 or 4 used through PADEMU, with PADEMU on for the game; a DualShock 2 in
-the controller port is not changed.
-
-**Button Remap** gives a game the modern trigger layout. Most PS2 racing games (Gran Turismo, Need for Speed,
-Burnout) accelerate with Cross and brake with Square; with **L2/R2 <-> Square/Cross** the game gets Cross
-from R2 and Square from L2, with the trigger's pressure, so gas and brake are analog. **L2/R2 <-> L1/R1** is
-for games whose main pair of buttons is L1/R1. Notes:
-
-- It is a swap: the buttons trade places, and nothing is lost. Cross on the controller now sends R2, so in
-  the game's menus you confirm with R2.
-- It is saved only in the game's own settings, whatever the Settings Mode, and cannot be set in Controller
-  Settings: menus of other games would stop working with it.
-- DualShock 3: all its buttons are pressure-sensitive, so both directions are analog. DualShock 4: only L2
-  and R2 are analog; a trigger moved onto Cross or Square is analog, Cross or Square moved onto a trigger
-  is on or off.
-- Games with their own controller setup (Gran Turismo 4 has one) do not need it; use one or the other.
-- Do not use it with PS3 guitars: it swaps their frets.
-- The other macros (slow-down button, turbo, PS-button combos) use the buttons you press, before the swap.
-- While L1, L2, R1 and R2 are all held, nothing is swapped, so the IGR and GSM combos (L1+L2+R1+R2 with
-  Start+Select, L3+R3 or Up) work as without the remap.
 
 ## OSD Settings
 
