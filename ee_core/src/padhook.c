@@ -295,14 +295,13 @@ static int IGR_Intc_Handler(int cause)
         // First check pad state
         if (((Pad_Data.libpad == IGR_LIBPAD) && (pad_pos_state == IGR_PAD_STABLE_V1)) ||
             ((Pad_Data.libpad == IGR_LIBPAD2) && (pad_pos_state == IGR_PAD_STABLE_V2))) {
-            // Check if pad buffer is still alive with pad data frame counter
-            // If pad frame change save it, otherwise tell to syshook to re-install padOpen hook
+            // Check if pad buffer is still alive with pad data frame counter.
+            // A pause in pad polling (loading, movies) must not clear padOpen_hooked: the PadOpen patch stays in the
+            // game's ELF, and a cleared flag made the next CreateThread rescan 31 MiB inside the syscall.
             if (Pad_Data.vb_count++ >= 10) {
                 if (pad_pos_frame != Pad_Data.prev_frame) {
                     padOpen_hooked = 1;
                     Pad_Data.prev_frame = pad_pos_frame;
-                } else {
-                    padOpen_hooked = 0;
                 }
                 Pad_Data.vb_count = 0;
             }
@@ -492,6 +491,7 @@ static int Hook_scePadPortOpen(int port, int slot, void *addr)
     // Install IGR with libpad1 parameters
     if (port == 0 && slot == 0) {
         DPRINTF("IGR: Hook_scePadPortOpen - installing IGR...\n");
+        padOpen_hooked = 1;
         Install_IGR();
         Set_libpad_Params(addr);
     }
@@ -513,6 +513,7 @@ static int Hook_scePad2CreateSocket(pad2socketparam_t *SocketParam, void *addr)
 
     // Install IGR with libpad2 parameters
     if ((SocketParam == NULL) || (SocketParam->port == 0 && SocketParam->slot == 0)) {
+        padOpen_hooked = 1;
         Install_IGR();
         Set_libpad_Params(addr);
     }
@@ -670,6 +671,13 @@ int Install_PadOpen_Hook(u32 mem_start, u32 mem_end, int mode)
             DPRINTF("IGR: job done exiting...\n");
             break;
         }
+    }
+
+    // Write the patched calls back to memory and drop stale instructions. Patching happens only in PADOPEN_HOOK mode,
+    // which runs from the SifSetDma, CreateThread and ExecPS2 syscall hooks: kernel context, so the i-variant.
+    if (patched) {
+        iFlushCache(0);
+        iFlushCache(2);
     }
 
     // Done

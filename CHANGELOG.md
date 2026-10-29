@@ -40,6 +40,14 @@ with the commit (or upstream `#N`) at the end.
   does not offer Rename and Delete for apps in its `APPS` folder, and does not pick it when it looks for a
   device to save its own settings on. (c92f681d, afe59be2, 760d7e3c)
 
+### In-game
+- IGR no longer stalls games while their pad polling pauses (loading screens, movies): it scanned the
+  game's memory again every time, which left the DualShock dead or dropping out in Gran Turismo 4 over
+  UDPBD until it was replugged. Gran Turismo 4 no longer needs Compatibility Mode 6 for its pad. After
+  patching a game's pad calls IGR also flushes the caches. (3bdfc94f, fd0af6aa; from RiptOPL)
+- The DualShock reset before a launch from 2026-10-28 is removed again: it did not fix Gran Turismo 4;
+  the IGR change above does. (7094cd25)
+
 ### PADEMU
 - The per-game Button Remap of the Pad Macro settings, added in the nightly builds of 2026-10-28, is
   removed again, with its strings; a game's saved `$PadMacroRemap` is ignored. (6faa44e4, yaopl-lang 1e42c1e)
@@ -74,9 +82,6 @@ with the commit (or upstream `#N`) at the end.
   their own SIO2MAN and pad and memory-card drivers, as before upstream Beta-2248 (#1785). Suspected cause
   of games that freeze after some minutes while the sound goes on (upstream issues #1795, #1790); not yet
   confirmed on a console. (5ef1b9e2)
-- A DualShock 2 is handed to the game as it powers up (digital, unlocked, no button pressure), as after the
-  PS2 browser: the menu left it locked in analog mode with pressure on, and Gran Turismo 4 now and then did
-  not take it over, so the pad did nothing until it was replugged. (c56a91b6)
 
 ### PADEMU
 - A DualShock 3/4 on USB PADEMU reads its buttons more reliably when it is slow to answer, as a DualShock 3
