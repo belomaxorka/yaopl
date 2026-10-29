@@ -395,10 +395,15 @@ void bdmLaunchGame(item_list_t *itemList, int id, config_set_t *configSet)
         have_error = 0; // An error in slot 1 must not be reported again for slot 2
         vmc_frags = 0;
         configGetVMC(configSet, vmc_name, sizeof(vmc_name), vmc_id);
+        // A read-only device would drop the saves written to the VMC: the game uses the real memory card. The
+        // setting stays in the config, which a copy of the game on a USB drive may share.
+        if (vmc_name[0] && itemList != NULL && (itemList->flags & MODE_FLAG_READ_ONLY)) {
+            LOG("BDMSUPPORT VMC %s not used: the device is read-only\n", vmc_name);
+            vmc_name[0] = '\0';
+        }
         if (vmc_name[0]) {
             have_error = 1;
-            // A read-only device would drop the saves written to the VMC
-            int vmcSizeInMb = (itemList != NULL && (itemList->flags & MODE_FLAG_READ_ONLY)) ? -1 : sysCheckVMC(pDeviceData->bdmPrefix, "/", vmc_name, 0, &vmc_superblock);
+            int vmcSizeInMb = sysCheckVMC(pDeviceData->bdmPrefix, "/", vmc_name, 0, &vmc_superblock);
             if (vmcSizeInMb > 0) {
                 bdm_vmc_infos.flags = vmc_superblock.mc_flag & 0xFF;
                 bdm_vmc_infos.flags |= 0x100;
