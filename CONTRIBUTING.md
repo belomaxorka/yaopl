@@ -52,7 +52,9 @@ A release is published only with the owner's OK:
 1. Check the nightly of the commit to release on a console; `YAOPL_VERSION` must be the version to release.
 2. Tag the commit on `master` and push the tag: `git tag -a yaopl-vX.Y.Z -m "YAOPL vX.Y.Z"`, then
    `git push origin yaopl-vX.Y.Z`. CI checks that the tag matches `YAOPL_VERSION` and is on `master`, and
-   publishes the release with the `CHANGELOG.md` entries added since the previous release.
+   publishes the release with the `CHANGELOG.md` entries added since the previous tag: a release candidate
+   lists what is new since the previous release or candidate, a release everything since the previous
+   release, its candidates included.
 3. After a final release, raise `YAOPL_VERSION` in the next commit: CI fails `master` until then, so that
    nightlies do not carry the version that is already out.
 

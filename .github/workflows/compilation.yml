@@ -312,8 +312,13 @@ jobs:
         files="OPNPS2LD.ELF OPNPS2LD-${{ env.OPL_VERSION }}.7z OPNPS2LD-VARIANTS-${{ env.OPL_VERSION }}.7z OPNPS2LD-LANGS-${{ env.OPL_VERSION }}.7z"
         sha256sum $files > SHA256SUMS
         cat SHA256SUMS
-        # The notes list the CHANGELOG.md entries added since the previous release; the first one lists them all.
-        prev=$(git describe --tags --abbrev=0 --match 'yaopl-v*' --exclude 'yaopl-v*-*' "$GITHUB_SHA^" 2>/dev/null || true)
+        # "yaopl-v" has a dash itself: match the version after it (2.0.0 or 2.0.0-rc1).
+        # The notes list the CHANGELOG.md entries added since the previous tag: a release candidate since the previous
+        # release or candidate, a release since the previous release (so all its candidates); the first one lists all.
+        case "${tag#yaopl-v}" in
+        *-*) prev=$(git describe --tags --abbrev=0 --match 'yaopl-v*' "$GITHUB_SHA^" 2>/dev/null || true) ;;
+        *) prev=$(git describe --tags --abbrev=0 --match 'yaopl-v*' --exclude 'yaopl-v*-*' "$GITHUB_SHA^" 2>/dev/null || true) ;;
+        esac
         if [ -n "$prev" ] && changes=$(sh .github/changelog.sh since "$prev"); then
           [ -n "$changes" ] || changes="No user-visible changes."
           changes_title="Changes since $prev:"
@@ -321,7 +326,7 @@ jobs:
           changes=$(awk '/^## / { p = /^## YAOPL / } p' CHANGELOG.md)
           changes_title="Changes from upstream OPL:"
         fi
-        case "$tag" in
+        case "${tag#yaopl-v}" in
         *-*) kind=--prerelease ;;
         *) kind=--latest ;;
         esac
