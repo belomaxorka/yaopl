@@ -11,7 +11,7 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#define MAX_BDM_DEVICES 5
+#define MAX_BDM_DEVICES     5
 #define MODE_FLAG_READ_ONLY 0x08
 static char gBDMPrefix[32];
 static struct
