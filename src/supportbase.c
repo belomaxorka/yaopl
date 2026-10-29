@@ -652,11 +652,6 @@ int sbPrepare(base_game_info_t *game, config_set_t *configSet, int size_cdvdman,
         configGetInt(configGame, CONFIG_ITEM_PADMACROSETTINGS, &gPadMacroSettings);
     }
 
-    // The button remap is per game only; it goes to bits 18-19 of the PADMACRO word (see modules/pademu/padmacro.c)
-    int padMacroRemap = 0;
-    configGetInt(configSet, CONFIG_ITEM_PADMACROREMAP, &padMacroRemap);
-    gPadMacroSettings = (gPadMacroSettings & ~(3 << 18)) | ((padMacroRemap & 3) << 18);
-
     if (gEnablePadEmu) {
         settings->fakemodule_flags |= FAKE_MODULE_FLAG_USBD;
     }

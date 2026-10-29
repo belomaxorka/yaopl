@@ -58,7 +58,6 @@ settings; keys starting with `#` describe the game and are written by YAOPL:
 | `$EnableCheat`, `$CheatMode`, `$CheatsSource`, `$CheatSel...` | Cheat settings and picks |
 | `$EnableGSM`, `$GSMVMode`, `$GSMXOffset`, `$GSMYOffset`, `$GSMFIELDFix`, `$GSMSource` | GSM settings |
 | `$EnablePadEmu`, `$PadEmuSettings`, `$PADEMUSource`, `$PadMacroSettings`, `$PadMacroSource` | PADEMU and PADMACRO |
-| `$PadMacroRemap` | PADMACRO Button Remap, per game only: 1 L2/R2 <-> Square/Cross, 2 L2/R2 <-> L1/R1 |
 | `$OSDSettingsEnable`, `$CustomLanguageValue`, `$OSDAspectRatio`, `$OSDVideoMode`, `$CustomLanguageSource` | OSD settings |
 | `$ConfigSource` | Where the settings came from (1 saved by you, 2 downloaded by Network Update) |
 

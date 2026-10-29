@@ -252,12 +252,6 @@ if (Want "pad") {
     Test "readPads tick counter wrap" pad-t "wrap"
 }
 
-if (Want "padmacro") {
-    python -I (Join-Path $here "extract.py") (Join-Path $Opl "include\ds34common.h") "ds2report" | Set-Content -Encoding ascii (Join-Path $build "padmacro_ds2report.c")
-    Build padmacro t "modules\pademu\padmacro.c" "TURBO_MIN_DELAY", "padMacroInit", "scaleAnalogStick", "scaleAnalogSticks", "changeInternalState", "performTurbo", "?swapButtons", "?performRemap", "padMacroPerform"
-    foreach ($s in "off", "face-triggers", "face-cross", "shoulders", "reserved", "igr-face", "igr-shoulders", "slowdown") { Test "padMacroPerform $s" padmacro-t $s }
-}
-
 if (Want "genvmc") {
     Build genvmc t "modules\vmc\genvmc\genvmc.c" "mc_writecluster"
     Test "genvmc write ok" genvmc-t "0"
