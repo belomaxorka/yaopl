@@ -113,7 +113,10 @@ Some modules are not taken from ps2sdk but built from other trees, which `downlo
   see `CREDITS`). In game they run with `bdm_udp_cdvdman.irx` (BDM with DEV9), and the game's DEV9 and SMAP
   modules are faked. The driver asks for at most 16 KiB per request (neutrino: 256 KiB), because longer bursts
   of reply packets were lost on a real console and hung the game, and it repeats its first request until the
-  server answers (`modules/network/udpbd-info-retry.diff`), as one sent before the link is up is lost. The ATA
+  server answers (`modules/network/udpbd-info-retry.diff`), as one sent before the link is up is lost. A write
+  the server answers with an error counts as done (`modules/network/udpbd-refused-write.diff`), as on the
+  servers that drop writes, because FatFs cannot read the disk any more after a failed write; YAOPL finds a
+  read-only server by reading back a test file instead. The ATA
   driver resets the DEV9's ATA interface when it starts, which cuts UDPBD off if it is already running, so
   with the APA HDD page enabled it is loaded before UDPBD.
 

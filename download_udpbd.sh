@@ -25,3 +25,9 @@ PATCH="$PWD/modules/network/udpbd-info-retry.diff"
 if ! (cd "$REPO_FOLDER" && git apply --reverse --check "$PATCH" 2>/dev/null); then
   (cd "$REPO_FOLDER" && git apply "$PATCH") || { echo "download_udpbd.sh: $PATCH does not apply"; exit 1; }
 fi
+# Report a write the server answers with an error as done, as the read-only servers that drop writes do: FatFs
+# reads no other sector after a write it could not finish, so a read-only PS2-Servers disk became unreadable.
+PATCH="$PWD/modules/network/udpbd-refused-write.diff"
+if ! (cd "$REPO_FOLDER" && git apply --reverse --check "$PATCH" 2>/dev/null); then
+  (cd "$REPO_FOLDER" && git apply "$PATCH") || { echo "download_udpbd.sh: $PATCH does not apply"; exit 1; }
+fi
