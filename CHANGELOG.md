@@ -46,6 +46,11 @@ with the commit (or upstream `#N`) at the end.
 - IGR from a game with a DualShock 3/4 on USB PADEMU no longer hangs before the PS2 browser or the exit ELF
   comes up: the USB host controller is stopped before the IOP reset. (e72c9f48)
 
+### Translations
+- The message about the fragment count of a VMC, its defragment hint and the VMC note for a read-only UDPBD
+  server are translated into Russian; in the other languages they show in English until translated.
+  (yaopl-lang 23f4261)
+
 ## YAOPL 2026-10-28
 
 ### UDPBD
