@@ -337,7 +337,8 @@ static void itemExecTriangle(struct menu_item *curMenu)
                 guiGameLoadConfig(support, gameMenuLoadConfig(NULL));
             }
         } else {
-            if (menuCheckParentalLock() == 0 && gEnableWrite) {
+            // The app menu has only Rename and Delete, which a read-only device would drop
+            if (menuCheckParentalLock() == 0 && gEnableWrite && !appIsReadOnly(curMenu->current->item.id)) {
                 menuInitAppMenu();
                 guiSwitchScreen(GUI_SCREEN_APP_MENU);
             }

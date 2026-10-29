@@ -34,6 +34,15 @@ static int bdmDeviceListInitialized = 0;
 void bdmInitDevicesData();
 int bdmUpdateDeviceData(item_list_t *itemList);
 
+// Whether a path ("massN:...") is on a device that does not keep what is written (a read-only UDPBD server).
+int bdmIsReadOnlyPath(const char *path)
+{
+    if (!strncmp(path, "mass", 4) && path[4] >= '0' && path[4] < '0' + MAX_BDM_DEVICES && path[5] == ':')
+        return (bdmDeviceList[path[4] - '0'].flags & MODE_FLAG_READ_ONLY) != 0;
+
+    return 0;
+}
+
 // Identifies the partition that the specified file is stored on and generates a full path to it.
 int bdmFindPartition(char *target, const char *name, int write)
 {

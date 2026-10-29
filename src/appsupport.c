@@ -311,6 +311,15 @@ static char *appGetItemStartup(item_list_t *itemList, int id)
     }
 }
 
+// Whether the app is on a device that does not keep what is written, so it cannot be renamed or deleted
+int appIsReadOnly(int id)
+{
+    if (appsList[id].legacy)
+        return bdmIsReadOnlyPath(appGetConfigValue(id)->val);
+
+    return bdmIsReadOnlyPath(appsList[id].path);
+}
+
 static void appDeleteItem(item_list_t *itemList, int id)
 {
     if (appsList[id].legacy) {

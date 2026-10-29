@@ -28,5 +28,6 @@ typedef struct
 void appInit(item_list_t *itemList);
 item_list_t *appGetObject(int initOnly);
 void appPostUpdateCallback(int mode);
+int appIsReadOnly(int id);
 
 #endif
