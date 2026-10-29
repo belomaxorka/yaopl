@@ -673,6 +673,13 @@ int Install_PadOpen_Hook(u32 mem_start, u32 mem_end, int mode)
         }
     }
 
+    // Write the patched calls back to memory and drop stale instructions. Patching happens only in PADOPEN_HOOK mode,
+    // which runs from the SifSetDma, CreateThread and ExecPS2 syscall hooks: kernel context, so the i-variant.
+    if (patched) {
+        iFlushCache(0);
+        iFlushCache(2);
+    }
+
     // Done
     if (EnableDebug)
         BGCOLND(0x000000); // Black
