@@ -38,5 +38,8 @@ With *Write Operations* on in Settings, Triangle on an app offers:
 - **Rename**: changes the `title=` line (or the name in `conf_apps.cfg`);
 - **Delete**: deletes the app's whole folder (or, for a `conf_apps.cfg` entry, the ELF and its line).
 
+An app on a read-only [UDPBD](../devices/udpbd.md#servers-that-write-and-read-only-servers) server has no
+such menu: the server would drop the change.
+
 Cover art for an app is named after its ELF file, for example `ART/MYAPP.ELF_COV.png`; see
 [Art](customizing.md#art).

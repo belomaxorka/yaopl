@@ -299,6 +299,12 @@ void guiGameShowVMCMenu(int id, item_list_t *support)
 {
     int result = -1;
 
+    // A VMC is a file on the game's device: none can be created or used on a read-only one
+    if (support->flags & MODE_FLAG_READ_ONLY) {
+        guiMsgBox(_l(_STR_UDPBD_READ_ONLY_VMC), 0, NULL);
+        return;
+    }
+
     // show dialog
     do {
         diaSetLabel(diaVMCConfig, COMPAT_VMC1_DEFINE, vmc1);

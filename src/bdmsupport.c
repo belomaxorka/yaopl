@@ -34,6 +34,15 @@ static int bdmDeviceListInitialized = 0;
 void bdmInitDevicesData();
 int bdmUpdateDeviceData(item_list_t *itemList);
 
+// Whether a path ("massN:...") is on a device that does not keep what is written (a read-only UDPBD server).
+int bdmIsReadOnlyPath(const char *path)
+{
+    if (!strncmp(path, "mass", 4) && path[4] >= '0' && path[4] < '0' + MAX_BDM_DEVICES && path[5] == ':')
+        return (bdmDeviceList[path[4] - '0'].flags & MODE_FLAG_READ_ONLY) != 0;
+
+    return 0;
+}
+
 // Identifies the partition that the specified file is stored on and generates a full path to it.
 int bdmFindPartition(char *target, const char *name, int write)
 {
@@ -41,6 +50,10 @@ int bdmFindPartition(char *target, const char *name, int write)
     char path[256];
 
     for (i = 0; i < MAX_BDM_DEVICES; i++) {
+        // A read-only device passes the probe, but what is saved there is lost
+        if (write && (bdmDeviceList[i].flags & MODE_FLAG_READ_ONLY))
+            continue;
+
         if (gBDMPrefix[0] != '\0')
             sprintf(path, "mass%d:%s/%s", i, gBDMPrefix, name);
         else
@@ -286,7 +299,9 @@ static int bdmNeedsUpdate(item_list_t *itemList)
             pDeviceData->LanguagesLoaded = 1;
     }
 
-    sbCreateFolders(pDeviceData->bdmPrefix, 1);
+    // Folders created on a read-only device would only seem to be there
+    if (!(itemList->flags & MODE_FLAG_READ_ONLY))
+        sbCreateFolders(pDeviceData->bdmPrefix, 1);
 
     return result;
 }
@@ -295,7 +310,10 @@ static int bdmUpdateGameList(item_list_t *itemList)
 {
     bdm_device_data_t *pDeviceData = (bdm_device_data_t *)itemList->priv;
 
+    // The games.bin list cache would only seem to be written on a read-only device
+    sbListCacheReadOnly = (itemList->flags & MODE_FLAG_READ_ONLY) != 0;
     sbReadList(&pDeviceData->bdmGames, pDeviceData->bdmPrefix, &pDeviceData->bdmULSizePrev, &pDeviceData->bdmGameCount);
+    sbListCacheReadOnly = 0;
     return pDeviceData->bdmGameCount;
 }
 
@@ -386,6 +404,12 @@ void bdmLaunchGame(item_list_t *itemList, int id, config_set_t *configSet)
         have_error = 0; // An error in slot 1 must not be reported again for slot 2
         vmc_frags = 0;
         configGetVMC(configSet, vmc_name, sizeof(vmc_name), vmc_id);
+        // A read-only device would drop the saves written to the VMC: the game uses the real memory card. The
+        // setting stays in the config, which a copy of the game on a USB drive may share.
+        if (vmc_name[0] && itemList != NULL && (itemList->flags & MODE_FLAG_READ_ONLY)) {
+            LOG("BDMSUPPORT VMC %s not used: the device is read-only\n", vmc_name);
+            vmc_name[0] = '\0';
+        }
         if (vmc_name[0]) {
             have_error = 1;
             int vmcSizeInMb = sysCheckVMC(pDeviceData->bdmPrefix, "/", vmc_name, 0, &vmc_superblock);
@@ -634,7 +658,18 @@ void bdmLaunchGame(item_list_t *itemList, int id, config_set_t *configSet)
 static config_set_t *bdmGetConfig(item_list_t *itemList, int id)
 {
     bdm_device_data_t *pDeviceData = (bdm_device_data_t *)itemList->priv;
-    return sbPopulateConfig(&pDeviceData->bdmGames[id], pDeviceData->bdmPrefix, "/");
+    char cfgDir[256], *slash;
+
+    // Keep the settings of the games on a read-only device in a CFG folder next to OPL's own settings
+    if (itemList->flags & MODE_FLAG_READ_ONLY) {
+        snprintf(cfgDir, sizeof(cfgDir), "%s", configGetByType(CONFIG_GAME)->filename);
+        if ((slash = strrchr(cfgDir, '/')) != NULL) {
+            strcpy(slash + 1, "CFG/");
+            return sbPopulateConfig(&pDeviceData->bdmGames[id], pDeviceData->bdmPrefix, "/", cfgDir);
+        }
+    }
+
+    return sbPopulateConfig(&pDeviceData->bdmGames[id], pDeviceData->bdmPrefix, "/", NULL);
 }
 
 static int bdmGetImage(item_list_t *itemList, char *folder, int isRelative, char *value, char *suffix, GSTEXTURE *resultTex, short psm)
@@ -856,6 +891,36 @@ void bdmResolveLBA_UDMA(bdm_device_data_t *pDeviceData)
     hddSetTransferMode(0x40, pDeviceData->ataHighestUDMAMode);
 }
 
+// Write a sector of new data to a file on the device and read it back. A UDPBD server may only read (udpbd-vexfat,
+// udpbd-server on a read-only image), yet the protocol has no read-only flag and these servers acknowledge the writes
+// they drop, so a write that seems to succeed proves nothing. The data differs on every check: a dropped write must
+// not read back what an earlier check left in the same sectors.
+static int bdmCheckWritable(int unit)
+{
+    static u32 data[128], check[128];
+    char path[40];
+    u32 seed = (u32)GetTimerSystemTime();
+    int fd, i, result;
+
+    for (i = 0; i < 128; i++)
+        data[i] = seed + i * 0x9E3779B9;
+
+    sprintf(path, "mass%d:/yaopl_write_test.tmp", unit);
+    if ((fd = open(path, O_WRONLY | O_CREAT | O_TRUNC)) < 0)
+        return 0;
+    result = (write(fd, data, sizeof(data)) == sizeof(data));
+    close(fd);
+
+    if (result && (fd = open(path, O_RDONLY)) >= 0) {
+        result = (read(fd, check, sizeof(check)) == sizeof(check)) && (memcmp(data, check, sizeof(data)) == 0);
+        close(fd);
+    } else
+        result = 0;
+
+    remove(path);
+    return result;
+}
+
 int bdmUpdateDeviceData(item_list_t *itemList)
 {
     char path[16] = {0};
@@ -909,6 +974,11 @@ int bdmUpdateDeviceData(item_list_t *itemList)
             LOG("Mass device: %d (%d LBA%d UDMA%d) %s -> %s\n", itemList->mode, pDeviceData->massDeviceIndex, (pDeviceData->bdmHddIsLBA48 == 1 ? 48 : 28), pDeviceData->ataHighestUDMAMode, pDeviceData->bdmPrefix, pDeviceData->bdmDriver);
         } else
             LOG("Mass device: %d (%d) %s -> %s\n", itemList->mode, pDeviceData->massDeviceIndex, pDeviceData->bdmPrefix, pDeviceData->bdmDriver);
+
+        if (pDeviceData->bdmDeviceType == BDM_TYPE_UDPBD && !bdmCheckWritable(itemList->mode)) {
+            LOG("Mass device: %d is read-only\n", itemList->mode);
+            itemList->flags |= MODE_FLAG_READ_ONLY;
+        }
 
         // Make the menu item visible.
         if (itemList->owner != NULL) {

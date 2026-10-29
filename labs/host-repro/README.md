@@ -43,14 +43,14 @@ regenerate the file from a run on this tree:
 | `zso` | `ziso_init()`, `read_raw_data()` | align > 11 divides by zero; a block size other than 2048 is read as the wrong sectors |
 | `zso` | `ziso_read_sector()` with the tree's LZ4 | a corrupt index writes in front of the buffer; a read over 256 sectors runs past the index cache |
 | `cnf` | `ps2cnfGetBootFile()` | `BOOT2` without `=` passes NULL to `CNFGetKey()` |
-| `sb` | `sbReadList()`, `updateISOGameList()` | a ul.cfg size that is not a multiple of 64 writes past the list; the cache compare reads past the cache |
+| `sb` | `sbReadList()`, `updateISOGameList()` | a ul.cfg size that is not a multiple of 64 writes past the list; the cache compare reads past the cache; `games.bin` is written to a read-only UDPBD server (`cachero`) |
 | `name` | `isValidIsoName()` | reads before the name for `..` |
 | `crc` | `USBA_crc32()` | non-ASCII titles index `crctab` negatively; `ref` is an independent unsigned implementation |
 | `cfg` | `readFileBuffer()`, `strToColor()`, `splitAssignment()`, `parsePrefix()`, `configReadLegacyIP()`, `CheckPS2Logo()` | a `#` last line without LF crashes; a read error corrupts memory; colours, keys, prefixes and `IPCONFIG.DAT` overflow; the HDD logo read is one sector too long |
 | `cheatsel` | `cheatConfigLoadSelections()` | picks of cheats that share a name are lost |
 | `cfgwrite` | `configWrite()` | a failed write is reported as saved |
 | `cdread` | in-game `cdvdman_read()` | 2340-byte sectors are copied 12 bytes past the buffer |
-| `bdmprobe` | `bdmFindPartition()` | the write probe empties `conf_opl.cfg` (upstream #1397) |
+| `bdmprobe` | `bdmFindPartition()` | the write probe empties `conf_opl.cfg` (upstream #1397); a read-only UDPBD server (`ro0`) is chosen for the settings |
 | `vmc` | `sysCheckVMC()` | a VMC of another size is replaced without asking |
 | `text` | `fntFitString()`, `drawAttributeText()` | the wrap scans past the terminator and writes over it; line breaks go into the config value (upstream #1713) |
 | `theme` | `initGameCountText()`, `initImageTexture()`, `validateGUIElems()` | a 1-byte count buffer; a missing image file leaves a garbage texture; a theme without `ItemsList` leaves it NULL |
@@ -62,6 +62,7 @@ regenerate the file from a run on this tree:
 | `genvmc` | `mc_writecluster()` | a failed write leaves the abort semaphore taken |
 | `atad` | in-game `ata_device_sector_io_internal()` | an LBA48 transfer of 65536 sectors or more loops forever, issuing 0-sector commands |
 | `bgm` | `bgmLoad()` | the default BGM path is the format string |
+| `udpbdro` | `src/bdmsupport.c` `bdmCheckWritable()`, `bdmGetConfig()` with `src/supportbase.c` `sbPopulateConfig()` | none (upstream has no UDPBD); on YAOPL before the fix the settings of a game on a UDPBD server that drops what is written (udpbd-vexfat) are "saved" there and lost; the check also covers where they are read from and saved after the fix |
 
 ## Console test files
 

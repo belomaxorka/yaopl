@@ -1,8 +1,9 @@
 /* Host harness for bdmFindPartition() (src/bdmsupport.c), the probe the settings save uses to
  * find a writable USB device:
- *   bdmprobe <dir>
+ *   bdmprobe <dir> [ro0]
  * "massN:" maps to <dir>\massN\. Probes for conf_opl.cfg with write = 1 and prints its size
- * before and after. */
+ * before and after. ro0 marks mass0 read-only (a UDPBD server that drops writes), where the tree
+ * knows the flag. */
 #include <fcntl.h>
 #include <io.h>
 #include <stdio.h>
@@ -10,8 +11,13 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#define MAX_BDM_DEVICES 5
+#define MAX_BDM_DEVICES     5
+#define MODE_FLAG_READ_ONLY 0x08
 static char gBDMPrefix[32];
+static struct
+{
+    int flags;
+} bdmDeviceList[MAX_BDM_DEVICES];
 static char root[512];
 
 static int harness_open(const char *path, int flags, ...)
@@ -33,6 +39,8 @@ int main(int argc, char **argv)
     long before;
 
     strcpy(root, argv[1]);
+    if (argc > 2 && !strcmp(argv[2], "ro0"))
+        bdmDeviceList[0].flags = MODE_FLAG_READ_ONLY;
     sprintf(cfg, "%s\\mass0\\conf_opl.cfg", root);
     before = _stat(cfg, &st) == 0 ? (long)st.st_size : -1;
     int r = bdmFindPartition(target, "conf_opl.cfg", 1);

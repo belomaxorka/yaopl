@@ -744,3 +744,6 @@ gui_strings:
   string: VMC %s is in %d fragments. Continue with Memory Card in slot %d?
 - label: VMC_DEFRAGMENT_HINT
   string: To defragment the VMC, move the file to a PC and copy it back.
+- comment: Shown instead of the VMC settings of a game on a UDPBD server that drops what is written (udpbd-vexfat).
+  label: UDPBD_READ_ONLY_VMC
+  string: This UDPBD server is read-only, so no VMC can be used on it; the game saves to the real memory card.

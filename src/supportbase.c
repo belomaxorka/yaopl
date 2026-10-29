@@ -189,6 +189,9 @@ static void freeISOGameListCache(struct game_cache_list *cache)
     }
 }
 
+// Set while the list of a read-only device is read: its games.bin cache is not written
+int sbListCacheReadOnly;
+
 static int updateISOGameList(const char *path, const struct game_cache_list *cache, const struct game_list_t *head, int count)
 {
     char filename[256];
@@ -196,6 +199,9 @@ static int updateISOGameList(const char *path, const struct game_cache_list *cac
     const struct game_list_t *game;
     int result, i, j, modified;
     base_game_info_t *list;
+
+    if (sbListCacheReadOnly)
+        return 0;
 
     modified = 0;
     if (cache != NULL) {
@@ -798,14 +804,27 @@ void sbRename(base_game_info_t **list, const char *prefix, const char *sep, int 
     }
 }
 
-config_set_t *sbPopulateConfig(base_game_info_t *game, const char *prefix, const char *sep)
+config_set_t *sbPopulateConfig(base_game_info_t *game, const char *prefix, const char *sep, const char *cfgDir)
 {
     char path[256];
     struct stat st;
 
-    snprintf(path, sizeof(path), "%sCFG%s%s.cfg", prefix, sep, game->startup);
+    // cfgDir, if set, keeps the settings instead of the game's device (which may be read-only)
+    if (cfgDir != NULL)
+        snprintf(path, sizeof(path), "%s%s.cfg", cfgDir, game->startup);
+    else
+        snprintf(path, sizeof(path), "%sCFG%s%s.cfg", prefix, sep, game->startup);
     config_set_t *config = configAlloc(0, NULL, path);
-    configRead(config); // Does not matter if the config file could be loaded or not.
+    // Does not matter if the config file could be loaded or not.
+    if (!configRead(config) && cfgDir != NULL) {
+        // Nothing saved in cfgDir yet: use the settings on the game's device, and save them in cfgDir
+        char devicePath[256];
+
+        snprintf(devicePath, sizeof(devicePath), "%sCFG%s%s.cfg", prefix, sep, game->startup);
+        configMove(config, devicePath);
+        configRead(config);
+        configMove(config, path);
+    }
 
     // Get game size if not already set
     if (game->sizeMB == 0) {

@@ -21,7 +21,7 @@ Each device has its own page, for example *USB Games*, *HDD Games*, *ETH Games* 
 | L1 / R1 | One page of games up / down |
 | L2 / R2 | First / last game |
 | Confirm | Start the game. On a device set to Manual that is not started yet: start the device. |
-| Triangle | The [game menu](#game-menu). On the Apps page: Rename and Delete, if Write Operations is on. |
+| Triangle | The [game menu](#game-menu). On the Apps page: Rename and Delete, if Write Operations is on (not for an app on a read-only UDPBD server). |
 | Square | The info screen of the game, see below. |
 | SELECT | Refresh the list |
 | START | The [main menu](#main-menu) |
@@ -79,7 +79,7 @@ example *Customized Settings* or *Downloaded Defaults*).
 | Save Changes | Save this game's settings |
 | Test Changes | Start the game with the settings as they are now, without saving them |
 | Remove Settings | Remove the game's own settings, the global ones, or all. [Details](game-settings.md#saving-testing-and-removing) |
-| Rename, Delete | Rename or delete the game's files (only with *Write Operations* on in Settings) |
+| Rename, Delete | Rename or delete the game's files (only with *Write Operations* on in Settings, and not on a read-only UDPBD server) |
 
 ## Dialogs
 

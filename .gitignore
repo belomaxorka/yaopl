@@ -63,3 +63,4 @@ tmp/
 
 # Patches that the download scripts apply to the fetched sources
 !/modules/network/udpbd-info-retry.diff
+!/modules/network/udpbd-refused-write.diff

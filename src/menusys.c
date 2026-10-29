@@ -238,6 +238,8 @@ void menuReinitMainMenu(void)
 
 void menuInitGameMenu(void)
 {
+    item_list_t *support = selected_item->item->userdata;
+
     if (gameMenu)
         submenuDestroy(&gameMenu);
 
@@ -254,7 +256,7 @@ void menuInitGameMenu(void)
     submenuAppendItem(&gameMenu, -1, NULL, GAME_SAVE_CHANGES, _STR_SAVE_CHANGES);
     submenuAppendItem(&gameMenu, -1, NULL, GAME_TEST_CHANGES, _STR_TEST);
     submenuAppendItem(&gameMenu, -1, NULL, GAME_REMOVE_CHANGES, _STR_REMOVE_ALL_SETTINGS);
-    if (gEnableWrite) {
+    if (gEnableWrite && !(support->flags & MODE_FLAG_READ_ONLY)) {
         submenuAppendItem(&gameMenu, -1, NULL, GAME_RENAME_GAME, _STR_RENAME);
         submenuAppendItem(&gameMenu, -1, NULL, GAME_DELETE_GAME, _STR_DELETE);
     }

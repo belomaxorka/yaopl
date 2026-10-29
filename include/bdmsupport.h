@@ -45,6 +45,7 @@ typedef struct
 
 void bdmInit(item_list_t *itemList);
 int bdmFindPartition(char *target, const char *name, int write);
+int bdmIsReadOnlyPath(const char *path);
 void bdmLoadModules(void);
 int bdmUDPBDLoaded(void);
 void bdmLaunchGame(item_list_t *itemList, int id, config_set_t *configSet);

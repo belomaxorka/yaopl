@@ -749,7 +749,7 @@ static void ethLaunchGame(item_list_t *itemList, int id, config_set_t *configSet
 
 static config_set_t *ethGetConfig(item_list_t *itemList, int id)
 {
-    return sbPopulateConfig(&ethGames[id], ethPrefix, "\\");
+    return sbPopulateConfig(&ethGames[id], ethPrefix, "\\", NULL);
 }
 
 static int ethGetImage(item_list_t *itemList, char *folder, int isRelative, char *value, char *suffix, GSTEXTURE *resultTex, short psm)

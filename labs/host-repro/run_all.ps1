@@ -132,12 +132,15 @@ if (Want "cnf") {
 }
 
 if (Want "sb") {
-    Build sb t "src\supportbase.c" "game_list_t", "game_cache_list", "sbReadList", "updateISOGameList" -Defines "/DHAVE_SBREADLIST /DHAVE_UPDATE"
+    $sbRoDefine = if ((Get-Content -Raw (Join-Path $Opl "src\supportbase.c")).Contains("sbListCacheReadOnly")) { " /DHAVE_SB_RO" } else { "" }
+    Build sb t "src\supportbase.c" "game_list_t", "game_cache_list", "sbReadList", "updateISOGameList" -Defines ("/DHAVE_SBREADLIST /DHAVE_UPDATE" + $sbRoDefine)
     foreach ($c in "ul64 0", "ul65 0", "ul129 0", "ul65 2", "ul129 2") {
         $a = $c.Split(" ")
         Test "sbReadList $c" sb-t "ul", (Join-Path $inputs $a[0]), $a[1]
     }
     foreach ($c in "2 2", "3 3 swap", "1 2") { Test "updateISOGameList $c" sb-t (@("cache", (Join-Path $inputs "cachedir")) + $c.Split(" ")) }
+    # A read-only UDPBD server: the changed list must not be written to the device
+    Test "updateISOGameList 1 2 read-only" sb-t (@("cachero", (Join-Path $inputs "cachedir")) + "1 2".Split(" "))
 }
 
 if (Want "name") {
@@ -192,6 +195,12 @@ if (Want "bdmprobe") {
         Set-Content -Encoding ascii (Join-Path $dir "mass0\conf_opl.cfg") "theme=Some theme`r`nlanguage=Russian`r`n"
         $exe = if ($v -eq "plain") { "bdmprobe-t" } else { "bdmprobe-t-asan" }
         Emit ("{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "bdmFindPartition write probe" } else { "" }), $v.PadRight(5), (Run $exe $dir))
+    }
+    # mass0 a read-only UDPBD server, mass1 a USB drive: OPL's settings must go to mass1
+    New-Item -ItemType Directory -Force (Join-Path $dir "mass1") | Out-Null
+    foreach ($v in "plain", "asan") {
+        $exe = if ($v -eq "plain") { "bdmprobe-t" } else { "bdmprobe-t-asan" }
+        Emit ("{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "bdmFindPartition read-only mass0" } else { "" }), $v.PadRight(5), (Run $exe @($dir, "ro0")))
     }
 }
 
@@ -266,6 +275,20 @@ if (Want "atad") {
 if (Want "bgm") {
     Build bgm t "src\sound.c" "bgmLoad"
     Test "bgmLoad default_bgm_path" bgm-t "mass:/MUSIC/100%s.ogg"
+}
+
+if (Want "udpbdro") {
+    $probeDefine = if ((Get-Content -Raw (Join-Path $Opl "src\bdmsupport.c")).Contains("bdmCheckWritable(")) { "/DHAVE_PROBE" } else { "" }
+    Build udpbdro t "src\bdmsupport.c" "?bdmCheckWritable", "bdmGetConfig" -Source2 "src\supportbase.c" -Funcs2 "sbPopulateConfig" -Defines $probeDefine
+    $dir = Join-Path $build "udpbdro"
+    foreach ($case in "probe rw", "probe drop", "probe stale", "probe fail", "cfg rw", "cfg drop", "cfg drop-saved", "cfg usb") {
+        foreach ($v in "plain", "asan") {
+            if (Test-Path $dir) { Remove-Item -Recurse -Force $dir }
+            New-Item -ItemType Directory -Force $dir | Out-Null
+            $exe = if ($v -eq "plain") { "udpbdro-t" } else { "udpbdro-t-asan" }
+            Emit ("{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "UDPBD $case" } else { "" }), $v.PadRight(5), (Run $exe (@($dir) + $case.Split(" "))))
+        }
+    }
 }
 
 if ($Images) {
