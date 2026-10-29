@@ -459,7 +459,7 @@ void mmceLaunchGame(item_list_t *itemList, int id, config_set_t *configSet)
 
 static config_set_t *mmceGetConfig(item_list_t *itemList, int id)
 {
-    return sbPopulateConfig(&mmceGames[id], mmcePrefix, "/");
+    return sbPopulateConfig(&mmceGames[id], mmcePrefix, "/", NULL);
 }
 
 static int mmceGetImage(item_list_t *itemList, char *folder, int isRelative, char *value, char *suffix, GSTEXTURE *resultTex, short psm)

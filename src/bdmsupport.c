@@ -636,7 +636,18 @@ void bdmLaunchGame(item_list_t *itemList, int id, config_set_t *configSet)
 static config_set_t *bdmGetConfig(item_list_t *itemList, int id)
 {
     bdm_device_data_t *pDeviceData = (bdm_device_data_t *)itemList->priv;
-    return sbPopulateConfig(&pDeviceData->bdmGames[id], pDeviceData->bdmPrefix, "/");
+    char cfgDir[256], *slash;
+
+    // Keep the settings of the games on a read-only device in a CFG folder next to OPL's own settings
+    if (itemList->flags & MODE_FLAG_READ_ONLY) {
+        snprintf(cfgDir, sizeof(cfgDir), "%s", configGetByType(CONFIG_GAME)->filename);
+        if ((slash = strrchr(cfgDir, '/')) != NULL) {
+            strcpy(slash + 1, "CFG/");
+            return sbPopulateConfig(&pDeviceData->bdmGames[id], pDeviceData->bdmPrefix, "/", cfgDir);
+        }
+    }
+
+    return sbPopulateConfig(&pDeviceData->bdmGames[id], pDeviceData->bdmPrefix, "/", NULL);
 }
 
 static int bdmGetImage(item_list_t *itemList, char *folder, int isRelative, char *value, char *suffix, GSTEXTURE *resultTex, short psm)
