@@ -54,6 +54,11 @@ with the commit (or upstream `#N`) at the end.
 - IGR from a game with a DualShock 3/4 on USB PADEMU no longer hangs before the PS2 browser or the exit ELF
   comes up: the USB host controller is stopped before the IOP reset. (e72c9f48)
 
+### GUI
+- Long messages wrap onto several lines inside the message box instead of running off the screen, in every
+  language and video mode; short messages look as before. The same goes for the *Please wait* screen,
+  warnings, the video mode confirmation and the prompt for removing game settings. (6a091fc2)
+
 ### Translations
 - The message about the fragment count of a VMC, its defragment hint and the VMC note for a read-only UDPBD
   server are translated into Russian; in the other languages they show in English until translated.
