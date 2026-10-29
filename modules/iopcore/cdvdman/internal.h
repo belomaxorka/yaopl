@@ -113,6 +113,7 @@ extern void cdvdman_init(void);
 extern void cdvdman_fs_init(void);
 extern void cdvdman_searchfile_init(void);
 extern void cdvdman_initdev(void);
+extern void cdvdman_usb_host_stop(void);
 
 extern struct CDVDMAN_SETTINGS_TYPE cdvdman_settings;
 
