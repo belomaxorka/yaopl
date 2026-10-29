@@ -79,7 +79,7 @@ example *Customized Settings* or *Downloaded Defaults*).
 | Save Changes | Save this game's settings |
 | Test Changes | Start the game with the settings as they are now, without saving them |
 | Remove Settings | Remove the game's own settings, the global ones, or all. [Details](game-settings.md#saving-testing-and-removing) |
-| Rename, Delete | Rename or delete the game's files (only with *Write Operations* on in Settings) |
+| Rename, Delete | Rename or delete the game's files (only with *Write Operations* on in Settings, and not on a read-only UDPBD server) |
 
 ## Dialogs
 

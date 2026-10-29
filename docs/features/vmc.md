@@ -2,7 +2,9 @@
 
 A virtual memory card (VMC) is a memory card image in the `VMC` folder, `VMC/<name>.bin`, that a game uses
 instead of a real card. A game can have a VMC in slot 1, slot 2 or both. VMCs work on USB, MX4SIO, iLink, the
-internal HDD, SMB and UDPBD; not yet on [MMCE](../devices/mmce.md#limits).
+internal HDD, SMB and UDPBD (with a server that writes, see
+[UDPBD](../devices/udpbd.md#servers-that-write-and-read-only-servers)); not yet on
+[MMCE](../devices/mmce.md#limits).
 
 ## Give a game a VMC
 
