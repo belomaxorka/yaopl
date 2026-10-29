@@ -122,6 +122,8 @@ cdvdman_read 2328 2                plain: read 2 sectors of 2328 bytes into a 46
                                    asan:  read 2 sectors of 2328 bytes into a 4656-byte buffer
 bdmFindPartition write probe       plain: probe = 1 (mass0:); conf_opl.cfg 38 bytes before, 38 after
                                    asan : probe = 1 (mass0:); conf_opl.cfg 38 bytes before, 38 after
+bdmFindPartition read-only mass0   plain: probe = 1 (mass1:); conf_opl.cfg 38 bytes before, 38 after
+                                   asan : probe = 1 (mass1:); conf_opl.cfg 38 bytes before, 38 after
 sysCheckVMC 4 MiB card, create 8 MB plain: returned 4; card kept, 4194304 bytes; no new card
                                    asan : returned 4; card kept, 4194304 bytes; no new card
 sysCheckVMC PCSX2 .ps2 size, create 8 MB plain: returned 0; card kept, 8650752 bytes; no new card

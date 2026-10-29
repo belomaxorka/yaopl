@@ -41,6 +41,10 @@ int bdmFindPartition(char *target, const char *name, int write)
     char path[256];
 
     for (i = 0; i < MAX_BDM_DEVICES; i++) {
+        // A read-only device passes the probe, but what is saved there is lost
+        if (write && (bdmDeviceList[i].flags & MODE_FLAG_READ_ONLY))
+            continue;
+
         if (gBDMPrefix[0] != '\0')
             sprintf(path, "mass%d:%s/%s", i, gBDMPrefix, name);
         else

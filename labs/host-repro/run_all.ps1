@@ -193,6 +193,12 @@ if (Want "bdmprobe") {
         $exe = if ($v -eq "plain") { "bdmprobe-t" } else { "bdmprobe-t-asan" }
         Emit ("{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "bdmFindPartition write probe" } else { "" }), $v.PadRight(5), (Run $exe $dir))
     }
+    # mass0 a read-only UDPBD server, mass1 a USB drive: OPL's settings must go to mass1
+    New-Item -ItemType Directory -Force (Join-Path $dir "mass1") | Out-Null
+    foreach ($v in "plain", "asan") {
+        $exe = if ($v -eq "plain") { "bdmprobe-t" } else { "bdmprobe-t-asan" }
+        Emit ("{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "bdmFindPartition read-only mass0" } else { "" }), $v.PadRight(5), (Run $exe @($dir, "ro0")))
+    }
 }
 
 if (Want "vmc") {

@@ -50,7 +50,7 @@ regenerate the file from a run on this tree:
 | `cheatsel` | `cheatConfigLoadSelections()` | picks of cheats that share a name are lost |
 | `cfgwrite` | `configWrite()` | a failed write is reported as saved |
 | `cdread` | in-game `cdvdman_read()` | 2340-byte sectors are copied 12 bytes past the buffer |
-| `bdmprobe` | `bdmFindPartition()` | the write probe empties `conf_opl.cfg` (upstream #1397) |
+| `bdmprobe` | `bdmFindPartition()` | the write probe empties `conf_opl.cfg` (upstream #1397); a read-only UDPBD server (`ro0`) is chosen for the settings |
 | `vmc` | `sysCheckVMC()` | a VMC of another size is replaced without asking |
 | `text` | `fntFitString()`, `drawAttributeText()` | the wrap scans past the terminator and writes over it; line breaks go into the config value (upstream #1713) |
 | `theme` | `initGameCountText()`, `initImageTexture()`, `validateGUIElems()` | a 1-byte count buffer; a missing image file leaves a garbage texture; a theme without `ItemsList` leaves it NULL |
