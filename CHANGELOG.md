@@ -34,8 +34,11 @@ with the commit (or upstream `#N`) at the end.
   settings!*) or was lost. A `CFG` file on the served disk is still used until the game has settings saved
   there. With a server that writes, settings stay on the served disk, as on USB. (7781959c)
 - With a read-only UDPBD server, the game menu has no Rename and Delete, and *Configure VMC* shows a note
-  instead of *Failed to format VMC file*; a VMC set in a game's settings is not used, YAOPL asks whether to
-  continue with the memory card. (9f556b55, 11037583)
+  instead of *Failed to format VMC file*; a VMC set in a game's settings is not used and the game saves to
+  the real memory card, without a question at every start. (9f556b55, 11037583, 7c375a09)
+- A read-only UDPBD server is never written to: YAOPL does not keep its game list cache (`games.bin`) there,
+  does not offer Rename and Delete for apps in its `APPS` folder, and does not pick it when it looks for a
+  device to save its own settings on. (c92f681d, afe59be2, 760d7e3c)
 
 ### PADEMU
 - The per-game Button Remap of the Pad Macro settings, added in the nightly builds of 2026-10-28, is
