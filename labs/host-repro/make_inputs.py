@@ -130,6 +130,28 @@ def zso_images(out):
     zso_file(os.path.join(out, "zso_16k.zso"), 64, block_size=16384, raw_all=True)
 
 
+def msgbox_texts(out):
+    texts = {
+        # the read-only UDPBD VMC note: in Russian, and in Arabic (drawn right to left)
+        "msg_ru.txt": "Этот сервер UDPBD только "
+        "для чтения, поэтому VMC "
+        "на нём использовать "
+        "нельзя; игра сохраняет "
+        "на настоящую карту "
+        "памяти.",
+        "msg_ar.txt": "هذا الخادم للقراءة "
+        "فقط، لذلك لا يمكن UDPBD "
+        "استخدام VMC عليه؛ تحفظ "
+        "اللعبة على بطاقة "
+        "الذاكرة الحقيقية. " * 2,
+        # longer than the message box buffer
+        "msg_long.txt": "word " * 400,
+    }
+    for name, text in texts.items():
+        with open(os.path.join(out, name), "wb") as f:
+            f.write(text.encode("utf-8"))
+
+
 def main():
     out = sys.argv[1]
     os.makedirs(out, exist_ok=True)
@@ -138,6 +160,7 @@ def main():
     system_cnf(out)
     config_files(out)
     zso_images(out)
+    msgbox_texts(out)
     with open(os.path.join(out, "zero.bin"), "wb") as f:
         f.write(bytes(65536))
     print("inputs written to", out)

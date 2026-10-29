@@ -144,6 +144,16 @@ fntFitString 255-char config value plain: 255-character value: terminator kept, 
                                    asan:  255-character value: terminator kept, next pointer intact, bytes after it intact
 AttributeText wrap, config value   plain: config value after drawing: "The quick brown fox jumps over the lazy dog" | rendered text: "Description:|The quick|brown fox|jumps over|the lazy dog"
                                    asan:  config value after drawing: "The quick brown fox jumps over the lazy dog" | rendered text: "Description:|The quick|brown fox|jumps over|the lazy dog"
+message box, short                 plain: lines 1, y 240..240, widest 112 px of a 540 px box: fits | text drawn whole, split on spaces only
+                                   asan:  lines 1, y 240..240, widest 112 px of a 540 px box: fits | text drawn whole, split on spaces only
+message box, read-only VMC note    plain: lines 1, y 240..240, widest 800 px of a 540 px box: OVERFLOWS | text drawn whole, split on spaces only
+                                   asan:  lines 1, y 240..240, widest 800 px of a 540 px box: OVERFLOWS | text drawn whole, split on spaces only
+message box, ru                    plain: lines 1, y 240..240, widest 944 px of a 540 px box: OVERFLOWS | text drawn whole, split on spaces only
+                                   asan:  lines 1, y 240..240, widest 944 px of a 540 px box: OVERFLOWS | text drawn whole, split on spaces only
+message box, ar                    plain: lines 1, y 240..240, widest 1616 px of a 540 px box: OVERFLOWS | text drawn whole, split on spaces only
+                                   asan:  lines 1, y 240..240, widest 1616 px of a 540 px box: OVERFLOWS | text drawn whole, split on spaces only
+message box, long                  plain: lines 1, y 240..240, widest 16000 px of a 540 px box: OVERFLOWS | text drawn whole, split on spaces only
+                                   asan:  lines 1, y 240..240, widest 16000 px of a 540 px box: OVERFLOWS | text drawn whole, split on spaces only
 GameCountText count buffer         plain: GameCountText value: "1234 games"
                                    asan:  GameCountText value: "1234 games"
 image file missing                 plain: image file missing: no texture, element disabled | freed
