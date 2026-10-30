@@ -22,6 +22,12 @@ How to add an entry: see "Changelog" in `CLAUDE.md`. In short, every push that c
 a line here, under the heading for the day it reaches `master` and the right area, in user-facing words,
 with the commit (or upstream `#N`) at the end.
 
+## YAOPL 2026-10-30
+
+### GUI
+- The About page shows the whole version, with the commit and `-yaopl` at the end, and all build options;
+  both were cut to 39 characters. (9847f4ca)
+
 ## YAOPL 2026-10-29
 
 ### UDPBD
