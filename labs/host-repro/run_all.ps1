@@ -239,6 +239,11 @@ if (Want "theme") {
     Test "theme without ItemsList" theme-t "itemslist"
 }
 
+if (Want "thmcolors") {
+    Build thmcolors t "src\themes.c" "?thmSetTextColor", "thmSetColors"
+    Test "Theme colours, internal theme" thmcolors-t "colors"
+}
+
 if (Want "bdmindex") {
     Build bdmindex t "src\themes.c" "drawBDMIndex"
     foreach ($s in "one", "two", "gap", "slot2", "three", "four", "five", "late") { Test "BdmIndex $s" bdmindex-t $s }

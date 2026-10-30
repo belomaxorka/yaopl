@@ -160,6 +160,8 @@ image file missing                 plain: image file missing: no texture, elemen
                                    asan:  image file missing: no texture, element disabled | freed
 theme without ItemsList            plain: theme without ItemsList: gamesItemsList set, appsItemsList set
                                    asan:  theme without ItemsList: gamesItemsList set, appsItemsList set
+Theme colours, internal theme      plain: text colour 11: main list 11, main background 11, apps list FF, info text FF, apps info text FF
+                                   asan:  text colour 11: main list 11, main background 11, apps list FF, info text FF, apps info text FF
 BdmIndex one                       plain: 0:- 5:- 6:- 7:- 8:- 
                                    asan:  0:- 5:- 6:- 7:- 8:- 
 BdmIndex two                       plain: 0:Index2_0 1:Index2_1 6:- 7:- 8:- 

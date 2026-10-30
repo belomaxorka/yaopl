@@ -55,6 +55,7 @@ regenerate the file from a run on this tree:
 | `text` | `fntFitString()`, `drawAttributeText()` | the wrap scans past the terminator and writes over it; line breaks go into the config value (upstream #1713) |
 | `text` | `src/gui.c` `guiDrawMsgText()` (where the tree has it), else the one-line draw of `guiMsgBox()` | a message is one line however long: an English, Russian or Arabic message runs past the box and off the screen |
 | `theme` | `initGameCountText()`, `initImageTexture()`, `validateGUIElems()` | a 1-byte count buffer; a missing image file leaves a garbage texture; a theme without `ItemsList` leaves it NULL |
+| `thmcolors` | `thmSetColors()` | a new text colour reaches only the main screen, images included; the apps list and the info screens keep the old one |
 | `bdmindex` | `drawBDMIndex()` | the dots show the slot of five, not the connected devices: two devices give five dots, slots 0 and 2 give none on slot 0, one device in slot 2 gets dots |
 | `lang` | `lngReadEntry()` | a `.lng` name shorter than `lang_X.lng` gives a negative length |
 | `history` | `GetBootFilename()` | a boot file name over 16 characters overflows `filename[17]` |
