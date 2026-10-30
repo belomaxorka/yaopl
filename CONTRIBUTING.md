@@ -18,7 +18,8 @@ changes.
 * Reproduce a bug on an upstream tree first, then show it is gone (see "How fixes are checked" below). Say
   whether a fix was tested on a console, only on the host or only by reading the code.
 * Keep diffs small and close to upstream's code, so that upstream changes can still be merged.
-* Add a line to `CHANGELOG.md` for every change users see (see the top of that file). CI fails a push that
+* Add a line at the top of the *Unreleased* section of `CHANGELOG.md` for every change users see (see the
+  top of that file). CI fails a push that
   changes code without a `CHANGELOG.md` line; for a change users do not see, add a line `[no changelog]` to
   the commit message. Update the documentation in `docs/` when a change affects how YAOPL is used (see
   "Documentation" below).
@@ -31,8 +32,9 @@ changes.
 
 Every push to `master` builds YAOPL in GitHub Actions and replaces the `latest` pre-release: the ELF
 (`OPNPS2LD.ELF`), the 7z packages and `SHA256SUMS`. Only the build of the current tip of `master` is
-published. The release notes list the `CHANGELOG.md` entries added since the previous published build. The
-7z packages hold the ELFs with `LICENSE` and `CREDITS` only: `CREDITS` carries the MIT notice that the
+published. Its release notes list what is new since the previous nightly, the `CHANGELOG.md` entries and
+the commits, and, folded, the whole *Unreleased* section, everything since the newest release. The 7z
+packages hold the ELFs with `LICENSE` and `CREDITS` only: `CREDITS` carries the MIT notice that the
 embedded MMCE modules require to go with every copy. A commit that does not change the ELF may say
 `[skip ci]`, but push it only after the running build has published, or that build is not released.
 
@@ -50,12 +52,13 @@ YAOPL numbers its own versions; `YAOPL_VERSION` in the `Makefile` names the next
 A release is published only with the owner's OK:
 
 1. Check the nightly of the commit to release on a console; `YAOPL_VERSION` must be the version to release.
-2. Tag the commit on `master` and push the tag: `git tag -a yaopl-vX.Y.Z -m "YAOPL vX.Y.Z"`, then
-   `git push origin yaopl-vX.Y.Z`. CI checks that the tag matches `YAOPL_VERSION` and is on `master`, and
-   publishes the release with the `CHANGELOG.md` entries added since the previous tag: a release candidate
-   lists what is new since the previous release or candidate, a release everything since the previous
-   release, its candidates included.
-3. After a final release, raise `YAOPL_VERSION` in the next commit: CI fails `master` until then, so that
+2. In one commit on `master`, rename `## Unreleased` in `CHANGELOG.md` to `## X.Y.Z (YYYY-MM-DD)` (or
+   `X.Y.Z-rcN`) and add a new empty `## Unreleased` above it.
+3. Tag that commit and push the tag: `git tag -a yaopl-vX.Y.Z -m "YAOPL vX.Y.Z"`, then
+   `git push origin yaopl-vX.Y.Z`. CI checks that the tag matches `YAOPL_VERSION`, is on `master` and has
+   its `CHANGELOG.md` section, and publishes the release with that section: a release candidate lists what
+   is new since the previous release or candidate, a release its own section and its candidates'.
+4. After a final release, raise `YAOPL_VERSION` in the next commit: CI fails `master` until then, so that
    nightlies do not carry the version that is already out.
 
 The logo (`gfx/logo.png`, shown on the greeting screen, and `docs/logo.svg`) is drawn by

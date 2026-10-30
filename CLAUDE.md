@@ -49,19 +49,26 @@ If the local knowledge base `kb/` exists, start with `kb/README.md` and `kb/ROAD
     `opl-fork-tests\`); write on D: only there.
 
 ## Changelog
-- `CHANGELOG.md` lists what changed for users, newest first: YAOPL sections by the day a change reaches
-  `master` (`## YAOPL YYYY-MM-DD`, the commit's local date as `git log --date=short` shows it), then
-  upstream sections by version. The release notes of `latest` list the YAOPL entries added or changed
-  since the previous published build (`.github/changelog.sh since`); the release packages do not carry it.
+- `CHANGELOG.md` lists what changed for users, newest first: a YAOPL section per release
+  (`## 2.0.0-rc2 (YYYY-MM-DD)`), with `## Unreleased` on top for what `master` has since the newest
+  release, then upstream sections by version. No date or area headings inside a section.
 - Every push to `master` that changes what users get (ELF, packages, behaviour, settings, supported
-  devices) adds lines under that day's heading, creating it at the top if needed, in the right `###` area:
-  one line per change, user-facing words, the commit hash(es) at the end. On a branch, write the expected
-  day and fix it when merging. Wrap at 110 columns like the rest of the file.
-- An upstream merge adds a line per user-visible upstream PR (`#N`, upstream `Beta-N`) under the merge's
-  day, in an "Upstream" area, and notes which fork changes it touches.
-- `CI-compile` fails a push that changes code but not `CHANGELOG.md` (`.github/changelog.sh check`).
-  Docs, `labs/`, `.github/` and repository files are exempt; for anything else that changes nothing for
-  users, add a line `[no changelog]` to a commit message.
+  devices) adds a line at the top of `## Unreleased`: `- Area: what changed. (commits)`, one line per
+  change, user-facing words, the commit hash(es) at the end (yaopl-lang ones as `yaopl-lang <hash>`). The
+  area is a short label such as GUI, UDPBD, In-game, PADEMU, MMCE, VMC, Cheats, Translations, Build.
+  Wrap at 110 columns like the rest of the file. A change that undoes another before any release removes
+  that entry instead of adding one.
+- A release renames `## Unreleased` to `## X.Y.Z[-rcN] (YYYY-MM-DD)` and starts a new empty one, in the
+  commit it tags (see `CONTRIBUTING.md`, "Builds and versions").
+- Release notes come from this file (`.github/changelog.sh`): a release candidate lists its section, a
+  release its section and its candidates'. `latest` lists the entries and commits new since the previous
+  nightly, and the whole `Unreleased` section folded; the release packages do not carry the file.
+- An upstream merge adds a line per user-visible upstream PR (`- Upstream: ... (#N, Beta-N)`) and notes
+  which fork changes it touches.
+- `CI-compile` fails a push that changes code but not `CHANGELOG.md`, or that leaves `CHANGELOG.md`
+  without `## Unreleased` (`.github/changelog.sh check`). Docs, `labs/`, `.github/` and repository files
+  are exempt; for anything else that changes nothing for users, add a line `[no changelog]` to a commit
+  message.
 
 ## Commands
 - Host checks: `powershell -ExecutionPolicy Bypass -File labs\host-repro\run_all.ps1 [-Opl <tree>] [-Only cheat,cfg,...] [-Images <dir of .iso>]`
