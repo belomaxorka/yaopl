@@ -281,6 +281,14 @@ if (Want "bgm") {
     Test "bgmLoad default_bgm_path" bgm-t "mass:/MUSIC/100%s.ogg"
 }
 
+if (Want "about") {
+    # the YAOPL nightly with all build options, its nosio2man variant without the extra features, an upstream build
+    foreach ($v in @(@("nightly", "/DVER=1 /D__RTL /DIGS /DPADEMU"), @("nosio2man", "/DVER=2 /DPADEMU"), @("upstream", "/DVER=3 /D__RTL /DIGS /DPADEMU"))) {
+        Build about $v[0] "src\gui.c" "guiShowAbout" -Source2 "include\pggsm.h" -Funcs2 "GSM_VERSION" -Source3 "include\opl.h" -Funcs3 "IGS_VERSION" -Defines $v[1]
+        Test "About page $($v[0])" "about-$($v[0])" @()
+    }
+}
+
 if (Want "udpbdro") {
     $probeDefine = if ((Get-Content -Raw (Join-Path $Opl "src\bdmsupport.c")).Contains("bdmCheckWritable(")) { "/DHAVE_PROBE" } else { "" }
     Build udpbdro t "src\bdmsupport.c" "?bdmCheckWritable", "bdmGetConfig" -Source2 "src\supportbase.c" -Funcs2 "sbPopulateConfig" -Defines $probeDefine
