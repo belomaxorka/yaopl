@@ -32,10 +32,10 @@ changes.
 
 Every push to `master` builds YAOPL in GitHub Actions and replaces the `latest` pre-release: the ELF
 (`OPNPS2LD.ELF`), the 7z packages and `SHA256SUMS`. Only the build of the current tip of `master` is
-published. Its release notes list what is new since the previous nightly, the `CHANGELOG.md` entries and
-the commits, and, folded, the whole *Unreleased* section, everything since the newest release. The 7z
-packages hold the ELFs with `LICENSE` and `CREDITS` only: `CREDITS` carries the MIT notice that the
-embedded MMCE modules require to go with every copy. A commit that does not change the ELF may say
+published. Its release notes list the *Unreleased* section of `CHANGELOG.md`, everything since the newest
+release, with the entries that are new in this build marked **New:**. The 7z packages hold the ELFs with
+`LICENSE` and `CREDITS` only: `CREDITS` carries the MIT notice that the embedded MMCE modules require to
+go with every copy. A commit that does not change the ELF may say
 `[skip ci]`, but push it only after the running build has published, or that build is not released.
 
 YAOPL numbers its own versions; `YAOPL_VERSION` in the `Makefile` names the next release:
