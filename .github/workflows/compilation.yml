@@ -46,6 +46,10 @@ jobs:
             echo "::error::tag $tag is not on master"
             exit 1
           fi
+          if ! sh .github/changelog.sh section "${tag#yaopl-v}" >/dev/null; then
+            echo "::error::CHANGELOG.md has no section ${tag#yaopl-v}: rename Unreleased before tagging"
+            exit 1
+          fi
           ;;
         refs/heads/master)
           # After a release the nightlies build towards the next one.
@@ -274,15 +278,12 @@ jobs:
         files="OPNPS2LD.ELF OPNPS2LD-${{ env.OPL_VERSION }}.7z OPNPS2LD-VARIANTS-${{ env.OPL_VERSION }}.7z OPNPS2LD-LANGS-${{ env.OPL_VERSION }}.7z"
         sha256sum $files > SHA256SUMS
         cat SHA256SUMS
-        # The notes list the CHANGELOG.md entries added since the build that is published now.
+        # The notes list what this build adds to the build published now (its CHANGELOG.md entries and its
+        # commits), then, folded, every change since the newest release (the Unreleased section).
         prev=$(gh release view latest --repo "$GITHUB_REPOSITORY" --json targetCommitish -q .targetCommitish || true)
-        if [ -n "$prev" ] && [ "$prev" != "$GITHUB_SHA" ] && changes=$(sh .github/changelog.sh since "$prev"); then
-          [ -n "$changes" ] || changes="No user-visible changes."
-          changes_title="Changes since the previous build ($(git rev-parse --short=7 "$prev")):"
-        else
-          changes=$(sh .github/changelog.sh latest)
-          changes_title="Newest changes:"
-        fi
+        last=$(git describe --tags --abbrev=0 --match 'yaopl-v*' "$GITHUB_SHA" 2>/dev/null || true)
+        since=${last:+YAOPL ${last#yaopl-v}}
+        unreleased=$(sh .github/changelog.sh section Unreleased)
         gh release delete latest --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes || true
         git push --delete origin latest || true
         {
@@ -290,9 +291,27 @@ jobs:
           echo
           echo "Not an official OPL build: see CHANGELOG.md for what differs from upstream OPL."
           echo
-          echo "$changes_title"
+          if [ -n "$prev" ] && [ "$prev" != "$GITHUB_SHA" ] && git merge-base --is-ancestor "$prev" "$GITHUB_SHA" 2>/dev/null; then
+            echo "New in this build, since the previous one ($(git rev-parse --short=7 "$prev")):"
+            echo
+            if new=$(sh .github/changelog.sh since "$prev"); then
+              echo "${new:-No user-visible changes.}"
+            else
+              echo "See all changes since the release below."
+            fi
+            echo
+            echo "Commits:"
+            echo
+            git log --no-merges --reverse --format='- %h %s' "$prev..$GITHUB_SHA"
+          elif [ -n "$prev" ] && [ "$prev" != "$GITHUB_SHA" ]; then
+            echo "The previous build ($(echo "$prev" | cut -c1-7)) is not in the history of this one: see all changes below."
+          fi
           echo
-          echo "$changes"
+          echo "<details><summary>All changes since ${since:-upstream OPL}</summary>"
+          echo
+          echo "${unreleased:-No changes yet.}"
+          echo
+          echo "</details>"
           echo
           echo "All changes: https://github.com/$GITHUB_REPOSITORY/blob/$GITHUB_SHA/CHANGELOG.md"
           echo
@@ -313,17 +332,18 @@ jobs:
         sha256sum $files > SHA256SUMS
         cat SHA256SUMS
         # "yaopl-v" has a dash itself: match the version after it (2.0.0 or 2.0.0-rc1).
-        # The notes list the CHANGELOG.md entries added since the previous tag: a release candidate since the previous
-        # release or candidate, a release since the previous release (so all its candidates); the first one lists all.
-        case "${tag#yaopl-v}" in
+        # The notes list the version's CHANGELOG.md section: a release candidate's changes since the previous
+        # release or candidate, a release's since the previous release (its section and its candidates').
+        version=${tag#yaopl-v}
+        case "$version" in
         *-*) prev=$(git describe --tags --abbrev=0 --match 'yaopl-v*' "$GITHUB_SHA^" 2>/dev/null || true) ;;
         *) prev=$(git describe --tags --abbrev=0 --match 'yaopl-v*' --exclude 'yaopl-v*-*' "$GITHUB_SHA^" 2>/dev/null || true) ;;
         esac
-        if [ -n "$prev" ] && changes=$(sh .github/changelog.sh since "$prev"); then
-          [ -n "$changes" ] || changes="No user-visible changes."
-          changes_title="Changes since $prev:"
+        changes=$(sh .github/changelog.sh notes "$version")
+        [ -n "$changes" ] || changes="No user-visible changes."
+        if [ -n "$prev" ]; then
+          changes_title="Changes since YAOPL ${prev#yaopl-v}:"
         else
-          changes=$(awk '/^## / { p = /^## YAOPL / } p' CHANGELOG.md)
           changes_title="Changes from upstream OPL:"
         fi
         case "${tag#yaopl-v}" in
