@@ -1,28 +1,7 @@
 # Changelog
 
-What changed in YAOPL (Yet Another Open PS2 Loader) and, before the fork, in Open PS2 Loader (OPL).
-Newest first. The upstream sections were written in 2026 from upstream's git history and release notes:
-upstream itself stopped keeping this file after 0.9.3 (2015) and listed changes only in the per-commit
-`DETAILED_CHANGELOG` that `make_changelog.sh` generates for the release packages, and in the GitHub
-release notes of v1.0.0 and v1.1.0.
-
-How to read the entries:
-
-- YAOPL sections are YAOPL's releases, with the day each was published. *Unreleased* is what the nightly
-  builds (the `latest` pre-release) have on top of the newest release. A release candidate has its own
-  section; the release after its candidates lists only what came after them.
-- An entry starts with the part of YAOPL it is about and ends with the commits that made it, in this
-  repository or in [yaopl-lang](https://github.com/yaopl/yaopl-lang); each commit message explains the fix,
-  its origin and its reproduction.
-- Upstream sections follow upstream's versions. `#N` there is pull request N of
-  [ps2homebrew/Open-PS2-Loader](https://github.com/ps2homebrew/Open-PS2-Loader/pulls), and `Beta-N` is the
-  first upstream build that has the change (the revision in the version string of upstream builds; YAOPL
-  builds count their revisions differently, see `CONTRIBUTING.md`).
-- Translations, code cleanups, warning fixes and CI changes that users do not see are summed up in one line
-  per section.
-
-How to add an entry: see "Changelog" in `CLAUDE.md`. In short, every push that changes what users get adds
-a line at the top of *Unreleased*: `- Area: what changed, in user-facing words. (commit)`.
+What changed in YAOPL (Yet Another Open PS2 Loader), newest first; below it, what changed in Open PS2
+Loader (OPL) before the fork.
 
 ## Unreleased
 
