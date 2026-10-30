@@ -22,6 +22,12 @@ How to add an entry: see "Changelog" in `CLAUDE.md`. In short, every push that c
 a line here, under the heading for the day it reaches `master` and the right area, in user-facing words,
 with the commit (or upstream `#N`) at the end.
 
+## YAOPL 2026-10-31
+
+### GUI
+- A new text colour of the internal theme reaches the app list and the info screen at once, not only after a
+  restart. (3fb0e53a)
+
 ## YAOPL 2026-10-30
 
 ### GUI
