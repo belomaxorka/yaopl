@@ -201,32 +201,20 @@ void guiEndFrame(void)
 
 void guiShowAbout()
 {
-    char OPLVersion[40];
-    char OPLBuildDetails[40];
+    // Both strings are known at compile time: no buffer, so no length limit
+    diaSetLabel(diaAbout, ABOUT_TITLE, "Open PS2 Loader " OPL_VERSION);
 
-    snprintf(OPLVersion, sizeof(OPLVersion), "Open PS2 Loader %s", OPL_VERSION);
-    diaSetLabel(diaAbout, ABOUT_TITLE, OPLVersion);
-
-    snprintf(OPLBuildDetails, sizeof(OPLBuildDetails), "GSM %s"
-                                                       " - UDMA+"
+    diaSetLabel(diaAbout, ABOUT_BUILD_DETAILS, "GSM " GSM_VERSION " - UDMA+"
 #ifdef __RTL
-                                                       " - RTL"
+                                               " - RTL"
 #endif
 #ifdef IGS
-                                                       " - IGS %s"
+                                               " - IGS " IGS_VERSION
 #endif
 #ifdef PADEMU
-                                                       " - PADEMU"
-#endif
-             // Version numbers
-             ,
-             GSM_VERSION
-#ifdef IGS
-             ,
-             IGS_VERSION
+                                               " - PADEMU"
 #endif
     );
-    diaSetLabel(diaAbout, ABOUT_BUILD_DETAILS, OPLBuildDetails);
 
     diaExecuteDialog(diaAbout, -1, 1, NULL);
 }
