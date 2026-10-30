@@ -6,8 +6,9 @@
 #   sh .github/changelog.sh notes VERSION    the entries for the release notes of VERSION: its section and,
 #                                            for a release, the sections of its candidates under their headings;
 #                                            exit 4 if VERSION has no section
-#   sh .github/changelog.sh since BASE       print the YAOPL entries added or changed since commit BASE; exit 3
-#                                            if BASE has no CHANGELOG.md in this format
+#   sh .github/changelog.sh unreleased BASE  print the Unreleased entries, those added or changed since commit
+#                                            BASE starting with "**New:**" (none if BASE is empty or has no
+#                                            CHANGELOG.md in this format)
 #   sh .github/changelog.sh check BASE HEAD  fail if BASE..HEAD changes what users get but not CHANGELOG.md, or
 #                                            if CHANGELOG.md has no Unreleased section; a commit message with a
 #                                            line "[no changelog]" skips the first check
@@ -64,16 +65,23 @@ notes)
 		;;
 	esac
 	;;
-since)
-	if [ -z "$2" ] || ! changelog CHANGELOG.md "$2" 2>/dev/null | grep -q '^## Unreleased$'; then
-		exit 3
-	fi
+unreleased)
 	old=$(mktemp)
-	changelog CHANGELOG.md "$2" | entries > "$old"
+	# An empty line, so that awk reads this file as the first one even when no entries are in it.
+	echo > "$old"
+	if [ -n "$2" ] && changelog CHANGELOG.md "$2" 2>/dev/null | grep -q '^## Unreleased$'; then
+		changelog CHANGELOG.md "$2" | entries >> "$old"
+		known=1
+	else
+		known=0
+	fi
 	# An entry is new if its text is new: moving it from Unreleased to a release does not count.
-	changelog CHANGELOG.md | entries | awk -F '\t' '
+	{ echo '## Unreleased'; section Unreleased; } | entries | awk -F '\t' -v known=$known '
 	NR == FNR { seen[$0] = 1; next }
-	!($0 in seen) { for (i = 1; i <= NF; i++) print $i }' "$old" -
+	{
+		if (known && !($0 in seen)) sub(/^- /, "- **New:** ")
+		for (i = 1; i <= NF; i++) print $i
+	}' "$old" -
 	rm -f "$old"
 	;;
 check)
@@ -108,7 +116,7 @@ check)
 	echo "Only docs, host checks or CI changed"
 	;;
 *)
-	echo "usage: $0 section NAME | notes VERSION | since BASE | check BASE [HEAD]" >&2
+	echo "usage: $0 section NAME | notes VERSION | unreleased [BASE] | check BASE [HEAD]" >&2
 	exit 2
 	;;
 esac

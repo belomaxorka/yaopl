@@ -278,46 +278,27 @@ jobs:
         files="OPNPS2LD.ELF OPNPS2LD-${{ env.OPL_VERSION }}.7z OPNPS2LD-VARIANTS-${{ env.OPL_VERSION }}.7z OPNPS2LD-LANGS-${{ env.OPL_VERSION }}.7z"
         sha256sum $files > SHA256SUMS
         cat SHA256SUMS
-        # The notes list what this build adds to the build published now (its CHANGELOG.md entries and its
-        # commits), then, folded, every change since the newest release (the Unreleased section).
+        # The notes list every change since the newest release (the Unreleased section of CHANGELOG.md); the
+        # entries that the build published now does not have start with "New:".
         prev=$(gh release view latest --repo "$GITHUB_REPOSITORY" --json targetCommitish -q .targetCommitish || true)
+        if [ -z "$prev" ] || [ "$prev" = "$GITHUB_SHA" ] || ! git merge-base --is-ancestor "$prev" "$GITHUB_SHA" 2>/dev/null; then
+          prev=
+        fi
         last=$(git describe --tags --abbrev=0 --match 'yaopl-v*' "$GITHUB_SHA" 2>/dev/null || true)
         since=${last:+YAOPL ${last#yaopl-v}}
-        unreleased=$(sh .github/changelog.sh section Unreleased)
+        changes=$(sh .github/changelog.sh unreleased "$prev")
         gh release delete latest --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes || true
         git push --delete origin latest || true
         {
-          echo "Nightly YAOPL (Yet Another Open PS2 Loader) build of ${{ env.OPL_VERSION }} from $GITHUB_SHA."
+          echo "Nightly YAOPL (Yet Another Open PS2 Loader) build of ${{ env.OPL_VERSION }}, not an official OPL build."
           echo
-          echo "Not an official OPL build: see CHANGELOG.md for what differs from upstream OPL."
+          echo "Changes since ${since:-upstream OPL}${prev:+ (**New:** new in this build)}:"
           echo
-          if [ -n "$prev" ] && [ "$prev" != "$GITHUB_SHA" ] && git merge-base --is-ancestor "$prev" "$GITHUB_SHA" 2>/dev/null; then
-            echo "New in this build, since the previous one ($(git rev-parse --short=7 "$prev")):"
-            echo
-            if new=$(sh .github/changelog.sh since "$prev"); then
-              echo "${new:-No user-visible changes.}"
-            else
-              echo "See all changes since the release below."
-            fi
-            echo
-            echo "Commits:"
-            echo
-            git log --no-merges --reverse --format='- %h %s' "$prev..$GITHUB_SHA"
-          elif [ -n "$prev" ] && [ "$prev" != "$GITHUB_SHA" ]; then
-            echo "The previous build ($(echo "$prev" | cut -c1-7)) is not in the history of this one: see all changes below."
-          fi
-          echo
-          echo "<details><summary>All changes since ${since:-upstream OPL}</summary>"
-          echo
-          echo "${unreleased:-No changes yet.}"
-          echo
-          echo "</details>"
+          echo "${changes:-None yet.}"
           echo
           echo "All changes: https://github.com/$GITHUB_REPOSITORY/blob/$GITHUB_SHA/CHANGELOG.md"
           echo
-          echo "SHA-256 checksums of the files are in SHA256SUMS."
-          echo
-          echo "Built with ps2sdk $TOOLCHAIN_PS2SDK (toolchain image $TOOLCHAIN_IMAGE)."
+          echo "Built from $GITHUB_SHA with ps2sdk $TOOLCHAIN_PS2SDK; SHA-256 checksums are in SHA256SUMS."
         } > notes.md
         gh release create latest $files SHA256SUMS --repo "$GITHUB_REPOSITORY" --prerelease \
           --target "$GITHUB_SHA" --title "${{ env.OPL_VERSION }}" --notes-file notes.md
