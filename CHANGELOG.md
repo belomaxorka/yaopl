@@ -8,9 +8,12 @@ release notes of v1.0.0 and v1.1.0.
 
 How to read the entries:
 
-- YAOPL sections are named after the day the change reached `master`, the day its build was published as
-  the `latest` pre-release. References are commits of this repository; each commit message explains the
-  fix, its origin and its reproduction.
+- YAOPL sections are YAOPL's releases, with the day each was published. *Unreleased* is what the nightly
+  builds (the `latest` pre-release) have on top of the newest release. A release candidate has its own
+  section; the release after its candidates lists only what came after them.
+- An entry starts with the part of YAOPL it is about and ends with the commits that made it, in this
+  repository or in [yaopl-lang](https://github.com/yaopl/yaopl-lang); each commit message explains the fix,
+  its origin and its reproduction.
 - Upstream sections follow upstream's versions. `#N` there is pull request N of
   [ps2homebrew/Open-PS2-Loader](https://github.com/ps2homebrew/Open-PS2-Loader/pulls), and `Beta-N` is the
   first upstream build that has the change (the revision in the version string of upstream builds; YAOPL
@@ -19,300 +22,227 @@ How to read the entries:
   per section.
 
 How to add an entry: see "Changelog" in `CLAUDE.md`. In short, every push that changes what users get adds
-a line here, under the heading for the day it reaches `master` and the right area, in user-facing words,
-with the commit (or upstream `#N`) at the end.
+a line at the top of *Unreleased*: `- Area: what changed, in user-facing words. (commit)`.
 
-## YAOPL 2026-10-31
+## Unreleased
 
-### GUI
-- A new text colour of the internal theme reaches the app list and the info screen at once, not only after a
-  restart. (3fb0e53a)
-
-## YAOPL 2026-10-30
-
-### GUI
-- The About page shows the whole version, with the commit and `-yaopl` at the end, and all build options;
+- GUI: A new text colour of the internal theme reaches the app list and the info screen at once, not only
+  after a restart. (3fb0e53a)
+- GUI: The About page shows the whole version, with the commit and `-yaopl` at the end, and all build options;
   both were cut to 39 characters. (9847f4ca)
-
-## YAOPL 2026-10-29
-
-### UDPBD
-- When the UDPBD device connects, YAOPL checks with a small test file whether the server keeps what is
-  written: read-only servers (udpbd-vexfat, PS2-Servers with a folder or `--read-only`) do not say so. A
-  write that PS2-Servers refuses no longer makes the whole served disk unreadable until YAOPL is restarted.
-  (df65546e, 093b541b)
-- With a read-only UDPBD server, game settings can be saved: they go to a `CFG` folder next to YAOPL's own
-  settings, usually `mc0:OPL/CFG/`, instead of the served disk, where saving failed (*Error writing
-  settings!*) or was lost. A `CFG` file on the served disk is still used until the game has settings saved
-  there. With a server that writes, settings stay on the served disk, as on USB. (7781959c)
-- With a read-only UDPBD server, the game menu has no Rename and Delete, and *Configure VMC* shows a note
-  instead of *Failed to format VMC file*; a VMC set in a game's settings is not used and the game saves to
-  the real memory card, without a question at every start. (9f556b55, 11037583, 7c375a09)
-- A read-only UDPBD server is never written to: YAOPL does not keep its game list cache (`games.bin`) there,
-  does not offer Rename and Delete for apps in its `APPS` folder, and does not pick it when it looks for a
-  device to save its own settings on. (c92f681d, afe59be2, 760d7e3c)
-
-### In-game
-- IGR no longer stalls games while their pad polling pauses (loading screens, movies): it scanned the
-  game's memory again every time, which left the DualShock dead or dropping out in Gran Turismo 4 over
-  UDPBD until it was replugged. Gran Turismo 4 no longer needs Compatibility Mode 6 for its pad. After
-  patching a game's pad calls IGR also flushes the caches. (3bdfc94f, fd0af6aa; from RiptOPL)
-- The DualShock reset before a launch from 2026-10-28 is removed again: it did not fix Gran Turismo 4;
-  the IGR change above does. (7094cd25)
-
-### PADEMU
-- The per-game Button Remap of the Pad Macro settings, added in the nightly builds of 2026-10-28, is
-  removed again, with its strings; a game's saved `$PadMacroRemap` is ignored. (6faa44e4, yaopl-lang 1e42c1e)
-- IGR from a game with a DualShock 3/4 on USB PADEMU no longer hangs before the PS2 browser or the exit ELF
-  comes up: the USB host controller is stopped before the IOP reset. (e72c9f48)
-
-### GUI
-- Long messages wrap onto several lines inside the message box instead of running off the screen, in every
-  language and video mode; short messages look as before. The same goes for the *Please wait* screen,
+- GUI: Long messages wrap onto several lines inside the message box instead of running off the screen, in
+  every language and video mode; short messages look as before. The same goes for the *Please wait* screen,
   warnings, the video mode confirmation and the prompt for removing game settings. (6a091fc2)
 
-### Translations
-- The message about the fragment count of a VMC, its defragment hint and the VMC note for a read-only UDPBD
-  server are translated into Russian; in the other languages they show in English until translated.
-  (yaopl-lang 23f4261)
+## 2.0.0-rc2 (2026-10-29)
 
-## YAOPL 2026-10-28
-
-### UDPBD
-- New BDM device UDPBD (Settings → BDM Devices → UDPBD, off by default): games on a disk or disk image that
-  a PC serves over the LAN (udpbd-server, udpbd-vexfat, PS2-Servers) are listed as "UDPBD Games" and run in
-  the OPL core with all its features. The PS2 uses the static IP of the network settings; while UDPBD is on,
-  SMB and the other network features do not start. Modules built from `rickgaiser/neutrino`. (83c63032,
-  c6bec984, b3ff1093)
-- UDPBD asks for at most 16 KiB per read: longer bursts of reply packets were lost on a real console and
-  hung the game. (12cc6fb5)
-- With the HDD (APA) page on, the ATA driver is loaded before UDPBD, so its reset of the DEV9 ATA interface
-  no longer cuts UDPBD off. (2a79d23b)
-- The UDPBD device has its own icon instead of the generic one. (be2dbef1)
-- A game over UDPBD no longer hangs at its first screen when a USB device is plugged in: the USB host
+- UDPBD: When the UDPBD device connects, YAOPL checks with a small test file whether the server keeps what is
+  written: read-only servers (udpbd-vexfat, PS2-Servers with a folder or `--read-only`) do not say so. A write
+  that PS2-Servers refuses no longer makes the whole served disk unreadable until YAOPL is restarted.
+  (df65546e, 093b541b)
+- UDPBD: With a read-only UDPBD server, game settings can be saved: they go to a `CFG` folder next to YAOPL's
+  own settings, usually `mc0:OPL/CFG/`, instead of the served disk, where saving failed (*Error writing
+  settings!*) or was lost. A `CFG` file on the served disk is still used until the game has settings saved
+  there. With a server that writes, settings stay on the served disk, as on USB. (7781959c)
+- UDPBD: With a read-only UDPBD server, the game menu has no Rename and Delete, and *Configure VMC* shows a
+  note instead of *Failed to format VMC file*; a VMC set in a game's settings is not used and the game saves
+  to the real memory card, without a question at every start. (9f556b55, 11037583, 7c375a09)
+- UDPBD: A read-only UDPBD server is never written to: YAOPL does not keep its game list cache (`games.bin`)
+  there, does not offer Rename and Delete for apps in its `APPS` folder, and does not pick it when it looks
+  for a device to save its own settings on. (c92f681d, afe59be2, 760d7e3c)
+- In-game: IGR no longer stalls games while their pad polling pauses (loading screens, movies): it scanned the
+  game's memory again every time, which left the DualShock dead or dropping out in Gran Turismo 4 over UDPBD
+  until it was replugged. Gran Turismo 4 no longer needs Compatibility Mode 6 for its pad. After patching a
+  game's pad calls IGR also flushes the caches. (3bdfc94f, fd0af6aa; from RiptOPL)
+- PADEMU: IGR from a game with a DualShock 3/4 on USB PADEMU no longer hangs before the PS2 browser or the
+  exit ELF comes up: the USB host controller is stopped before the IOP reset. (e72c9f48)
+- Translations: The message about the fragment count of a VMC, its defragment hint and the VMC note for a
+  read-only UDPBD server are translated into Russian; in the other languages they show in English until
+  translated. (yaopl-lang 23f4261)
+- UDPBD: A game over UDPBD no longer hangs at its first screen when a USB device is plugged in: the USB host
   controller that the menu's USB driver left running is stopped. (15eee615)
-- A game over UDPBD no longer waits forever for the disk when the first request to the server went out
+- UDPBD: A game over UDPBD no longer waits forever for the disk when the first request to the server went out
   before the network link was up: the request is repeated until the server answers. (68de38f8)
-
-### In-game
-- The SDK `sio2man` goes into a game only when a VMC, PadEmu, MX4SIO or MMCE needs it; other games keep
-  their own SIO2MAN and pad and memory-card drivers, as before upstream Beta-2248 (#1785). Suspected cause
-  of games that freeze after some minutes while the sound goes on (upstream issues #1795, #1790); not yet
-  confirmed on a console. (5ef1b9e2)
-
-### PADEMU
-- A DualShock 3/4 on USB PADEMU reads its buttons more reliably when it is slow to answer, as a DualShock 3
-  plugged in after the game has started: no more input lag and uneven LED blinking in that case. Its start
-  command and LED/vibration report no longer share a buffer with the button reports. (1ef5b49c, 4b1106e4,
-  c4a82e95)
-
-### MMCE
-- With "Send the game ID" on, a game starts only after the MMCE card has switched to the game's memory card
-  (up to 7.5 s): an SD2PSX does not answer while it swaps the cards, and YAOPL took that silence for "done"
-  and started the game about 0.3 s after the command, while the card was still switching. (19578cc6)
-- The choices of IGR Boot Card Slot(s) are translated: "Off" (was "None") and "Both" were fixed English
+- PADEMU: A DualShock 3/4 on USB PADEMU reads its buttons more reliably when it is slow to answer, as a
+  DualShock 3 plugged in after the game has started: no more input lag and uneven LED blinking in that case.
+  Its start command and LED/vibration report no longer share a buffer with the button reports. (1ef5b49c,
+  4b1106e4, c4a82e95)
+- MMCE: With "Send the game ID" on, a game starts only after the MMCE card has switched to the game's memory
+  card (up to 7.5 s): an SD2PSX does not answer while it swaps the cards, and YAOPL took that silence for
+  "done" and started the game about 0.3 s after the command, while the card was still switching. (19578cc6)
+- MMCE: The choices of IGR Boot Card Slot(s) are translated: "Off" (was "None") and "Both" were fixed English
   text. (999bb6d3)
+- VMC: A fragmented VMC on a BDM device (USB, MX4SIO, iLink, exFAT HDD), as exFAT often makes them (upstream
+  issue #1695), is reported with the number of its fragments: *VMC ... is in N fragments. Continue with Memory
+  Card in slot ...?*. Backing out says how to make the file one piece: move it to a PC and copy it back. The
+  game still cannot use such a card. (c19eed08)
+- GUI: The device bar of the default theme shows all five pages, MMCE included, on every page: before, MMCE
+  appeared only when it was selected and the bar jumped from four icons to five. Icons by Berion. (5776873f)
+- GUI: The dots above the device bar show as many dots as mass devices are connected, with the current one
+  lit: before, there were always five, one per device slot, slots 0 and 2 left the first device without dots
+  and a single device in slot 2 still got them. Themes with their own five-dot pictures keep them. (f84b227d)
+- Game settings: Game ID → Load From Disc works more than once: before, every try after the first said *Error
+  while loading the Game ID* until YAOPL was restarted, and the drive kept spinning after the first read
+  (upstream issue #651). (7f1018e7)
+- Translations: The new "Both" is translated into Russian; in the other languages it shows in English until
+  translated. (yaopl-lang 33afafa, 5985982)
 
-### HDD
-- In game, an LBA48 transfer of 65536 sectors or more no longer loops forever on 0-sector commands
+## 2.0.0-rc1 (2026-10-28)
+
+The first release of the fork, on top of upstream OPL Beta-2271 (b3a21997).
+
+- UDPBD: New BDM device UDPBD (Settings → BDM Devices → UDPBD, off by default): games on a disk or disk image
+  that a PC serves over the LAN (udpbd-server, udpbd-vexfat, PS2-Servers) are listed as "UDPBD Games" and run
+  in the OPL core with all its features. The PS2 uses the static IP of the network settings; while UDPBD is
+  on, SMB and the other network features do not start. Modules built from `rickgaiser/neutrino`. (83c63032,
+  c6bec984, b3ff1093)
+- UDPBD: UDPBD asks for at most 16 KiB per read: longer bursts of reply packets were lost on a real console
+  and hung the game. (12cc6fb5)
+- UDPBD: With the HDD (APA) page on, the ATA driver is loaded before UDPBD, so its reset of the DEV9 ATA
+  interface no longer cuts UDPBD off. (2a79d23b)
+- UDPBD: The UDPBD device has its own icon instead of the generic one. (be2dbef1)
+- In-game: The SDK `sio2man` goes into a game only when a VMC, PadEmu, MX4SIO or MMCE needs it; other games
+  keep their own SIO2MAN and pad and memory-card drivers, as before upstream Beta-2248 (#1785). Suspected
+  cause of games that freeze after some minutes while the sound goes on (upstream issues #1795, #1790); not
+  yet confirmed on a console. (5ef1b9e2)
+- HDD: In game, an LBA48 transfer of 65536 sectors or more no longer loops forever on 0-sector commands
   (hardening, no known trigger; same fix as ps2sdk f30f05eb). (e09f5482)
-
-### VMC
-- A fragmented VMC on a BDM device (USB, MX4SIO, iLink, exFAT HDD), as exFAT often makes them (upstream
-  issue #1695), is reported with the number of its fragments: *VMC ... is in N fragments. Continue with
-  Memory Card in slot ...?*. Backing out says how to make the file one piece: move it to a PC and copy it
-  back. The game still cannot use such a card. (c19eed08)
-
-### GUI and themes
-- The greeting screen shows a YAOPL logo, drawn in the style of OPL's logo by Berion, instead of OPL's.
+- GUI: The greeting screen shows a YAOPL logo, drawn in the style of OPL's logo by Berion, instead of OPL's.
   (fca82aea)
-- The device bar of the default theme shows all five pages, MMCE included, on every page: before, MMCE
-  appeared only when it was selected and the bar jumped from four icons to five. Icons by Berion.
-  (5776873f)
-- The dots above the device bar show as many dots as mass devices are connected, with the current one lit:
-  before, there were always five, one per device slot, slots 0 and 2 left the first device without dots and
-  a single device in slot 2 still got them. Themes with their own five-dot pictures keep them. (f84b227d)
-
-### Game settings
-- Game ID → Load From Disc works more than once: before, every try after the first said *Error while loading
-  the Game ID* until YAOPL was restarted, and the drive kept spinning after the first read (upstream issue
-  #651). (7f1018e7)
-
-### Translations
-- Russian is translated completely, YAOPL's MMCE and UDPBD strings included, and 18 older Russian strings
-  that said something else than the English or had typos are corrected. (yaopl-lang c459ea4, 2084550)
-- The new "Both" is translated into Russian; in the other languages it shows in English until translated.
-  (yaopl-lang 33afafa, 5985982)
-- The Persian message about a fragmented VMC no longer crashes the menu: it read the slot number as text.
-  The Cebuano VMC messages and auto-start countdown put a space before the name and the number instead of
-  gluing them to the word before. (yaopl-lang 55d1ec2, 7fbdcb9)
-- The documentation has a [Translations](https://yaopl.github.io/yaopl/translations/) page with how complete
-  each language is. (ecbefe2c)
-
-### Build and releases
-- The toolchain image (ps2sdk, gsKit, ps2sdk-ports) is pinned by digest, so the same commit always embeds
-  the same SDK modules; the release notes name the ps2sdk commit. A weekly canary build warns when the
+- Translations: Russian is translated completely, YAOPL's MMCE and UDPBD strings included, and 18 older
+  Russian strings that said something else than the English or had typos are corrected. (yaopl-lang c459ea4,
+  2084550)
+- Translations: The Persian message about a fragmented VMC no longer crashes the menu: it read the slot number
+  as text. The Cebuano VMC messages and auto-start countdown put a space before the name and the number
+  instead of gluing them to the word before. (yaopl-lang 55d1ec2, 7fbdcb9)
+- Translations: The documentation has a [Translations](https://yaopl.github.io/yaopl/translations/) page with
+  how complete each language is. (ecbefe2c)
+- Build: The toolchain image (ps2sdk, gsKit, ps2sdk-ports) is pinned by digest, so the same commit always
+  embeds the same SDK modules; the release notes name the ps2sdk commit. A weekly canary build warns when the
   newest image differs. (78b8427d, 756f0141)
-- This changelog is kept again, with the upstream changes since 0.9.3 filled in; it replaces the per-commit
-  `DETAILED_CHANGELOG`.
-- The 7z packages hold only the ELFs with `LICENSE` and `CREDITS`; `README.md` and the changelog are no longer
-  packed, as the release notes list the changes. (b5980d64)
-- The release notes list the changelog entries added since the previous published build, with a link to
+- Build: This changelog is kept again, with the upstream changes since 0.9.3 filled in; it replaces the
+  per-commit `DETAILED_CHANGELOG`.
+- Build: The 7z packages hold only the ELFs with `LICENSE` and `CREDITS`; `README.md` and the changelog are no
+  longer packed, as the release notes list the changes. (b5980d64)
+- Build: The release notes list the changelog entries added since the previous published build, with a link to
   the full file.
-- Problems with YAOPL builds can be reported in this repository's issues: the issue form asks for the
-  `-yaopl` version, the device (now with UDPBD and MMCE) and the game ID. Problems with official OPL builds
-  go to upstream. (f7b59653)
-- The README presents YAOPL, and a new user guide, `docs/USAGE.md`, replaces upstream's documentation:
-  checked against the code, with UDPBD, MMCE and the ZSO limits. FORK.md was folded into this changelog
-  and `CONTRIBUTING.md`. (91fb193c, 3980a6d4)
-- The user documentation is a site now, <https://belomaxorka.github.io/yaopl/>, with a page per topic:
-  installing and launching, every menu and setting with its default, each device (USB, MX4SIO, iLink, the
-  HDD as exFAT or APA, SMB with PC setup, UDPBD, MMCE), adding games, game settings, cheats, VMCs, in-game
-  reset, NBD and troubleshooting, all checked against the code. It replaces `docs/USAGE.md`.
-  (2e28eebd..30d34adc)
-- YAOPL moved to the `yaopl` organization on GitHub, <https://github.com/yaopl/yaopl>, and the documentation
-  site to <https://yaopl.github.io/yaopl/>. Old repository, release and download links lead to the new place;
-  the old site address does not.
-- The language package is built from YAOPL's own translation repository,
+- Build: Problems with YAOPL builds can be reported in this repository's issues: the issue form asks for the
+  `-yaopl` version, the device (now with UDPBD and MMCE) and the game ID. Problems with official OPL builds go
+  to upstream. (f7b59653)
+- Build: The README presents YAOPL, and a new user guide, `docs/USAGE.md`, replaces upstream's documentation:
+  checked against the code, with UDPBD, MMCE and the ZSO limits. FORK.md was folded into this changelog and
+  `CONTRIBUTING.md`. (91fb193c, 3980a6d4)
+- Build: The user documentation is a site now, <https://belomaxorka.github.io/yaopl/>, with a page per topic:
+  installing and launching, every menu and setting with its default, each device (USB, MX4SIO, iLink, the HDD
+  as exFAT or APA, SMB with PC setup, UDPBD, MMCE), adding games, game settings, cheats, VMCs, in-game reset,
+  NBD and troubleshooting, all checked against the code. It replaces `docs/USAGE.md`. (2e28eebd..30d34adc)
+- Build: YAOPL moved to the `yaopl` organization on GitHub, <https://github.com/yaopl/yaopl>, and the
+  documentation site to <https://yaopl.github.io/yaopl/>. Old repository, release and download links lead to
+  the new place; the old site address does not.
+- Build: The language package is built from YAOPL's own translation repository,
   <https://github.com/yaopl/yaopl-lang>, a fork of OPL's: it has all of OPL's translations and lists YAOPL's
   new strings (MMCE, UDPBD) for translators. Strings not translated yet are still shown in English.
-- The language package has Vietnamese: the packing script always left out the last language of the list,
-  in upstream's packages too (32 of 33 languages).
-- YAOPL numbers its own versions: a release is `v2.0.0-yaopl` (tag `yaopl-v2.0.0`), and `latest` is a
+- Build: The language package has Vietnamese: the packing script always left out the last language of the
+  list, in upstream's packages too (32 of 33 languages).
+- Build: YAOPL numbers its own versions: a release is `v2.0.0-yaopl` (tag `yaopl-v2.0.0`), and `latest` is a
   nightly, `v2.0.0-nightly.N-<commit>-yaopl`, the Nth change on `master` since the last release. Builds were
   called `v1.2.0-Beta-N-<commit>-yaopl` before, with N counting all commits, upstream's too. Releases are
   published from the tags, with the changes since the previous release in their notes. (b764a48e, cc70a691)
-
-## YAOPL 2026-10-27
-
-### Cheats
-- Cheat names in Cyrillic, Japanese and other non-ASCII scripts are kept: such a name was dropped and its
-  codes joined the cheat before it, often the always-on Mastercode. (23a94a8c)
-
-### MMCE
-- MMCE commands (game ID, IGR card switch) are sent only while the MMCE device is on (Auto or Manual), so a
-  console without an MMCE card gets none. (b9e15b3a)
-
-## YAOPL 2026-10-23
-
-### MMCE
-- New device MMCE (Settings → MMCE Settings): games in `CD` and `DVD` on an MMCE memory-card emulator
-  (SD2PSX, MemCard PRO 2, PSXMemCard Gen2) are listed and started, the ISO streamed in game by `mmcedrv`
-  over SIO2. Modules built from `ps2-mmce/mmceman`. Not yet: VMCs on the card, games split into parts.
-  (375bb693, fda97f71, 41819725, 1046d006)
-- For a game from any device the card gets the game ID and switches to the game's own card ("Send the game
-  ID", on by default), after the last memory-card write. (243ed977)
-- IGR switches the cards that answered a ping back to their boot card (IGR slot "Auto"). (33a2b19a)
-- `make MMCE_NO_SDK_SIO2MAN=1` builds a comparison variant (`-nosio2man`) in which MMCE games keep their own
-  SIO2MAN. (27bdbdeb)
-
-### USB
-- `usbd_mini` is built from the ps2sdk USBD sources from before its rewrite (upstream Beta-2127): with the
-  rewritten driver, Crash Bandicoot: The Wrath of Cortex took minutes to load from USB and then
+- Cheats: Cheat names in Cyrillic, Japanese and other non-ASCII scripts are kept: such a name was dropped and
+  its codes joined the cheat before it, often the always-on Mastercode. (23a94a8c)
+- MMCE: MMCE commands (game ID, IGR card switch) are sent only while the MMCE device is on (Auto or Manual),
+  so a console without an MMCE card gets none. (b9e15b3a)
+- MMCE: New device MMCE (Settings → MMCE Settings): games in `CD` and `DVD` on an MMCE memory-card emulator
+  (SD2PSX, MemCard PRO 2, PSXMemCard Gen2) are listed and started, the ISO streamed in game by `mmcedrv` over
+  SIO2. Modules built from `ps2-mmce/mmceman`. Not yet: VMCs on the card, games split into parts. (375bb693,
+  fda97f71, 41819725, 1046d006)
+- MMCE: For a game from any device the card gets the game ID and switches to the game's own card ("Send the
+  game ID", on by default), after the last memory-card write. (243ed977)
+- MMCE: IGR switches the cards that answered a ping back to their boot card (IGR slot "Auto"). (33a2b19a)
+- MMCE: `make MMCE_NO_SDK_SIO2MAN=1` builds a comparison variant (`-nosio2man`) in which MMCE games keep their
+  own SIO2MAN. (27bdbdeb)
+- USB: `usbd_mini` is built from the ps2sdk USBD sources from before its rewrite (upstream Beta-2127): with
+  the rewritten driver, Crash Bandicoot: The Wrath of Cortex took minutes to load from USB and then
   black-screened (upstream issue #1751). (09179482)
-
-### In-game
-- IGR is sampled from the VBLANK_END interrupt handler again, not by a polling thread that busy games
+- In-game: IGR is sampled from the VBLANK_END interrupt handler again, not by a polling thread that busy games
   starve (upstream issue #1787, revert of #1762); Fatal Fury: Battle Archives Vol. 2 needs Mode 6 as before.
   (b8974f50)
-- 2340-byte sector reads no longer write past the game's buffer. (8116fe66)
-
-### Cheats
-- Picks of cheats that share a name are no longer lost on a reload. (fd642dc6)
-- A code line with address 0 (the second half of a multi-line code) no longer ends the cheat (upstream issue
-  #1548). (e57decce)
-- More than 5 hooks or 250 codes are dropped instead of written past the cheat engine's tables. (6b645a00)
-
-### Settings and config files
-- A CFG, theme or language file whose last line is a `#` comment without LF no longer crashes OPL.
-  (5192529d)
-- A read error (device removed) ends the file instead of corrupting memory. (8dfdd548)
-- Keys of 32+ and values of 256+ characters are cut and terminated; a long line without `=` no longer
-  overflows the prefix buffer. (38ae4e69, 4adde8b5)
-- A theme colour with more than three bytes (`#RRGGBBAA`) no longer writes past the colour. (51b45e09)
-- An `IPCONFIG.DAT` of 256 bytes or more no longer overflows the stack. (e8da9c86)
-- A failed settings save (e.g. full memory card) is reported instead of "Settings saved". (86ca55ac)
-- Looking for a USB device to save to no longer empties its `conf_opl.cfg` (upstream issue #1397).
-  (fa5d4e56)
-- The default BGM path is no longer used as a format string. (0d28c4c5)
-
-### VMC
-- Leaving the VMC menu no longer replaces a card of another size (4 MB, 128 MB, PCSX2 `.ps2`); Modify asks
-  first. (bc35dcc8)
-- VMC slots are found again after an aborted launch, so a game cannot use the previous game's VMC.
+- In-game: 2340-byte sector reads no longer write past the game's buffer. (8116fe66)
+- Cheats: Picks of cheats that share a name are no longer lost on a reload. (fd642dc6)
+- Cheats: A code line with address 0 (the second half of a multi-line code) no longer ends the cheat (upstream
+  issue #1548). (e57decce)
+- Cheats: More than 5 hooks or 250 codes are dropped instead of written past the cheat engine's tables.
+  (6b645a00)
+- Settings and config files: A CFG, theme or language file whose last line is a `#` comment without LF no
+  longer crashes OPL. (5192529d)
+- Settings and config files: A read error (device removed) ends the file instead of corrupting memory.
+  (8dfdd548)
+- Settings and config files: Keys of 32+ and values of 256+ characters are cut and terminated; a long line
+  without `=` no longer overflows the prefix buffer. (38ae4e69, 4adde8b5)
+- Settings and config files: A theme colour with more than three bytes (`#RRGGBBAA`) no longer writes past the
+  colour. (51b45e09)
+- Settings and config files: An `IPCONFIG.DAT` of 256 bytes or more no longer overflows the stack. (e8da9c86)
+- Settings and config files: A failed settings save (e.g. full memory card) is reported instead of "Settings
+  saved". (86ca55ac)
+- Settings and config files: Looking for a USB device to save to no longer empties its `conf_opl.cfg`
+  (upstream issue #1397). (fa5d4e56)
+- Settings and config files: The default BGM path is no longer used as a format string. (0d28c4c5)
+- VMC: Leaving the VMC menu no longer replaces a card of another size (4 MB, 128 MB, PCSX2 `.ps2`); Modify
+  asks first. (bc35dcc8)
+- VMC: VMC slots are found again after an aborted launch, so a game cannot use the previous game's VMC.
   (65765cfe)
-- A failed cluster write while creating a VMC no longer makes the next creation hang. (885c201f)
-
-### BDM
-- All parts of a split (UL) game must fit the fragment table together. (a5cbdb06)
-- One VMC error is no longer reported again for the other slot. (1bf79385)
-- Returning from the NBD server no longer crashes. (340e6338)
-
-### HDD
-- The PS2 logo check reads 48 sectors, not 49. (9c5ed16c)
-
-### ZSO
-- Images with a block size other than 2048 (maxcso's default for 2 GiB+ images is 16 KiB) are rejected
+- VMC: A failed cluster write while creating a VMC no longer makes the next creation hang. (885c201f)
+- BDM: All parts of a split (UL) game must fit the fragment table together. (a5cbdb06)
+- BDM: One VMC error is no longer reported again for the other slot. (1bf79385)
+- BDM: Returning from the NBD server no longer crashes. (340e6338)
+- HDD: The PS2 logo check reads 48 sectors, not 49. (9c5ed16c)
+- ZSO: Images with a block size other than 2048 (maxcso's default for 2 GiB+ images is 16 KiB) are rejected
   instead of read as the wrong sectors. (9ad4afeb)
-- A corrupt block index gives a read error instead of a write before the buffer. (147e2493)
-- Reads of more than 256 sectors go in slices instead of running past the index cache. (4baf5921)
-
-### GUI and themes
-- Long text no longer makes `fntFitString()` scan and write past the string, and wrapped text no longer
+- ZSO: A corrupt block index gives a read error instead of a write before the buffer. (147e2493)
+- ZSO: Reads of more than 256 sectors go in slices instead of running past the index cache. (4baf5921)
+- GUI: Long text no longer makes `fntFitString()` scan and write past the string, and wrapped text no longer
   puts line breaks into the game's CFG (upstream issue #1713). (a4c0830f, 0f16d591)
-- `GameCountText` gets the 60 bytes it formats into, not 1. (d784657c)
-- A theme image file that is missing disables the element instead of drawing and freeing a garbage
+- GUI: `GameCountText` gets the 60 bytes it formats into, not 1. (d784657c)
+- GUI: A theme image file that is missing disables the element instead of drawing and freeing a garbage
   texture. (1183f4e8)
-- A theme without an `ItemsList` keeps the default list instead of crashing on the first scroll.
+- GUI: A theme without an `ItemsList` keeps the default list instead of crashing on the first scroll.
   (669e2f8e)
-- Grey and grey+alpha PNGs (art, themes) are loaded. (7a37c1ca)
-- The scroll speed is restored after dialogs such as the VMC menu (upstream #1757). (33f7c226)
-- A held button keeps repeating across the 29 s wrap of the tick counter (upstream #1757). (8a98f0fd)
-- A `.lng` file name shorter than `lang_X.lng` (for example `ru.lng`) no longer crashes OPL at boot.
+- GUI: Grey and grey+alpha PNGs (art, themes) are loaded. (7a37c1ca)
+- GUI: The scroll speed is restored after dialogs such as the VMC menu (upstream #1757). (33f7c226)
+- GUI: A held button keeps repeating across the 29 s wrap of the tick counter (upstream #1757). (8a98f0fd)
+- GUI: A `.lng` file name shorter than `lang_X.lng` (for example `ru.lng`) no longer crashes OPL at boot.
   (02ab252a)
-
-### Launch and GSM
-- A boot file name over 16 characters (`$AltStartup`) no longer overflows the OSD history buffer.
-  (80c5558d)
-- A `$GSMVMode` outside the table of modes falls back to mode 0. (9058044e)
-- Small hardening without a known trigger: a format string, terminators, the IOP patch mode compare.
-  (d5a1237e)
-
-### Build and releases
-- The fork is named YAOPL; its builds carry `-yaopl` in the version string. (f849239b)
-- Every push to `master` publishes the `latest` pre-release with `SHA256SUMS`; only the build of the tip of
-  `master` is published. (d38b20d6, cc7905ee)
-- Host checks (MSVC with AddressSanitizer) run on Windows for every push. (92d66096)
-
-## YAOPL 2026-10-22
-
-First fixes of the fork, on top of upstream Beta-2271 (b3a21997), committed before the fork published
-builds; the first `latest` build (2026-10-23) has them.
-
-### Cheats
-- A comment line with leading blanks no longer becomes a cheat with an empty name. (c755d448)
-- The 251st cheat is no longer written past the cheat table. (44a003bd)
-- `make_code()` no longer writes one byte past its buffer for every code. (cdf07ba8)
-- A last line without LF is no longer read past the end of the buffer. (eeb57687)
-
-### ISO and game list
-- A directory record with an empty name no longer hangs the game list or the game. (ff498c19)
-- The record length is read as one byte, so an extended attribute length no longer derails the scan.
-  (af5b52b7)
-- File name lookups no longer copy from address 1 or past the 16-byte name, in the list and in game.
-  (bfe726f5)
-- In-game lookups no longer overflow the current directory buffer on names longer than 14 characters.
-  (a2ff76fc)
-- `isValidIsoName()` no longer reads before short names such as `..`. (3722eb41)
-- A ZSO header with `align` above 11 is rejected instead of dividing by zero. (0253f98b)
-- `SYSTEM.CNF`: a `BOOT2` line without `=` no longer crashes. (43781768)
-
-### ul.cfg and games.bin
-- A partial record at the end of `ul.cfg` is ignored instead of written past the game list. (2a57ca88)
-- `ul.cfg` names are hashed as unsigned bytes, as PC tools do, also in `iso2opl` and `opl2iso`. Chunks of a
-  game with a non-ASCII title that upstream OPL named itself may need renaming. (f244afff, da9af708)
-- Each game listed in `games.bin` is looked up in the whole cache, without reading past it. (578ba6b5)
-
+- Launch and GSM: A boot file name over 16 characters (`$AltStartup`) no longer overflows the OSD history
+  buffer. (80c5558d)
+- Launch and GSM: A `$GSMVMode` outside the table of modes falls back to mode 0. (9058044e)
+- Launch and GSM: Small hardening without a known trigger: a format string, terminators, the IOP patch mode
+  compare. (d5a1237e)
+- Build: The fork is named YAOPL; its builds carry `-yaopl` in the version string. (f849239b)
+- Build: Every push to `master` publishes the `latest` pre-release with `SHA256SUMS`; only the build of the
+  tip of `master` is published. (d38b20d6, cc7905ee)
+- Build: Host checks (MSVC with AddressSanitizer) run on Windows for every push. (92d66096)
+- Cheats: A comment line with leading blanks no longer becomes a cheat with an empty name. (c755d448)
+- Cheats: The 251st cheat is no longer written past the cheat table. (44a003bd)
+- Cheats: `make_code()` no longer writes one byte past its buffer for every code. (cdf07ba8)
+- Cheats: A last line without LF is no longer read past the end of the buffer. (eeb57687)
+- ISO and game list: A directory record with an empty name no longer hangs the game list or the game.
+  (ff498c19)
+- ISO and game list: The record length is read as one byte, so an extended attribute length no longer derails
+  the scan. (af5b52b7)
+- ISO and game list: File name lookups no longer copy from address 1 or past the 16-byte name, in the list and
+  in game. (bfe726f5)
+- ISO and game list: In-game lookups no longer overflow the current directory buffer on names longer than 14
+  characters. (a2ff76fc)
+- ISO and game list: `isValidIsoName()` no longer reads before short names such as `..`. (3722eb41)
+- ISO and game list: A ZSO header with `align` above 11 is rejected instead of dividing by zero. (0253f98b)
+- ISO and game list: `SYSTEM.CNF`: a `BOOT2` line without `=` no longer crashes. (43781768)
+- ul.cfg and games.bin: A partial record at the end of `ul.cfg` is ignored instead of written past the game
+  list. (2a57ca88)
+- ul.cfg and games.bin: `ul.cfg` names are hashed as unsigned bytes, as PC tools do, also in `iso2opl` and
+  `opl2iso`. Chunks of a game with a non-ASCII title that upstream OPL named itself may need renaming.
+  (f244afff, da9af708)
+- ul.cfg and games.bin: Each game listed in `games.bin` is looked up in the whole cache, without reading past
+  it. (578ba6b5)
 ## OPL v1.2.0-Beta, 2025–2026 (upstream Beta-2197 – Beta-2271)
 
 YAOPL is based on Beta-2271 (b3a21997, 2026-10-12).
