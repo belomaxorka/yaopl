@@ -1229,6 +1229,17 @@ static int thmLoadResource(GSTEXTURE *texture, int texId, const char *themePath,
     return success;
 }
 
+static void thmSetTextColor(theme_elems_t *elems, u64 color)
+{
+    theme_element_t *elem;
+    for (elem = elems->first; elem; elem = elem->next) {
+        // Images keep their own colour
+        if (elem->type != ELEM_TYPE_ATTRIBUTE_IMAGE && elem->type != ELEM_TYPE_GAME_IMAGE && elem->type != ELEM_TYPE_STATIC_IMAGE &&
+            elem->type != ELEM_TYPE_BACKGROUND && elem->type != ELEM_TYPE_MENU_ICON && elem->type != ELEM_TYPE_BDM_INDEX)
+            elem->color = color;
+    }
+}
+
 static void thmSetColors(theme_t *theme)
 {
     memcpy(theme->bgColor, gDefaultBgColor, 3);
@@ -1236,11 +1247,10 @@ static void thmSetColors(theme_t *theme)
     theme->uiTextColor = GS_SETREG_RGBA(gDefaultUITextColor[0], gDefaultUITextColor[1], gDefaultUITextColor[2], 0x80);
     theme->selTextColor = GS_SETREG_RGBA(gDefaultSelTextColor[0], gDefaultSelTextColor[1], gDefaultSelTextColor[2], 0x80);
 
-    theme_element_t *elem = theme->mainElems.first;
-    while (elem) {
-        elem->color = theme->textColor;
-        elem = elem->next;
-    }
+    thmSetTextColor(&theme->mainElems, theme->textColor);
+    thmSetTextColor(&theme->infoElems, theme->textColor);
+    thmSetTextColor(&theme->appsMainElems, theme->textColor);
+    thmSetTextColor(&theme->appsInfoElems, theme->textColor);
 }
 
 static void thmLoadFonts(config_set_t *themeConfig, const char *themePath, theme_t *theme)
