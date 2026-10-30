@@ -210,6 +210,12 @@ atad LBA28 sectors 257             plain: 257 sectors: 2 commands (first 256, la
                                    asan:  257 sectors: 2 commands (first 256, last 1 sectors), 257 transferred, res 0
 bgmLoad default_bgm_path           plain: format string = "%s" | bgmLoad = -2
                                    asan:  format string = "%s" | bgmLoad = -2
+About page nightly                 plain: title full 48 of 48 chars: "Open PS2 Loader v2.0.0-nightly.171-d24b701-yaopl" | details full 41 of 41 chars: "GSM 0.40 - UDMA+ - RTL - IGS 0.1 - PADEMU"
+                                   asan:  title full 48 of 48 chars: "Open PS2 Loader v2.0.0-nightly.171-d24b701-yaopl" | details full 41 of 41 chars: "GSM 0.40 - UDMA+ - RTL - IGS 0.1 - PADEMU"
+About page nosio2man               plain: title full 58 of 58 chars: "Open PS2 Loader v2.0.0-nightly.171-d24b701-yaopl-nosio2man" | details full 25 of 25 chars: "GSM 0.40 - UDMA+ - PADEMU"
+                                   asan:  title full 58 of 58 chars: "Open PS2 Loader v2.0.0-nightly.171-d24b701-yaopl-nosio2man" | details full 25 of 25 chars: "GSM 0.40 - UDMA+ - PADEMU"
+About page upstream                plain: title full 40 of 40 chars: "Open PS2 Loader v1.2.0-Beta-2213-abcdef1" | details full 41 of 41 chars: "GSM 0.40 - UDMA+ - RTL - IGS 0.1 - PADEMU"
+                                   asan:  title full 40 of 40 chars: "Open PS2 Loader v1.2.0-Beta-2213-abcdef1" | details full 41 of 41 chars: "GSM 0.40 - UDMA+ - RTL - IGS 0.1 - PADEMU"
 UDPBD probe rw                     plain: write check 1, test file removed
                                    asan : write check 1, test file removed
 UDPBD probe drop                   plain: write check 0, test file removed
