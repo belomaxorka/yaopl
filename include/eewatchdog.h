@@ -13,6 +13,11 @@ extern volatile int wdGui, wdPad, wdIo, wdIoType;
 extern volatile unsigned int wdIoCount, wdStress;
 extern const char *volatile wdNote;
 
+// Where OPL's settings came from (_loadConfig) and the plasma background colours (guiDrawBGPlasma).
+extern volatile unsigned int wdCfgCount, wdBgTarget, wdBgCur, wdPlasma;
+extern volatile int wdCfgResult;
+extern char wdCfgFile[64];
+
 void wdStart(void);
 
 #endif

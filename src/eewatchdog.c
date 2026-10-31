@@ -1,6 +1,6 @@
 /*
  * OPL debug build (branch debug/ds3-metrics): EE watchdog, see include/eewatchdog.h.
- * Every second it checks whether the menu drew a frame (guiEndFrame, which every loop calls, dialogs too). While it
+ * Every second it checks whether the menu drew a frame (rmEndFrame, which every loop calls, dialogs too). While it
  * does, a line every 10 seconds says so. When no frame was drawn for 3 seconds, it sends the breadcrumbs, the EE DMA
  * and SIF registers and every EE thread's state (and the semaphores they wait on), then again every 5 seconds while
  * the menu stays stuck.
@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include "include/eewatchdog.h"
+#include "include/themes.h"
 
 #define WD_SIF_CMD   0 // IOP user SIF command, registered by ds34usb.irx
 #define WD_TEXT_SIZE 96
@@ -35,6 +36,9 @@ volatile unsigned int wdFrames;
 volatile int wdGui, wdPad, wdIo, wdIoType;
 volatile unsigned int wdIoCount, wdStress;
 const char *volatile wdNote;
+volatile unsigned int wdCfgCount, wdBgTarget, wdBgCur, wdPlasma;
+volatile int wdCfgResult;
+char wdCfgFile[64];
 
 typedef struct
 {
@@ -330,7 +334,7 @@ static void wdDumpThreads(int sec)
 
 static void wdThread(void *arg)
 {
-    unsigned int lastFrames = 0, lastIo = 0;
+    unsigned int lastFrames = 0, lastIo = 0, lastCfg = 0, lastPlasma = 0;
     int sec = 0, stuck = 0;
 
     (void)arg;
@@ -346,6 +350,20 @@ static void wdThread(void *arg)
             stuck++;
         else
             stuck = 0;
+
+        // Settings: where they were read from, once per load.
+        if (wdCfgCount != lastCfg) {
+            lastCfg = wdCfgCount;
+            wdSend("EEWD %d cfg #%u result=%x file=%s bg=%02x%02x%02x", sec, wdCfgCount, wdCfgResult, wdCfgFile,
+                   gDefaultBgColor[0], gDefaultBgColor[1], gDefaultBgColor[2]);
+        }
+
+        // Background: each second during startup, then every 10 seconds. The plasma steps its colour once per draw.
+        if (sec <= 20 || sec % 10 == 0) {
+            wdSend("EEWD %d bg theme=%d target=%06x cur=%06x plasma+=%u fps=%u gui=%d io=%d/%d", sec, thmGetGuiValue(),
+                   wdBgTarget, wdBgCur, wdPlasma - lastPlasma, wdFrames - lastFrames, wdGui, wdIo, wdIoType);
+            lastPlasma = wdPlasma;
+        }
 
         if (stuck == 0 && sec % 10 == 0)
             wdSend("EEWD %d alive frames/s=%u gui=%d pad=%d io=%d/%d io+=%u stress=%u note=%s", sec,

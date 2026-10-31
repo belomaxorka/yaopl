@@ -1032,6 +1032,15 @@ static void _loadConfig()
     lscret = result;
     lscstatus = 0;
     showCfgPopup = 1;
+
+    // debug/ds3-metrics: report where the settings came from.
+    {
+        config_set_t *configOPL = configGetByType(CONFIG_OPL);
+
+        snprintf(wdCfgFile, sizeof(wdCfgFile), "%s", (configOPL && configOPL->filename) ? configOPL->filename : "-");
+        wdCfgResult = result;
+        wdCfgCount++;
+    }
 }
 
 static int trySaveConfigBDM(int types)

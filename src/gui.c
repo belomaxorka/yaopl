@@ -1310,6 +1310,9 @@ void guiDrawBGPlasma()
     curbgColor[0] += cdirection(curbgColor[0], gTheme->bgColor[0]);
     curbgColor[1] += cdirection(curbgColor[1], gTheme->bgColor[1]);
     curbgColor[2] += cdirection(curbgColor[2], gTheme->bgColor[2]);
+    wdBgTarget = (gTheme->bgColor[0] << 16) | (gTheme->bgColor[1] << 8) | gTheme->bgColor[2];
+    wdBgCur = (curbgColor[0] << 16) | (curbgColor[1] << 8) | curbgColor[2];
+    wdPlasma++;
 
     // it's PLASMA_ROWS_PER_FRAME rows a frame to stop being a resource hog
     if (pery >= PLASMA_H) {
