@@ -190,9 +190,6 @@ static void freeISOGameListCache(struct game_cache_list *cache)
     }
 }
 
-// Set while the list of a read-only device is read: its games.bin cache is not written
-int sbListCacheReadOnly;
-
 static int updateISOGameList(const char *path, const struct game_cache_list *cache, const struct game_list_t *head, int count)
 {
     char filename[256];
@@ -201,7 +198,8 @@ static int updateISOGameList(const char *path, const struct game_cache_list *cac
     int result, i, j, modified;
     base_game_info_t *list;
 
-    if (sbListCacheReadOnly)
+    // The games.bin list cache would only seem to be written on a read-only device
+    if (bdmIsReadOnlyPath(path))
         return 0;
 
     modified = 0;
@@ -873,6 +871,10 @@ void sbCreateFolders(const char *path, int createDiscImgFolders)
 {
     const char *basicFolders[] = {"CFG", "THM", "LNG", "ART", "VMC", "CHT", "APPS", NULL};
     const char *discImgFolders[] = {"CD", "DVD", NULL};
+
+    // Folders created on a read-only device would only seem to be there
+    if (bdmIsReadOnlyPath(path))
+        return;
 
     sbCreateFoldersFromList(path, basicFolders);
 

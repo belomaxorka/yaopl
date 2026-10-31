@@ -4,6 +4,7 @@
 #include "include/textures.h"
 #include "include/texcache.h"
 #include "include/menusys.h"
+#include "include/util.h"
 
 #define THM_MAX_FILES 64
 #define THM_MAX_FONTS 16
@@ -93,11 +94,7 @@ typedef struct
     theme_element_t *last;
 } theme_elems_t;
 
-typedef struct
-{
-    char *filePath;
-    char *name;
-} theme_file_t;
+typedef device_file_t theme_file_t;
 
 typedef struct theme
 {

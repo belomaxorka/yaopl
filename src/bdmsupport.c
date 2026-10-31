@@ -43,48 +43,85 @@ int bdmIsReadOnlyPath(const char *path)
     return 0;
 }
 
+// The driver behind a BDM device: "usb", "ata", "sdc" (MX4SIO), "sd" (iLink) or "udp" (UDPBD). 0 if the device is not
+// there.
+static int bdmGetDriverName(int deviceId, char *driver, int size)
+{
+    char path[16];
+    int dir;
+
+    memset(driver, 0, size);
+    sprintf(path, "mass%d:/", deviceId);
+    if ((dir = fileXioDopen(path)) < 0)
+        return 0;
+
+    fileXioIoctl2(dir, USBMASS_IOCTL_GET_DRIVERNAME, NULL, 0, driver, size - 1);
+    fileXioDclose(dir);
+    return 1;
+}
+
 // Whether OPL's settings can be saved on a BDM device: only where they are read at the next start, before the
 // settings say which drivers to load. That is USB and the HDD through BDM; MX4SIO, iLink and UDPBD are loaded
 // later, so settings saved there would not be found.
 static int bdmCanHoldSettings(int deviceId)
 {
-    char path[16], driver[32] = "";
+    char driver[32];
 
-    sprintf(path, "mass%d:/", deviceId);
-    int dir = fileXioDopen(path);
-    if (dir < 0)
+    // A read-only device passes the write probe, but what is saved there is lost
+    if (bdmDeviceList[deviceId].flags & MODE_FLAG_READ_ONLY)
+        return 0;
+
+    if (!bdmGetDriverName(deviceId, driver, sizeof(driver)))
         return 1; // not there: the probe fails anyway
 
-    fileXioIoctl2(dir, USBMASS_IOCTL_GET_DRIVERNAME, NULL, 0, driver, sizeof(driver) - 1);
-    fileXioDclose(dir);
-
     return !strcmp(driver, "usb") || !strcmp(driver, "ata");
+}
+
+// The first BDM device that is there and can hold OPL's settings, as "massN:" in target: where a first save goes when
+// there are no settings anywhere. 0 if there is none.
+int bdmFindSettingsDevice(char *target)
+{
+    char driver[32];
+    int i;
+
+    for (i = 0; i < MAX_BDM_DEVICES; i++) {
+        if (bdmGetDriverName(i, driver, sizeof(driver)) && bdmCanHoldSettings(i)) {
+            sprintf(target, "mass%d:", i);
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 // Identifies the partition that the specified file is stored on and generates a full path to it. OPL's settings are
 // in the root of the device, not under the BDM prefix: at start, where they are read, the prefix is not known yet.
 int bdmFindPartition(char *target, const char *name, int write)
 {
-    int i, fd;
+    int i, fd, found;
     char path[256];
 
     for (i = 0; i < MAX_BDM_DEVICES; i++) {
-        // A read-only device passes the probe, but what is saved there is lost
-        if (write && (bdmDeviceList[i].flags & MODE_FLAG_READ_ONLY))
-            continue;
-
         if (write && !bdmCanHoldSettings(i))
             continue;
 
         sprintf(path, "mass%d:%s", i, name);
-        if (write) // Only a probe: the file is written later, and only if its settings are saved
-            fd = open(path, O_WRONLY | O_CREAT, 0666);
-        else
-            fd = open(path, O_RDONLY);
-
-        if (fd >= 0) {
-            sprintf(target, "mass%d:", i);
+        if ((found = (fd = open(path, O_RDONLY)) >= 0))
             close(fd);
+
+        if (write) {
+            // Only a probe: the file is written later, and only if its settings are saved. A file the probe makes is
+            // removed again: if that save then failed, the empty file would be read as the settings at the next start.
+            if ((fd = open(path, found ? O_WRONLY : (O_WRONLY | O_CREAT), 0666)) >= 0) {
+                close(fd);
+                if (!found)
+                    remove(path);
+            }
+            found = (fd >= 0);
+        }
+
+        if (found) {
+            sprintf(target, "mass%d:", i);
             return 1;
         }
     }
@@ -315,9 +352,7 @@ static int bdmNeedsUpdate(item_list_t *itemList)
             pDeviceData->LanguagesLoaded = 1;
     }
 
-    // Folders created on a read-only device would only seem to be there
-    if (!(itemList->flags & MODE_FLAG_READ_ONLY))
-        sbCreateFolders(pDeviceData->bdmPrefix, 1);
+    sbCreateFolders(pDeviceData->bdmPrefix, 1);
 
     return result;
 }
@@ -326,10 +361,7 @@ static int bdmUpdateGameList(item_list_t *itemList)
 {
     bdm_device_data_t *pDeviceData = (bdm_device_data_t *)itemList->priv;
 
-    // The games.bin list cache would only seem to be written on a read-only device
-    sbListCacheReadOnly = (itemList->flags & MODE_FLAG_READ_ONLY) != 0;
     sbReadList(&pDeviceData->bdmGames, pDeviceData->bdmPrefix, &pDeviceData->bdmULSizePrev, &pDeviceData->bdmGameCount);
-    sbListCacheReadOnly = 0;
     return pDeviceData->bdmGameCount;
 }
 
@@ -1075,18 +1107,9 @@ static int bdmDeviceIsPresent(int deviceId)
 
 static int bdmDeviceIsATA(int deviceId)
 {
-    char path[16];
-    bdm_device_data_t data;
+    char driver[32];
 
-    sprintf(path, "mass%d:/", deviceId);
-    int dir = fileXioDopen(path);
-    if (dir < 0)
-        return 0;
-
-    fileXioIoctl2(dir, USBMASS_IOCTL_GET_DRIVERNAME, NULL, 0, &data.bdmDriver, sizeof(data.bdmDriver) - 1);
-    fileXioDclose(dir);
-
-    return (!strcmp(data.bdmDriver, "ata") && strlen(data.bdmDriver) == 3);
+    return bdmGetDriverName(deviceId, driver, sizeof(driver)) && !strcmp(driver, "ata");
 }
 
 static int bdmGetATADeviceId()

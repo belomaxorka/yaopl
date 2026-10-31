@@ -920,12 +920,14 @@ static int tryBootDevice(int types)
 static int trySetBootHome(void)
 {
     int bootDevice = getBootDevice();
-    char *prefix, *root;
+    char *prefix, *root, bdmRoot[8];
     DIR *dir;
 
-    if (bootDevice == BOOT_DEVICE_BDM)
-        prefix = root = "mass0:";
-    else if (bootDevice == BOOT_DEVICE_HDD)
+    if (bootDevice == BOOT_DEVICE_BDM) {
+        if (!bdmFindSettingsDevice(bdmRoot))
+            return 0;
+        prefix = root = bdmRoot;
+    } else if (bootDevice == BOOT_DEVICE_HDD)
         prefix = root = gHDDPrefix;
     else if (bootDevice == BOOT_DEVICE_MMCE0) {
         prefix = "mmce0:";
@@ -949,6 +951,7 @@ static int trySetBootHome(void)
 static int tryAlternateDevice(int types)
 {
     int value;
+    char bdmRoot[8];
     DIR *dir;
 
     // Check all supported devices.
@@ -972,11 +975,9 @@ static int tryAlternateDevice(int types)
         return 0;
     }
     // No memory cards? Try a USB device...
-    dir = opendir("mass0:");
-    if (dir != NULL) {
-        closedir(dir);
+    if (bdmFindSettingsDevice(bdmRoot)) {
         configEnd();
-        configInit("mass0:");
+        configInit(bdmRoot);
     } else {
         // No? Check if the save location on the HDD is available.
         dir = opendir(gHDDPrefix);

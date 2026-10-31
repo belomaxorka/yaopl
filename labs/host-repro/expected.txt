@@ -1,4 +1,3 @@
-OPL tree: C:\Users\Admin\Projects\Open-PS2-Loader
 cheat cht_plain                    plain: cheat   0 name="Mastercode" enabled=1 codes=1 first=90106418 | cheat   1 name="Cheat" enabled=0 codes=1 first=20100000 | total cheats: 2
                                    asan:  cheat   0 name="Mastercode" enabled=1 codes=1 first=90106418 | cheat   1 name="Cheat" enabled=0 codes=1 first=20100000 | total cheats: 2
 cheat cht_indented                 plain: cheat   0 name="Mastercode" enabled=1 codes=3 first=90106418 | total cheats: 1
@@ -148,10 +147,14 @@ Settings mx4sio                    plain: read=- home=mc0 theme=mass0 | save=err
                                    asan:  read=- home=mc0 theme=mass0 | save=error | next=-
 Settings udpbd                     plain: read=- home=mc0 theme=mass0 | save=error | next=-
                                    asan:  read=- home=mc0 theme=mass0 | save=error | next=-
+Settings usb-mass1                 plain: read=- home=mass1 theme=mass1 | save=mass1 | next=mass1
+                                   asan:  read=- home=mass1 theme=mass1 | save=mass1 | next=mass1
 bdmFindPartition write probe       plain: probe = 1 (mass0:); conf_opl.cfg 38 bytes before, 38 after
                                    asan : probe = 1 (mass0:); conf_opl.cfg 38 bytes before, 38 after
 bdmFindPartition read-only mass0   plain: probe = 1 (mass1:); conf_opl.cfg 38 bytes before, 38 after
                                    asan : probe = 1 (mass1:); conf_opl.cfg 38 bytes before, 38 after
+bdmFindPartition probe, no file yet plain: probe = 1 (mass0:); conf_opl.cfg -1 bytes before, -1 after
+                                   asan : probe = 1 (mass0:); conf_opl.cfg -1 bytes before, -1 after
 sysCheckVMC 4 MiB card, create 8 MB plain: returned 4; card kept, 4194304 bytes; no new card
                                    asan : returned 4; card kept, 4194304 bytes; no new card
 sysCheckVMC PCSX2 .ps2 size, create 8 MB plain: returned 0; card kept, 8650752 bytes; no new card

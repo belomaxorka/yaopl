@@ -2,8 +2,8 @@
  * find a writable USB device:
  *   bdmprobe <dir> [ro0]
  * "massN:" maps to <dir>\massN\. Probes for conf_opl.cfg with write = 1 and prints its size
- * before and after. ro0 marks mass0 read-only (a UDPBD server that drops writes), where the tree
- * knows the flag. */
+ * before and after (-1: no file). ro0 marks mass0 read-only (a UDPBD server that drops writes),
+ * where the tree knows the flag. */
 #include <fcntl.h>
 #include <io.h>
 #include <stdio.h>
@@ -27,8 +27,15 @@ static int harness_open(const char *path, int flags, ...)
     sprintf(local, "%s\\mass%d\\%s", root, unit, strchr(path, ':') + 1);
     return _open(local, flags | _O_BINARY, _S_IREAD | _S_IWRITE);
 }
-#define open  harness_open
-#define close _close
+static int harness_remove(const char *path)
+{
+    char local[1024];
+    sprintf(local, "%s\\mass%d\\%s", root, path[4] - '0', strchr(path, ':') + 1);
+    return remove(local);
+}
+#define open   harness_open
+#define close  _close
+#define remove harness_remove
 
 /* The driver of a device, where the tree asks for it: every device here is a USB drive */
 #define USBMASS_IOCTL_GET_DRIVERNAME 0x1
@@ -57,7 +64,6 @@ int main(int argc, char **argv)
     sprintf(cfg, "%s\\mass0\\conf_opl.cfg", root);
     before = _stat(cfg, &st) == 0 ? (long)st.st_size : -1;
     int r = bdmFindPartition(target, "conf_opl.cfg", 1);
-    _stat(cfg, &st);
-    printf("probe = %d (%s); conf_opl.cfg %ld bytes before, %ld after\n", r, target, before, (long)st.st_size);
+    printf("probe = %d (%s); conf_opl.cfg %ld bytes before, %ld after\n", r, target, before, _stat(cfg, &st) == 0 ? (long)st.st_size : -1);
     return 0;
 }

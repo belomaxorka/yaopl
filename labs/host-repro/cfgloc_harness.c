@@ -184,8 +184,10 @@ static int harness_open(const char *path, int flags, ...)
     return 3; // a write probe: the file is written later
 }
 static int harness_close(int fd) { return 0; }
-#define open  harness_open
-#define close harness_close
+static int harness_remove(const char *path) { return 0; } // the probe's own file: never written here
+#define open   harness_open
+#define close  harness_close
+#define remove harness_remove
 static int fileXioDopen(const char *path)
 {
     return visible(devOf(path)) ? devOf(path) : -1;
@@ -335,6 +337,10 @@ int main(int argc, char **argv)
         // No memory card, no USB drive: games on a writable UDPBD server, enabled in the menu
         cwd = "mass:/APPS/";
         add(DEV_MASS0, "udp", 0);
+    } else if (!strcmp(s, "usb-mass1")) {
+        // No memory card and no settings anywhere; the only USB drive is mass1 (nothing at mass0)
+        cwd = "mass:/APPS/";
+        add(DEV_MASS1, "usb", 0);
     } else {
         printf("unknown scenario\n");
         return 2;

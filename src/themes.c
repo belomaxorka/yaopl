@@ -1449,7 +1449,7 @@ static void thmLoad(const char *themePath)
 
 static void thmRebuildGuiNames(void)
 {
-    int i, j, best;
+    int i;
 
     if (guiThemesNames)
         free(guiThemesNames);
@@ -1461,22 +1461,9 @@ static void thmRebuildGuiNames(void)
     guiThemesNames[0] = "<OPL>";
 
     // A theme found on several devices is listed once, where it was first found, with its copy of the lowest rank
-    nGuiThemes = 0;
-    for (i = 0; i < nThemes; i++) {
-        for (j = 0; j < i && strcasecmp(themes[j].name, themes[i].name); j++)
-            ;
-        if (j < i)
-            continue;
-
-        best = i;
-        for (j = i + 1; j < nThemes; j++) {
-            if (!strcasecmp(themes[j].name, themes[i].name) && configGetDeviceRank(themes[j].filePath) < configGetDeviceRank(themes[best].filePath))
-                best = j;
-        }
-
-        guiThemes[nGuiThemes] = best;
-        guiThemesNames[++nGuiThemes] = themes[best].name;
-    }
+    nGuiThemes = listDeviceFiles(themes, nThemes, guiThemes);
+    for (i = 0; i < nGuiThemes; i++)
+        guiThemesNames[i + 1] = themes[guiThemes[i]].name;
 
     guiThemesNames[nGuiThemes + 1] = NULL;
 }
@@ -1519,28 +1506,16 @@ void thmInit(void)
 void thmRemoveElements(const char *path)
 {
     char name[256] = "";
-    int i, j, len = strlen(path);
+    int i, j;
 
-    if (len == 0)
+    if (path[0] == '\0')
         return;
 
     if (guiThemeCopy >= 0)
         snprintf(name, sizeof(name), "%s", themes[guiThemeCopy].name);
 
-    for (i = 0, j = 0; i < nThemes; i++) {
-        if (strncmp(themes[i].filePath, path, len) == 0) {
-            LOG("THEMES Remove theme: %s\n", themes[i].filePath);
-            free(themes[i].name);
-            free(themes[i].filePath);
-            if (i == guiThemeCopy)
-                guiThemeCopy = -2; // loaded, but its files are gone
-        } else {
-            if (i == guiThemeCopy)
-                guiThemeCopy = j;
-            themes[j++] = themes[i];
-        }
-    }
-
+    // guiThemeCopy becomes -2 if the theme in use is dropped: loaded, but its files are gone
+    j = dropDeviceFiles(themes, nThemes, path, &guiThemeCopy);
     if (j == nThemes)
         return;
 

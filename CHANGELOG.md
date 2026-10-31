@@ -5,6 +5,9 @@ Loader (OPL) before the fork.
 
 ## Unreleased
 
+- Settings: A save of the settings to a USB drive that has none yet no longer leaves an empty settings file
+  there when the save fails; the next start used it and started with the defaults instead of the memory card's
+  settings. (3ceb3d42)
 - GUI: After a change of the BDM prefix or the MMCE slot or folder, the themes and languages of the new folder
   are listed and the old folder's leave the lists, without a restart. (e9cd2a61)
 - GUI: The size on a game's info page is read from the path the game starts from; under a BDM or SMB prefix

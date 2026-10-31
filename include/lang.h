@@ -2,6 +2,7 @@
 #define __LANG_H
 
 #include "lang_autogen.h"
+#include "include/util.h"
 
 // Maximum external languages supported
 #define MAX_LANGUAGE_FILES 15
@@ -10,11 +11,7 @@ extern char *internalEnglish[LANG_STR_COUNT];
 // getter for a localised string version
 extern char *_l(unsigned int id);
 
-typedef struct
-{
-    char *filePath;
-    char *name;
-} language_t;
+typedef device_file_t language_t;
 
 int lngAddLanguages(char *path, const char *separator, int mode);
 void lngRemoveLanguages(const char *path);
