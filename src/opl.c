@@ -226,6 +226,10 @@ void moduleUpdateMenuInternal(opl_io_module_t *mod, int themeChanged, int langCh
     if (!mod->support)
         return;
 
+    // The IO thread calls this too (initSupport() when a device is found): the GUI thread must not be drawing the
+    // hints while they are freed and added again.
+    guiLock();
+
     if (langChanged) {
         guiUpdateScreenScale();
         guiCheckNotifications(0, langChanged);
@@ -255,6 +259,8 @@ void moduleUpdateMenuInternal(opl_io_module_t *mod, int themeChanged, int langCh
             submenuRebuildCache(mod->subMenu);
         guiCheckNotifications(themeChanged, 0);
     }
+
+    guiUnlock();
 }
 
 static void itemInitSupport(item_list_t *support)
