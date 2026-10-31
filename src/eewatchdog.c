@@ -8,6 +8,7 @@
 #include "include/opl.h"
 #include <kernel.h>
 #include <sifrpc.h>
+#include <delaythread.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
