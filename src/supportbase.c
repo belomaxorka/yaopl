@@ -826,30 +826,16 @@ config_set_t *sbPopulateConfig(base_game_info_t *game, const char *prefix, const
         configMove(config, path);
     }
 
-    // Get game size if not already set
+    // Get game size if not already set: the total of its parts (an ISO image has one), at the paths the game is
+    // launched from
     if (game->sizeMB == 0) {
         char gamepath[256];
+        int part;
 
-        if (game->format == GAME_FORMAT_ISO) {
-            snprintf(gamepath, sizeof(gamepath), "%s%s%s%s%s%s", prefix, sep, game->media == SCECdPS2CD ? "CD" : "DVD", sep, game->name, game->extension);
-
+        for (part = 0; part < game->parts; part++) {
+            sbCreatePath(game, gamepath, prefix, sep, part);
             if (stat(gamepath, &st) == 0)
-                game->sizeMB = st.st_size >> 20;
-        } else if (game->format == GAME_FORMAT_OLD_ISO) {
-            snprintf(gamepath, sizeof(gamepath), "%s%s%s%s%s.%s%s", prefix, sep, game->media == SCECdPS2CD ? "CD" : "DVD", sep, game->startup, game->name, game->extension);
-
-            if (stat(gamepath, &st) == 0)
-                game->sizeMB = st.st_size >> 20;
-        } else if (game->format == GAME_FORMAT_USBLD) {
-            // Calculate total size for multi-part USBLD games
-            int part;
-            unsigned int name_checksum = USBA_crc32(game->name);
-
-            for (part = 0; part < game->parts; part++) {
-                snprintf(gamepath, sizeof(gamepath), "%sul.%08X.%s.%02x", prefix, name_checksum, game->startup, part);
-                if (stat(gamepath, &st) == 0)
-                    game->sizeMB += (st.st_size >> 20);
-            }
+                game->sizeMB += (st.st_size >> 20);
         }
     }
 
