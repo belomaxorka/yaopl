@@ -327,7 +327,7 @@ if (Want "about") {
 
 if (Want "udpbdro") {
     $probeDefine = if ((Get-Content -Raw (Join-Path $Opl "src\bdmsupport.c")).Contains("bdmCheckWritable(")) { "/DHAVE_PROBE" } else { "" }
-    Build udpbdro t "src\bdmsupport.c" "?bdmCheckWritable", "bdmGetConfig" -Source2 "src\supportbase.c" -Funcs2 "sbPopulateConfig" -Defines $probeDefine
+    Build udpbdro t "src\bdmsupport.c" "?bdmCheckWritable", "bdmGetConfig" -Source2 "src\supportbase.c" -Funcs2 "sbPopulateConfig" -Source3 "src\util.c" -Funcs3 "checkFile", "openFile" -Defines $probeDefine
     $dir = Join-Path $build "udpbdro"
     foreach ($case in "probe rw", "probe drop", "probe stale", "probe fail", "cfg rw", "cfg drop", "cfg drop-saved", "cfg drop-usbhome", "cfg usb") {
         foreach ($v in "plain", "asan") {
