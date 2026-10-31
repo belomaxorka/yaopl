@@ -564,10 +564,12 @@ void ds34usb_set_led(u8 *led, int port)
 void ds34usb_get_data(char *dst, int size, int port)
 {
     int ret;
-    u32 ds3mT0 = ds3mNow(), ds3mW0, ds3mDone0;
+    u32 ds3mT0, ds3mW0, ds3mDone0;
 
     if (port >= MAX_PADS)
         return;
+
+    ds3mT0 = ds3mPollEnter(port);
 
     WaitSema(ds34pad[port].sema);
 
@@ -763,6 +765,8 @@ void rpc_thread(void *data)
 
 void *rpc_sf(int cmd, void *data, int size)
 {
+    ds3mRpcEnter(cmd);
+
     switch (cmd) {
         case DS34USB_INIT:
             ds34usb_init(*(u8 *)data);
@@ -792,6 +796,7 @@ void *rpc_sf(int cmd, void *data, int size)
             break;
     }
 
+    ds3mRpcLeave();
     return data;
 }
 
@@ -830,6 +835,7 @@ int _start(int argc, char *argv[])
 
         ds34pad[pad].sema = CreateMutex(IOP_MUTEX_UNLOCKED);
         ds34pad[pad].cmd_sema = CreateMutex(IOP_MUTEX_UNLOCKED);
+        ds3mSemas(pad, ds34pad[pad].sema, ds34pad[pad].cmd_sema);
 
         if (ds34pad[pad].sema < 0 || ds34pad[pad].cmd_sema < 0) {
             DPRINTF("DS34USB: Failed to allocate I/O semaphore.\n");

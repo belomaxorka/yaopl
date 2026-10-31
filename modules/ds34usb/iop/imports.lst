@@ -11,6 +11,7 @@ I_SignalSema
 I_WaitSema
 I_PollSema
 I_iSignalSema
+I_ReferSemaStatus
 thsemap_IMPORTS_end
 
 thbase_IMPORTS_start
@@ -18,6 +19,7 @@ I_StartThread
 I_CreateThread
 I_DelayThread
 I_GetSystemTime
+I_ReferThreadStatus
 I_GetThreadId
 I_SetAlarm
 I_CancelAlarm

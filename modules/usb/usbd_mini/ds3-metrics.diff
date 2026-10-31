@@ -30,10 +30,10 @@ index 29425e2..38ebb88 100644
  
 diff --git a/iop/usb/usbd/src/metrics.c b/iop/usb/usbd/src/metrics.c
 new file mode 100644
-index 0000000..3fb7974
+index 0000000..42514a8
 --- /dev/null
 +++ b/iop/usb/usbd/src/metrics.c
-@@ -0,0 +1,177 @@
+@@ -0,0 +1,181 @@
 +/*
 + * OPL debug build (branch debug/ds3-metrics): USB stack metrics.
 + * A thread prints the state of the transfer descriptors, the IoRequests and the open endpoints once a second when
@@ -64,7 +64,7 @@ index 0000000..3fb7974
 +
 +typedef struct
 +{
-+    u16 freeTd, minFreeTd, freeIoReq, tdQueue;
++    u16 freeTd, minFreeTd, allMinTd, freeIoReq, tdQueue;
 +    u32 allocFails;
 +    u32 hcControl, hcIntStatus, rh0, rh1;
 +    u16 numEps;
@@ -72,6 +72,7 @@ index 0000000..3fb7974
 +} UsbmSnap;
 +
 +static UsbmSnap snap, prevSnap;
++static u16 usbmAllMinTd = 0xFFFF;
 +
 +static void usbmTakeSnapshot(UsbmSnap *s)
 +{
@@ -88,6 +89,9 @@ index 0000000..3fb7974
 +    s->freeTd = n;
 +    s->minFreeTd = (usbmTdMinFree < n) ? usbmTdMinFree : n;
 +    usbmTdMinFree = n;
++    if (s->minFreeTd < usbmAllMinTd)
++        usbmAllMinTd = s->minFreeTd;
++    s->allMinTd = usbmAllMinTd;
 +    s->allocFails = usbmTdAllocFails;
 +
 +    for (n = 0, req = memPool.freeIoReqList; req != NULL && n < 0xFFFF; req = req->next)
@@ -180,8 +184,8 @@ index 0000000..3fb7974
 +        quiet = 0;
 +        prevSnap = snap;
 +
-+        printf("USBM %u td=%u min=%u fail=%u tdq=%u ioreq=%u ctl=%x is=%x rh=%x,%x eps=%u\n", (unsigned int)sec,
-+               snap.freeTd, snap.minFreeTd, (unsigned int)snap.allocFails, snap.tdQueue, snap.freeIoReq,
++        printf("USBM %u td=%u min=%u amin=%u fail=%u tdq=%u ioreq=%u ctl=%x is=%x rh=%x,%x eps=%u\n", (unsigned int)sec,
++               snap.freeTd, snap.minFreeTd, snap.allMinTd, (unsigned int)snap.allocFails, snap.tdQueue, snap.freeIoReq,
 +               (unsigned int)snap.hcControl, (unsigned int)snap.hcIntStatus, (unsigned int)snap.rh0,
 +               (unsigned int)snap.rh1, snap.numEps);
 +

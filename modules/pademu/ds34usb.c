@@ -483,7 +483,7 @@ void ds34usb_set_rumble(u8 lrum, u8 rrum, int port)
 int ds34usb_get_data(u8 *dst, int size, int port)
 {
     int ret = 0;
-    u32 ds3mT0 = ds3mNow(), ds3mW0, ds3mDone0;
+    u32 ds3mT0 = ds3mPollEnter(port), ds3mW0, ds3mDone0;
 
     WaitSema(ds34pad[port].sema);
 
@@ -607,6 +607,7 @@ int ds34usb_init(u8 pads, u8 options)
 
         ds34pad[pad].sema = CreateMutex(IOP_MUTEX_UNLOCKED);
         ds34pad[pad].cmd_sema = CreateMutex(IOP_MUTEX_UNLOCKED);
+        ds3mSemas(pad, ds34pad[pad].sema, ds34pad[pad].cmd_sema);
 
         if (ds34pad[pad].sema < 0 || ds34pad[pad].cmd_sema < 0) {
             DPRINTF("DS34USB: Failed to allocate I/O semaphore.\n");
