@@ -39,8 +39,9 @@ function Emit([string]$Line) {
     $Line
 }
 
-function Build([string]$Harness, [string]$Tag, [string]$Source, [string[]]$Funcs, [string]$Source2 = "", [string[]]$Funcs2 = @(), [string]$Source3 = "", [string[]]$Funcs3 = @(), [string]$Source4 = "", [string[]]$Funcs4 = @(), [string[]]$Patch = @(), [string]$Defines = "") {
+function Build([string]$Harness, [string]$Tag, [string]$Source, [string[]]$Funcs, [string]$Source2 = "", [string[]]$Funcs2 = @(), [string]$Source3 = "", [string[]]$Funcs3 = @(), [string]$Source4 = "", [string[]]$Funcs4 = @(), [string]$Source5 = "", [string[]]$Funcs5 = @(), [string[]]$Patch = @(), [string]$Defines = "") {
     $text = ""
+    if ($Source5) { $text += (python -I (Join-Path $here "extract.py") (Join-Path $Opl $Source5) @Funcs5 | Out-String) }
     if ($Source4) { $text += (python -I (Join-Path $here "extract.py") (Join-Path $Opl $Source4) @Funcs4 | Out-String) }
     if ($Source3) { $text += (python -I (Join-Path $here "extract.py") (Join-Path $Opl $Source3) @Funcs3 | Out-String) }
     if ($Source2) { $text += (python -I (Join-Path $here "extract.py") (Join-Path $Opl $Source2) @Funcs2 | Out-String) }
@@ -133,7 +134,8 @@ if (Want "cnf") {
 }
 
 if (Want "sb") {
-    $sbRoDefine = if ((Get-Content -Raw (Join-Path $Opl "src\supportbase.c")).Contains("sbListCacheReadOnly")) { " /DHAVE_SB_RO" } else { "" }
+    $sbSource = Get-Content -Raw (Join-Path $Opl "src\supportbase.c")
+    $sbRoDefine = if ($sbSource.Contains("sbListCacheReadOnly")) { " /DHAVE_SB_RO" } elseif ($sbSource.Contains("bdmIsReadOnlyPath(path)")) { " /DHAVE_SB_RO_PATH" } else { "" }
     Build sb t "src\supportbase.c" "game_list_t", "game_cache_list", "sbReadList", "updateISOGameList" -Defines ("/DHAVE_SBREADLIST /DHAVE_UPDATE" + $sbRoDefine)
     foreach ($c in "ul64 0", "ul65 0", "ul129 0", "ul65 2", "ul129 2") {
         $a = $c.Split(" ")
@@ -206,12 +208,12 @@ if (Want "cfgloc") {
     if ((Get-Content -Raw (Join-Path $Opl "src\opl.c")).Contains("tryBootDevice(")) { $cfglocDefine += " /DHAVE_BOOT_FIRST" }
     if ((Get-Content -Raw (Join-Path $Opl "src\config.c")).Contains("configGetDeviceRank(")) { $cfglocDefine += " /DHAVE_RANK" }
     $cfglocFuncs = "checkLoadConfigBDM", "checkLoadConfigHDD", "?checkLoadConfigMMCE", "?BOOT_DEVICE_OTHER", "?BOOT_DEVICE_BDM", "?BOOT_DEVICE_HDD", "?BOOT_DEVICE_MMCE0", "?BOOT_DEVICE_MMCE1", "?getBootDevice", "?tryBootDevice", "?trySetBootHome", "tryAlternateDevice", "trySaveConfigBDM", "trySaveConfigHDD", "trySaveConfigMC", "?trySaveConfigMMCE", "trySaveAlternateDevice"
-    Build cfgloc t "src\opl.c" $cfglocFuncs -Source2 "src\bdmsupport.c" -Funcs2 "?bdmCanHoldSettings", "bdmFindPartition" -Source3 "src\config.c" -Funcs3 "?configGetDeviceRank" -Defines $cfglocDefine
-    foreach ($s in "usb", "usb-root", "usb-first", "usb-apa", "mc", "hdd", "hdd-pfs", "mmce", "mmce-first", "usb-prefix", "mx4sio", "udpbd") { Test "Settings $s" cfgloc-t $s }
+    Build cfgloc t "src\opl.c" $cfglocFuncs -Source2 "src\bdmsupport.c" -Funcs2 "?bdmGetDriverName", "?bdmCanHoldSettings", "?bdmFindSettingsDevice", "bdmFindPartition" -Source3 "src\config.c" -Funcs3 "?configGetDeviceRank" -Defines $cfglocDefine
+    foreach ($s in "usb", "usb-root", "usb-first", "usb-apa", "mc", "hdd", "hdd-pfs", "mmce", "mmce-first", "usb-prefix", "mx4sio", "udpbd", "usb-mass1") { Test "Settings $s" cfgloc-t $s }
 }
 
 if (Want "bdmprobe") {
-    Build bdmprobe t "src\bdmsupport.c" "?bdmCanHoldSettings", "bdmFindPartition"
+    Build bdmprobe t "src\bdmsupport.c" "?bdmGetDriverName", "?bdmCanHoldSettings", "bdmFindPartition"
     $dir = Join-Path $build "bdmprobe"
     foreach ($v in "plain", "asan") {
         New-Item -ItemType Directory -Force (Join-Path $dir "mass0") | Out-Null
@@ -224,6 +226,12 @@ if (Want "bdmprobe") {
     foreach ($v in "plain", "asan") {
         $exe = if ($v -eq "plain") { "bdmprobe-t" } else { "bdmprobe-t-asan" }
         Emit ("{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "bdmFindPartition read-only mass0" } else { "" }), $v.PadRight(5), (Run $exe @($dir, "ro0")))
+    }
+    # no settings on mass0 yet: the probe must not leave an empty conf_opl.cfg, read at the next start if the save fails
+    foreach ($v in "plain", "asan") {
+        Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $dir "mass0\conf_opl.cfg")
+        $exe = if ($v -eq "plain") { "bdmprobe-t" } else { "bdmprobe-t-asan" }
+        Emit ("{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "bdmFindPartition probe, no file yet" } else { "" }), $v.PadRight(5), (Run $exe $dir))
     }
 }
 
@@ -288,7 +296,7 @@ if (Want "thmlist") {
     if ((Get-Content -Raw (Join-Path $Opl "src\bdmsupport.c")).Contains("sbDropThemesLanguages(oldPrefix")) { $removeDefine += " /DHAVE_BDM_PREFIX_DROP" }
     $mmce = Join-Path $Opl "src\mmcesupport.c"
     if ((Test-Path $mmce) -and (Get-Content -Raw $mmce).Contains("sbDropThemesLanguages(oldPrefix")) { $removeDefine += " /DHAVE_MMCE_PREFIX_DROP" }
-    Build thmlist t "src\themes.c" $thmFuncs -Source2 "src\lang.c" -Funcs2 $lngFuncs -Source3 "src\config.c" -Funcs3 "?configGetDeviceRank" -Source4 "src\supportbase.c" -Funcs4 "?sbDropThemesLanguages" -Defines $removeDefine
+    Build thmlist t "src\themes.c" $thmFuncs -Source2 "src\lang.c" -Funcs2 $lngFuncs -Source3 "src\config.c" -Funcs3 "?configGetDeviceRank" -Source4 "src\supportbase.c" -Funcs4 "?sbDropThemesLanguages" -Source5 "src\util.c" -Funcs5 "?listDeviceFiles", "?dropDeviceFiles" -Defines $removeDefine
     foreach ($s in "dup-mc", "dup-usb", "remove", "fallback", "shift", "smb", "prefix-bdm", "prefix-mmce") { Test "Theme/language list $s" thmlist-t $s }
 }
 

@@ -5,8 +5,8 @@
  *                                    games and a scanned list of <listed> games (same names,
  *                                    optionally in another order); prints whether it rewrote
  *   sb cachero <dir> <cached> <listed>
- *                                    the same for a read-only device (sbListCacheReadOnly, where
- *                                    the tree has it) */
+ *                                    the same for a read-only device (bdmIsReadOnlyPath(), or
+ *                                    sbListCacheReadOnly, where the tree has it) */
 #include <fcntl.h>
 #include <io.h>
 #include <stdio.h>
@@ -59,6 +59,10 @@ struct game_list_t;
 static int scanForISO(char *path, char type, struct game_list_t **glist);
 #ifdef HAVE_SB_RO
 static int sbListCacheReadOnly;
+#endif
+#ifdef HAVE_SB_RO_PATH
+static int readOnlyDevice; // the device of every path is read-only
+static int bdmIsReadOnlyPath(const char *path) { return readOnlyDevice; }
 #endif
 
 #include "sb_extracted.c"
@@ -130,6 +134,9 @@ int main(int argc, char **argv)
         remove(gb);
 #ifdef HAVE_SB_RO
         sbListCacheReadOnly = argv[1][5] == 'r';
+#endif
+#ifdef HAVE_SB_RO_PATH
+        readOnlyDevice = argv[1][5] == 'r';
 #endif
         updateISOGameList(argv[2], &cache, l, listed);
         printf("cache %u, listed %d%s%s: games.bin %s\n", cache.count, listed, argc > 5 ? " (reordered)" : "", argv[1][5] == 'r' ? " (read-only)" : "",

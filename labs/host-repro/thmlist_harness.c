@@ -26,13 +26,9 @@ typedef struct
 {
     char *filePath;
     char *name;
-} theme_file_t;
-
-typedef struct
-{
-    char *filePath;
-    char *name;
-} language_t;
+} device_file_t;
+typedef device_file_t theme_file_t;
+typedef device_file_t language_t;
 
 typedef struct
 {
@@ -146,6 +142,9 @@ static int nGuiLanguages = 0;
 static int guiLanguages[MAX_LANGUAGE_FILES];
 static int guiLangCopy = -1;
 
+int configGetDeviceRank(const char *path);
+int listDeviceFiles(const device_file_t *files, int count, int *picked);
+int dropDeviceFiles(device_file_t *files, int count, const char *prefix, int *inUse);
 void thmRemoveElements(const char *path);
 void lngRemoveLanguages(const char *path);
 void sbDropThemesLanguages(const char *prefix, unsigned char *themesLoaded, unsigned char *languagesLoaded);
