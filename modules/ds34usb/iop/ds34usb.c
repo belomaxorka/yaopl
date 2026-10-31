@@ -10,6 +10,7 @@
 #include "ds34usb.h"
 
 #define DS3M_NAME "menu"
+#define DS3M_EE_LINES
 #include "ds3metrics.h"
 
 IRX_ID("ds34usb", 1, 1);
@@ -756,9 +757,14 @@ static int rpc_buf[64] __attribute((aligned(16)));
 
 #define DS34USB_BIND_RPC_ID 0x18E3878E
 
+static SifCmdHandlerData_t ds3mCmdTable[1];
+
 void rpc_thread(void *data)
 {
     SifInitRpc(0);
+    // debug/ds3-metrics: the EE watchdog's lines arrive as user SIF command 0.
+    sceSifSetCmdBuffer(ds3mCmdTable, 1);
+    sceSifAddCmdHandler(0, ds3mEeCmd, NULL);
     SifSetRpcQueue(&rpc_que, GetThreadId());
     SifRegisterRpc(&rpc_svr, DS34USB_BIND_RPC_ID, rpc_sf, rpc_buf, NULL, NULL, &rpc_que);
     SifRpcLoop(&rpc_que);

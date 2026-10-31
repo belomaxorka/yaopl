@@ -3,6 +3,8 @@ I_sceSifInitRpc
 I_sceSifSetRpcQueue
 I_sceSifRegisterRpc
 I_sceSifRpcLoop
+I_sceSifSetCmdBuffer
+I_sceSifAddCmdHandler
 sifcmd_IMPORTS_end
 
 thsemap_IMPORTS_start

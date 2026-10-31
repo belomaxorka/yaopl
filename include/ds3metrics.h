@@ -226,6 +226,49 @@ static void ds3mPrintSema(u32 sec, int pad, const char *what, int sema)
            info.numWaitThreads);
 }
 
+// IOP side of the SIF: DMA channels 9 (SIF0, IOP -> EE) and 10 (SIF1, EE -> IOP) and the SBUS registers.
+static void ds3mPrintSif(u32 sec)
+{
+    volatile u32 *sif0 = (volatile u32 *)0xBF801520, *sif1 = (volatile u32 *)0xBF801530;
+    volatile u32 *sbus = (volatile u32 *)0xBD000000;
+
+    printf("DS3M %s %u sif0 madr=%x bcr=%x chcr=%x tadr=%x sif1 madr=%x bcr=%x chcr=%x tadr=%x\n", DS3M_NAME,
+           (unsigned int)sec, (unsigned int)sif0[0], (unsigned int)sif0[1], (unsigned int)sif0[2],
+           (unsigned int)sif0[3], (unsigned int)sif1[0], (unsigned int)sif1[1], (unsigned int)sif1[2],
+           (unsigned int)sif1[3]);
+    printf("DS3M %s %u dpcr2=%x dicr2=%x sbus mscom=%x smcom=%x msflg=%x smflg=%x ctrl=%x r60=%x\n", DS3M_NAME,
+           (unsigned int)sec, (unsigned int)*(volatile u32 *)0xBF801570, (unsigned int)*(volatile u32 *)0xBF801574,
+           (unsigned int)sbus[0], (unsigned int)sbus[4], (unsigned int)sbus[8], (unsigned int)sbus[12],
+           (unsigned int)sbus[16], (unsigned int)sbus[24]);
+}
+
+#ifdef DS3M_EE_LINES
+// Lines from the EE watchdog (src/eewatchdog.c), sent as IOP user SIF command 0.
+#define DS3M_EE_RING 64
+static char ds3mEeLines[DS3M_EE_RING][100];
+static volatile u32 ds3mEeWrite, ds3mEeRead, ds3mEeLost;
+
+// SIF command handler, in interrupt context: the text follows the 16-byte command header.
+static void ds3mEeCmd(void *data, void *harg)
+{
+    const char *text = (const char *)data + 16;
+    char *dst;
+    int i;
+
+    (void)harg;
+
+    if (ds3mEeWrite - ds3mEeRead >= DS3M_EE_RING) {
+        ds3mEeLost++;
+        return;
+    }
+    dst = ds3mEeLines[ds3mEeWrite % DS3M_EE_RING];
+    for (i = 0; i < 96 && text[i] != '\0'; i++)
+        dst[i] = text[i];
+    dst[i] = '\0';
+    ds3mEeWrite++;
+}
+#endif
+
 static void ds3mThread(void *arg)
 {
     static ds3m_pad_t prev[DS3M_PADS];
@@ -259,6 +302,16 @@ static void ds3mThread(void *arg)
             printf("DS3M %s %u lost %u events\n", DS3M_NAME, (unsigned int)sec, (unsigned int)ds3mEvLost);
             ds3mEvLost = 0;
         }
+#ifdef DS3M_EE_LINES
+        while (ds3mEeRead != ds3mEeWrite) {
+            printf("%s\n", ds3mEeLines[ds3mEeRead % DS3M_EE_RING]);
+            ds3mEeRead++;
+        }
+        if (ds3mEeLost) {
+            printf("DS3M %s %u lost %u EE lines\n", DS3M_NAME, (unsigned int)sec, (unsigned int)ds3mEeLost);
+            ds3mEeLost = 0;
+        }
+#endif
         if (sec == 15 || sec == 30) {
             for (i = (ds3mEvWrite > DS3M_EVENTS) ? ds3mEvWrite - DS3M_EVENTS : 0; i < ds3mEvRead; i++)
                 ds3mPrintEvent("hist", sec, &ds3mEvents[i % DS3M_EVENTS]);
@@ -271,6 +324,7 @@ static void ds3mThread(void *arg)
             ds3mPrintThread("rpc", sec, ds3mRpcThid);
         } else if (rpcIn == prevRpcIn && rpcIn != 0 && sec % 5 == 0) {
             printf("DS3M %s %u rpc idle: no calls from the EE\n", DS3M_NAME, (unsigned int)sec);
+            ds3mPrintSif(sec);
         }
         prevRpcIn = rpcIn;
 
@@ -312,6 +366,7 @@ static void ds3mThread(void *arg)
                 printf("DS3M %s %u p%d STUCK in a poll for %ums\n", DS3M_NAME, (unsigned int)sec, pad,
                        (unsigned int)(ds3mUs(ds3mNow() - cur.pollInTime) / 1000));
                 ds3mPrintThread("poll", sec, ds3mPollThid);
+                ds3mPrintSif(sec);
             }
             if (stuck || cur.polls == prev[pad].polls) {
                 ds3mPrintSema(sec, pad, "mutex", cur.mutex);
