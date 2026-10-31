@@ -67,10 +67,31 @@ static int bdmCanHoldSettings(int deviceId)
 {
     char driver[32];
 
+    // A read-only device passes the write probe, but what is saved there is lost
+    if (bdmDeviceList[deviceId].flags & MODE_FLAG_READ_ONLY)
+        return 0;
+
     if (!bdmGetDriverName(deviceId, driver, sizeof(driver)))
         return 1; // not there: the probe fails anyway
 
     return !strcmp(driver, "usb") || !strcmp(driver, "ata");
+}
+
+// The first BDM device that is there and can hold OPL's settings, as "massN:" in target: where a first save goes when
+// there are no settings anywhere. 0 if there is none.
+int bdmFindSettingsDevice(char *target)
+{
+    char driver[32];
+    int i;
+
+    for (i = 0; i < MAX_BDM_DEVICES; i++) {
+        if (bdmGetDriverName(i, driver, sizeof(driver)) && bdmCanHoldSettings(i)) {
+            sprintf(target, "mass%d:", i);
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 // Identifies the partition that the specified file is stored on and generates a full path to it. OPL's settings are
@@ -81,10 +102,6 @@ int bdmFindPartition(char *target, const char *name, int write)
     char path[256];
 
     for (i = 0; i < MAX_BDM_DEVICES; i++) {
-        // A read-only device passes the probe, but what is saved there is lost
-        if (write && (bdmDeviceList[i].flags & MODE_FLAG_READ_ONLY))
-            continue;
-
         if (write && !bdmCanHoldSettings(i))
             continue;
 
