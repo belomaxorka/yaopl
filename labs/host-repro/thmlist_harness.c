@@ -79,7 +79,11 @@ config_set_t *configGetByType(int type) { return &configOPLSet; }
 char *configGetDir(void) { return (char *)home; }
 int configGetStr(config_set_t *set, const char *key, const char **value)
 {
-    const char *v = !strcmp(key, "theme") ? cfgTheme : !strcmp(key, "language_text") ? cfgLang : NULL;
+    const char *v = NULL;
+    if (!strcmp(key, "theme"))
+        v = cfgTheme;
+    if (!strcmp(key, "language_text"))
+        v = cfgLang;
     if (v == NULL)
         return 0;
     *value = v;
