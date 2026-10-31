@@ -140,7 +140,7 @@ static int lngReadEntry(int index, const char *path, const char *separator, cons
 
 static void lngRebuildLangNames(void)
 {
-    int i, j, best;
+    int i;
 
     if (guiLangNames)
         free(guiLangNames);
@@ -152,22 +152,9 @@ static void lngRebuildLangNames(void)
     guiLangNames[0] = internalEnglish[0];
 
     // A language found on several devices is listed once, where it was first found, with its copy of the lowest rank
-    nGuiLanguages = 0;
-    for (i = 0; i < nLanguages; i++) {
-        for (j = 0; j < i && strcasecmp(languages[j].name, languages[i].name); j++)
-            ;
-        if (j < i)
-            continue;
-
-        best = i;
-        for (j = i + 1; j < nLanguages; j++) {
-            if (!strcasecmp(languages[j].name, languages[i].name) && configGetDeviceRank(languages[j].filePath) < configGetDeviceRank(languages[best].filePath))
-                best = j;
-        }
-
-        guiLanguages[nGuiLanguages] = best;
-        guiLangNames[++nGuiLanguages] = languages[best].name;
-    }
+    nGuiLanguages = listDeviceFiles(languages, nLanguages, guiLanguages);
+    for (i = 0; i < nGuiLanguages; i++)
+        guiLangNames[i + 1] = languages[guiLanguages[i]].name;
 
     guiLangNames[nGuiLanguages + 1] = NULL;
 }
@@ -194,28 +181,16 @@ int lngAddLanguages(char *path, const char *separator, int mode)
 void lngRemoveLanguages(const char *path)
 {
     char name[256] = "";
-    int i, j, len = strlen(path);
+    int i, j;
 
-    if (len == 0)
+    if (path[0] == '\0')
         return;
 
     if (guiLangCopy >= 0)
         snprintf(name, sizeof(name), "%s", languages[guiLangCopy].name);
 
-    for (i = 0, j = 0; i < nLanguages; i++) {
-        if (strncmp(languages[i].filePath, path, len) == 0) {
-            LOG("LANG Remove language: %s\n", languages[i].filePath);
-            free(languages[i].name);
-            free(languages[i].filePath);
-            if (i == guiLangCopy)
-                guiLangCopy = -2; // loaded, but its file is gone
-        } else {
-            if (i == guiLangCopy)
-                guiLangCopy = j;
-            languages[j++] = languages[i];
-        }
-    }
-
+    // guiLangCopy becomes -2 if the language in use is dropped: loaded, but its file is gone
+    j = dropDeviceFiles(languages, nLanguages, path, &guiLangCopy);
     if (j == nLanguages)
         return;
 

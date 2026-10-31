@@ -9,6 +9,16 @@ void *readFile(char *path, int align, int *size);
 int listDir(char *path, const char *separator, int maxElem,
             int (*readEntry)(int index, const char *path, const char *separator, const char *name, unsigned char d_type));
 
+// A theme folder or a language file found on a device
+typedef struct
+{
+    char *filePath;
+    char *name;
+} device_file_t;
+
+int listDeviceFiles(const device_file_t *files, int count, int *picked);
+int dropDeviceFiles(device_file_t *files, int count, const char *prefix, int *inUse);
+
 typedef struct
 {
     int fd;

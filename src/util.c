@@ -6,6 +6,7 @@
 
 #include "include/opl.h"
 #include "include/util.h"
+#include "include/config.h"
 #include "include/ioman.h"
 #include "include/system.h"
 #include <string.h>
@@ -235,6 +236,54 @@ int listDir(char *path, const char *separator, int maxElem,
         }
     }
     return index;
+}
+
+// Lists each name once, in the order the names were first found: of the files with the same name (on several devices),
+// the one with the lowest configGetDeviceRank(). picked[] gets the index of each listed file; returns how many there
+// are.
+int listDeviceFiles(const device_file_t *files, int count, int *picked)
+{
+    int i, j, best, listed = 0;
+
+    for (i = 0; i < count; i++) {
+        for (j = 0; j < i && strcasecmp(files[j].name, files[i].name); j++)
+            ;
+        if (j < i)
+            continue;
+
+        best = i;
+        for (j = i + 1; j < count; j++) {
+            if (!strcasecmp(files[j].name, files[i].name) && configGetDeviceRank(files[j].filePath) < configGetDeviceRank(files[best].filePath))
+                best = j;
+        }
+
+        picked[listed++] = best;
+    }
+
+    return listed;
+}
+
+// Drops the files under prefix, a device that is gone. *inUse, the index of the file in use or -1, follows that file
+// and becomes -2 if it was dropped. Returns how many files are left.
+int dropDeviceFiles(device_file_t *files, int count, const char *prefix, int *inUse)
+{
+    int i, j, len = strlen(prefix);
+
+    for (i = 0, j = 0; i < count; i++) {
+        if (strncmp(files[i].filePath, prefix, len) == 0) {
+            LOG("UTIL Remove %s\n", files[i].filePath);
+            free(files[i].name);
+            free(files[i].filePath);
+            if (i == *inUse)
+                *inUse = -2;
+        } else {
+            if (i == *inUse)
+                *inUse = j;
+            files[j++] = files[i];
+        }
+    }
+
+    return j;
 }
 
 /* size will be the maximum line size possible */
