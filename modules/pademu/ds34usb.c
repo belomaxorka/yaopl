@@ -256,12 +256,14 @@ static void usb_config_set(int result, int count, void *arg)
     SignalSema(ds34pad[pad].sema);
 }
 
-// Own buffer: nothing waits for this transfer, and LEDRumble() rewrites usb_buf right after it.
-static u8 ds3_enable_report[] __attribute((aligned(4))) = {0x42, 0x0c, 0x00, 0x00};
-
 static void DS3USB_init(int pad)
 {
-    UsbControlTransfer(ds34pad[pad].controlEndp, REQ_USB_OUT, USB_REQ_SET_REPORT, (HID_USB_GET_REPORT_FEATURE << 8) | 0xF4, 0, 4, ds3_enable_report, NULL, NULL);
+    usb_buf[0] = 0x42;
+    usb_buf[1] = 0x0c;
+    usb_buf[2] = 0x00;
+    usb_buf[3] = 0x00;
+
+    UsbControlTransfer(ds34pad[pad].controlEndp, REQ_USB_OUT, USB_REQ_SET_REPORT, (HID_USB_GET_REPORT_FEATURE << 8) | 0xF4, 0, 4, usb_buf, NULL, NULL);
 }
 
 #define MAX_DELAY 10
