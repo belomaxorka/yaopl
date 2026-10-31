@@ -847,10 +847,12 @@ static int checkLoadConfigHDD(int types)
 #define BOOT_DEVICE_OTHER 0
 #define BOOT_DEVICE_BDM   1
 #define BOOT_DEVICE_HDD   2
+#define BOOT_DEVICE_MMCE0 3 // the MMCE card in memory-card slot 1
+#define BOOT_DEVICE_MMCE1 4 // in slot 2
 
 // The device OPL was started from. The working directory is argv[0] up to the file name, such as "mass:/APPS/"
-// or "hdd0:__common:pfs:/OPL/" (PS2BBL passes "pfs:/..." for the HDD). getcwd() fails without touching the
-// buffer when the directory does not fit.
+// or "hdd0:__common:pfs:/OPL/" (PS2BBL passes "pfs:/..." for the HDD, and "mmce0:/..." or "mmce1:/..." for an
+// MMCE card). getcwd() fails without touching the buffer when the directory does not fit.
 static int getBootDevice(void)
 {
     char pwd[256];
@@ -862,8 +864,37 @@ static int getBootDevice(void)
         return BOOT_DEVICE_BDM;
     if ((!strncmp(pwd, "hdd", 3) && (pwd[3] == ':' || pwd[4] == ':')) || (!strncmp(pwd, "pfs", 3) && (pwd[3] == ':' || pwd[4] == ':')))
         return BOOT_DEVICE_HDD;
+    if (!strncmp(pwd, "mmce0:", 6))
+        return BOOT_DEVICE_MMCE0;
+    if (!strncmp(pwd, "mmce1:", 6))
+        return BOOT_DEVICE_MMCE1;
 
     return BOOT_DEVICE_OTHER;
+}
+
+// Settings on the root of the MMCE card OPL was started from. mmceman is loaded for it: it talks to both
+// memory-card slots when it starts, which is why it is otherwise loaded only while the MMCE device is on.
+static int checkLoadConfigMMCE(int types, int bootDevice)
+{
+    char *prefix = (bootDevice == BOOT_DEVICE_MMCE0) ? "mmce0:" : "mmce1:";
+    char path[32];
+    int value;
+
+    mmceLoadModules();
+
+    snprintf(path, sizeof(path), "%s/conf_opl.cfg", prefix);
+    value = open(path, O_RDONLY);
+    if (value >= 0) {
+        close(value);
+        configEnd();
+        configInit(prefix);
+        value = configReadMulti(types);
+        config_set_t *configOPL = configGetByType(CONFIG_OPL);
+        configSetInt(configOPL, CONFIG_OPL_MMCE_MODE, START_MODE_AUTO);
+        return value;
+    }
+
+    return 0;
 }
 
 // The settings of the device OPL was started from come first, before the memory card's: the settings, themes and
@@ -879,6 +910,8 @@ static int tryBootDevice(int types)
         return checkLoadConfigBDM(types);
     if (bootDevice == BOOT_DEVICE_HDD)
         return checkLoadConfigHDD(types);
+    if (bootDevice == BOOT_DEVICE_MMCE0 || bootDevice == BOOT_DEVICE_MMCE1)
+        return checkLoadConfigMMCE(types, bootDevice);
 
     return 0;
 }
@@ -887,17 +920,23 @@ static int tryBootDevice(int types)
 static int trySetBootHome(void)
 {
     int bootDevice = getBootDevice();
-    char *prefix;
+    char *prefix, *root;
     DIR *dir;
 
     if (bootDevice == BOOT_DEVICE_BDM)
-        prefix = "mass0:";
+        prefix = root = "mass0:";
     else if (bootDevice == BOOT_DEVICE_HDD)
-        prefix = gHDDPrefix;
-    else
+        prefix = root = gHDDPrefix;
+    else if (bootDevice == BOOT_DEVICE_MMCE0) {
+        prefix = "mmce0:";
+        root = "mmce0:/";
+    } else if (bootDevice == BOOT_DEVICE_MMCE1) {
+        prefix = "mmce1:";
+        root = "mmce1:/";
+    } else
         return 0;
 
-    if ((dir = opendir(prefix)) == NULL)
+    if ((dir = opendir(root)) == NULL)
         return 0;
     closedir(dir);
 
@@ -1128,6 +1167,14 @@ static int trySaveConfigMC(int types)
     return configWriteMulti(types);
 }
 
+// Only on the MMCE card OPL was started from: the settings are read there at start (checkLoadConfigMMCE()).
+static int trySaveConfigMMCE(int types, int bootDevice)
+{
+    mmceLoadModules();
+    configSetMove((bootDevice == BOOT_DEVICE_MMCE0) ? "mmce0:" : "mmce1:");
+    return configWriteMulti(types);
+}
+
 static int trySaveAlternateDevice(int types)
 {
     int value, bootDevice = getBootDevice();
@@ -1138,6 +1185,9 @@ static int trySaveAlternateDevice(int types)
             return value;
     } else if (bootDevice == BOOT_DEVICE_HDD) {
         if ((value = trySaveConfigHDD(types)) > 0)
+            return value;
+    } else if (bootDevice == BOOT_DEVICE_MMCE0 || bootDevice == BOOT_DEVICE_MMCE1) {
+        if ((value = trySaveConfigMMCE(types, bootDevice)) > 0)
             return value;
     }
 
