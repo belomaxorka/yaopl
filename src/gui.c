@@ -1595,6 +1595,8 @@ void guiIntroLoop(void)
 
 void guiMainLoop(void)
 {
+    unsigned int stressFrames = 0;
+
     guiResetNotifications();
     guiCheckNotifications(1, 1);
 
@@ -1640,6 +1642,15 @@ void guiMainLoop(void)
         wdGui = 9;
         if (gFrameHook)
             gFrameHook();
+
+        // debug/ds3-metrics stress mode: reload the current theme every ~15 s (750 frames at 50 Hz), so one run
+        // repeats the theme load (file reads, texture uploads) that a menu hang followed many times.
+        if (++stressFrames >= 750) {
+            stressFrames = 0;
+            wdGui = 10;
+            wdStress++;
+            thmSetGuiValue(thmGetGuiValue(), 1);
+        }
     }
 }
 
