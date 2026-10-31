@@ -1108,8 +1108,12 @@ static void _saveConfig()
     if (lscstatus & CONFIG_OPL) {
         config_set_t *configOPL = configGetByType(CONFIG_OPL);
         configSetInt(configOPL, CONFIG_OPL_SCROLLING, gScrollSpeed);
-        configSetStr(configOPL, CONFIG_OPL_THEME, thmGetValue());
-        configSetStr(configOPL, CONFIG_OPL_LANGUAGE, lngGetValue());
+        // The internal theme and language also stand in for ones on a device that is not found yet: keep
+        // those names. guiShowUIConfig() stores a pick of the internal ones.
+        if (thmGetGuiValue() != 0)
+            configSetStr(configOPL, CONFIG_OPL_THEME, thmGetValue());
+        if (lngGetGuiValue() != 0)
+            configSetStr(configOPL, CONFIG_OPL_LANGUAGE, lngGetValue());
         configSetColor(configOPL, CONFIG_OPL_BGCOLOR, gDefaultBgColor);
         configSetColor(configOPL, CONFIG_OPL_TEXTCOLOR, gDefaultTextColor);
         configSetColor(configOPL, CONFIG_OPL_UI_TEXTCOLOR, gDefaultUITextColor);

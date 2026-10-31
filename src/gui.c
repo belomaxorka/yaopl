@@ -661,10 +661,12 @@ void guiShowUIConfig(void)
     // clang-format on
     int previousVMode;
     int previousTheme;
+    int previousLang;
 
 reselect_video_mode:
     previousVMode = gVMode;
     previousTheme = thmGetGuiValue();
+    previousLang = lngGetGuiValue();
     diaSetEnum(diaUIConfig, UICFG_THEME, (const char **)thmGetGuiList());
     diaSetEnum(diaUIConfig, UICFG_LANG, (const char **)lngGetGuiList());
     diaSetEnum(diaUIConfig, UICFG_VMODE, vmodeNames);
@@ -706,6 +708,14 @@ reselect_video_mode:
 
         if (previousTheme != themeID && isBgmPlaying())
             bgmStop();
+
+        // Only a theme or language the user picks replaces the one in the settings, which may be on a
+        // device that is not found yet
+        config_set_t *configOPL = configGetByType(CONFIG_OPL);
+        if (previousTheme != themeID)
+            configSetStr(configOPL, CONFIG_OPL_THEME, thmGetGuiList()[themeID]);
+        if (previousLang != langID)
+            configSetStr(configOPL, CONFIG_OPL_LANGUAGE, lngGetGuiList()[langID]);
 
         applyConfig(themeID, langID, 1);
         sfxInit(0);
