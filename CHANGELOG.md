@@ -5,6 +5,8 @@ Loader (OPL) before the fork.
 
 ## Unreleased
 
+- GUI: The colour picker of the theme settings shows the value of each channel, 0 to 255, next to its bar.
+  (faaf2b61)
 - GUI: A new text colour of the internal theme reaches the app list and the info screen at once, not only
   after a restart. (3fb0e53a)
 - GUI: The About page shows the whole version, with the commit and `-yaopl` at the end, and all build options;
