@@ -39,8 +39,9 @@ function Emit([string]$Line) {
     $Line
 }
 
-function Build([string]$Harness, [string]$Tag, [string]$Source, [string[]]$Funcs, [string]$Source2 = "", [string[]]$Funcs2 = @(), [string]$Source3 = "", [string[]]$Funcs3 = @(), [string[]]$Patch = @(), [string]$Defines = "") {
+function Build([string]$Harness, [string]$Tag, [string]$Source, [string[]]$Funcs, [string]$Source2 = "", [string[]]$Funcs2 = @(), [string]$Source3 = "", [string[]]$Funcs3 = @(), [string]$Source4 = "", [string[]]$Funcs4 = @(), [string[]]$Patch = @(), [string]$Defines = "") {
     $text = ""
+    if ($Source4) { $text += (python -I (Join-Path $here "extract.py") (Join-Path $Opl $Source4) @Funcs4 | Out-String) }
     if ($Source3) { $text += (python -I (Join-Path $here "extract.py") (Join-Path $Opl $Source3) @Funcs3 | Out-String) }
     if ($Source2) { $text += (python -I (Join-Path $here "extract.py") (Join-Path $Opl $Source2) @Funcs2 | Out-String) }
     $text += (python -I (Join-Path $here "extract.py") (Join-Path $Opl $Source) @Funcs | Out-String)
@@ -282,8 +283,13 @@ if (Want "thmlist") {
     $removeDefine = if ((Get-Content -Raw (Join-Path $Opl "src\themes.c")).Contains("thmRemoveElements(")) { "/DHAVE_REMOVE" } else { "" }
     $thmFuncs = "thmReadEntry", "thmRebuildGuiNames", "thmAddElements", "?thmReinit", "?thmRemoveElements", "thmSetGuiValue", "thmGetGuiValue", "thmFindGuiID", "thmGetFilePath"
     $lngFuncs = "lngReadEntry", "lngRebuildLangNames", "lngAddLanguages", "?lngRemoveLanguages", "lngSetGuiValue", "lngGetGuiValue", "lngFindGuiID", "lngGetFilePath"
-    Build thmlist t "src\themes.c" $thmFuncs -Source2 "src\lang.c" -Funcs2 $lngFuncs -Source3 "src\config.c" -Funcs3 "?configGetDeviceRank" -Defines $removeDefine
-    foreach ($s in "dup-mc", "dup-usb", "remove", "fallback", "shift", "smb") { Test "Theme/language list $s" thmlist-t $s }
+    # A device whose prefix changes: the tree's helper, and whether the BDM and MMCE code call it then
+    if ((Get-Content -Raw (Join-Path $Opl "src\supportbase.c")).Contains("void sbDropThemesLanguages(")) { $removeDefine += " /DHAVE_SB_DROP" }
+    if ((Get-Content -Raw (Join-Path $Opl "src\bdmsupport.c")).Contains("sbDropThemesLanguages(oldPrefix")) { $removeDefine += " /DHAVE_BDM_PREFIX_DROP" }
+    $mmce = Join-Path $Opl "src\mmcesupport.c"
+    if ((Test-Path $mmce) -and (Get-Content -Raw $mmce).Contains("sbDropThemesLanguages(oldPrefix")) { $removeDefine += " /DHAVE_MMCE_PREFIX_DROP" }
+    Build thmlist t "src\themes.c" $thmFuncs -Source2 "src\lang.c" -Funcs2 $lngFuncs -Source3 "src\config.c" -Funcs3 "?configGetDeviceRank" -Source4 "src\supportbase.c" -Funcs4 "?sbDropThemesLanguages" -Defines $removeDefine
+    foreach ($s in "dup-mc", "dup-usb", "remove", "fallback", "shift", "smb", "prefix-bdm", "prefix-mmce") { Test "Theme/language list $s" thmlist-t $s }
 }
 
 if (Want "history") {
@@ -327,7 +333,7 @@ if (Want "about") {
 
 if (Want "udpbdro") {
     $probeDefine = if ((Get-Content -Raw (Join-Path $Opl "src\bdmsupport.c")).Contains("bdmCheckWritable(")) { "/DHAVE_PROBE" } else { "" }
-    Build udpbdro t "src\bdmsupport.c" "?bdmCheckWritable", "bdmGetConfig" -Source2 "src\supportbase.c" -Funcs2 "sbPopulateConfig" -Source3 "src\util.c" -Funcs3 "checkFile", "openFile" -Defines $probeDefine
+    Build udpbdro t "src\bdmsupport.c" "?bdmCheckWritable", "bdmGetConfig" -Source2 "src\supportbase.c" -Funcs2 "sbCreatePath_name", "sbCreatePath", "sbPopulateConfig" -Source3 "src\util.c" -Funcs3 "checkFile", "openFile" -Defines $probeDefine
     $dir = Join-Path $build "udpbdro"
     foreach ($case in "probe rw", "probe drop", "probe stale", "probe fail", "cfg rw", "cfg drop", "cfg drop-saved", "cfg drop-usbhome", "cfg usb") {
         foreach ($v in "plain", "asan") {
@@ -336,6 +342,36 @@ if (Want "udpbdro") {
             $exe = if ($v -eq "plain") { "udpbdro-t" } else { "udpbdro-t-asan" }
             Emit ("{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "UDPBD $case" } else { "" }), $v.PadRight(5), (Run $exe (@($dir) + $case.Split(" "))))
         }
+    }
+}
+
+if (Want "openfile") {
+    # The folder openFile() makes for a file it creates: <path>, then the folders that are there already
+    Build openfile t "src\util.c" "checkFile", "openFile"
+    $dir = Join-Path $build "openfile"
+    $cases = @(
+        @("memory card", "mc0:OPL/CFG/SLUS_123.45.cfg", "mc0:", "mc0:OPL"),
+        @("USB, folder missing", "mass0:CFG/SLUS_123.45.cfg", "mass0:"),
+        @("USB, folder there", "mass0:CFG/SLUS_123.45.cfg", "mass0:", "mass0:CFG"),
+        @("USB, root", "mass0:/conf_opl.cfg", "mass0:"),
+        @("HDD", "pfs0:OPL/CFG/SLUS_123.45.cfg", "pfs0:", "pfs0:OPL"),
+        @("SMB", "smb0:GAMES\CFG\SLUS_123.45.cfg", "smb0:", "smb0:GAMES"))
+    foreach ($case in $cases) {
+        foreach ($v in "plain", "asan") {
+            if (Test-Path $dir) { Remove-Item -Recurse -Force $dir }
+            New-Item -ItemType Directory -Force $dir | Out-Null
+            $exe = if ($v -eq "plain") { "openfile-t" } else { "openfile-t-asan" }
+            Emit ("{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "openFile $($case[0])" } else { "" }), $v.PadRight(5), (Run $exe (@($dir) + $case[1..($case.Count - 1)])))
+        }
+    }
+}
+
+if (Want "gamesize") {
+    # The paths the game info page reads the size from, on every kind of prefix
+    $sizeDefine = if ((Get-Content -Raw (Join-Path $Opl "src\supportbase.c")).Contains("const char *cfgDir)")) { "/DHAVE_CFGDIR" } else { "" }
+    Build gamesize t "src\supportbase.c" "sbCreatePath_name", "sbCreatePath", "sbPopulateConfig" -Defines $sizeDefine
+    foreach ($c in "iso mass0: /", "iso mass0:GAMES/ /", "iso mmce0:/ /", "iso mmce0:/GAMES/ /", "iso smb0: \", "iso smb0:GAMES\ \", "old mass0: /", "ul mass0: /") {
+        Test "Game size $c" gamesize-t $c.Split(" ")
     }
 }
 

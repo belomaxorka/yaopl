@@ -3,7 +3,8 @@
  * code is mirrored here: at start the memory card's OPL folder is listed and the
  * settings applied (as lngInit(), thmInit() and _loadConfig()); a USB drive or an SMB
  * share adds its THM and LNG folders (bdmNeedsUpdate(), ethInitSMB()); a USB drive
- * that goes away and an SMB reconnect call what the tree has for that.
+ * that goes away and an SMB reconnect call what the tree has for that, as does a device
+ * whose prefix changes (the tree's sbDropThemesLanguages() where it has one).
  * Mode: thmlist-t <scenario>. Each step prints the theme list, the language list and
  * what is loaded, as name@device; "!" marks an entry or a loaded file whose device is
  * gone. */
@@ -145,10 +146,39 @@ static int nGuiLanguages = 0;
 static int guiLanguages[MAX_LANGUAGE_FILES];
 static int guiLangCopy = -1;
 
+void thmRemoveElements(const char *path);
+void lngRemoveLanguages(const char *path);
+void sbDropThemesLanguages(const char *prefix, unsigned char *themesLoaded, unsigned char *languagesLoaded);
+
 #include "thmlist_extracted.c"
 
 /* --- the device code, as the tree has it --- */
 static int usbThemesLoaded, usbLanguagesLoaded;
+static unsigned char devThemesLoaded, devLanguagesLoaded;
+
+/* A device page that lists its THM and LNG folders until found (bdmNeedsUpdate(), mmceNeedsUpdate()) */
+static void devFound(const char *prefix, int mode)
+{
+    char path[64];
+
+    nGone = 0;
+    sprintf(path, "%sTHM", prefix);
+    if (!devThemesLoaded && thmAddElements(path, "/", 1) > 0)
+        devThemesLoaded = 1;
+    sprintf(path, "%sLNG", prefix);
+    if (!devLanguagesLoaded && lngAddLanguages(path, "/", mode) > 0)
+        devLanguagesLoaded = 1;
+}
+
+/* The device's prefix changes in the settings (bdmUpdateDeviceData(), mmceSetPrefix()); drop says whether the
+ * tree's code for that device drops the old prefix's themes and languages */
+static void devPrefixChanged(const char *oldPrefix, int drop)
+{
+#ifdef HAVE_SB_DROP
+    if (drop)
+        sbDropThemesLanguages(oldPrefix, &devThemesLoaded, &devLanguagesLoaded);
+#endif
+}
 
 static void start(void)
 {
@@ -320,6 +350,35 @@ int main(int argc, char **argv)
         state("smb-");
         smbFound();
         state("smb+");
+    } else if (!strcmp(s, "prefix-bdm") || !strcmp(s, "prefix-mmce")) {
+        // The theme and language in use are in the folder the device's prefix is changed to: the BDM prefix
+        // GAMES on a USB drive, or the MMCE slot 1 -> 2
+        int bdm = !strcmp(s, "prefix-bdm");
+        const char *oldPrefix = bdm ? "mass0:" : "mmce0:/";
+        const char *newPrefix = bdm ? "mass0:GAMES/" : "mmce1:/";
+        char thm[2][32], lng[32];
+        int drop = 0;
+
+#ifdef HAVE_BDM_PREFIX_DROP
+        drop |= bdm;
+#endif
+#ifdef HAVE_MMCE_PREFIX_DROP
+        drop |= !bdm;
+#endif
+        cfgTheme = "B";
+        cfgLang = "German";
+        sprintf(thm[0], "%sTHM", oldPrefix);
+        sprintf(thm[1], "%sTHM", newPrefix);
+        sprintf(lng, "%sLNG", newPrefix);
+        addDir(thm[0], "thm_A", NULL, NULL);
+        addDir(thm[1], "thm_B", NULL, NULL);
+        addDir(lng, "lang_German.lng", NULL, NULL);
+        start();
+        devFound(oldPrefix, 0);
+        state("dev+");
+        devPrefixChanged(oldPrefix, drop);
+        devFound(newPrefix, 0);
+        state("prefix");
     } else {
         printf("unknown scenario\n");
         return 2;
