@@ -636,16 +636,22 @@ int configReadMulti(int types)
 
 int configWriteMulti(int types)
 {
-    int result = 0, index;
+    int result = 0, failed = 0, index;
 
     for (index = 0; index < CONFIG_INDEX_COUNT; index++) {
         config_set_t *configSet = &configFiles[index];
 
-        if (configSet->type & types)
-            result += configWrite(configSet);
+        if (configSet->type & types) {
+            if (configWrite(configSet))
+                result++;
+            else
+                failed = 1;
+        }
     }
 
-    return result;
+    // A file that was not written fails the save, also when the others were unchanged: the settings are then saved
+    // on another device
+    return failed ? 0 : result;
 }
 
 void configGetVMC(config_set_t *configSet, char *vmc, int length, int slot)
