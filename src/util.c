@@ -150,33 +150,28 @@ static int checkFile(char *path, int mode)
             else
                 return 0;
         }
+    }
 
-        // in create mode, we check that the directory exist, or create it
-        if (mode & O_CREAT) {
-            char dirPath[256];
-            char *pos = strrchr(path, '/');
-            if (pos) {
-                memcpy(dirPath, path, (pos - path));
-                dirPath[(pos - path)] = '\0';
-                DIR *dir = opendir(dirPath);
-                if (dir == NULL) {
-                    int res = mkdir(dirPath, 0777);
-                    if (res != 0)
-                        return 0;
-                } else
-                    closedir(dir);
-            }
-        }
-    } else if (mode & O_CREAT) {
-        // Elsewhere a device's folders are made when its page starts (sbCreateFolders()), under its prefix. A file
-        // written before that, or outside the prefix, makes its folder here: the CFG folder next to OPL's settings
-        // in the root of a USB drive, for instance. If the folder cannot be made, the open fails.
+    // In create mode, make the folder of the file if it is missing, on any device: a file written before its device's
+    // page made the folders (sbCreateFolders()), or outside its prefix, such as the CFG folder next to OPL's settings
+    // in the root of a USB drive. One level only, never the device root; SMB paths use '\'. If the folder cannot be
+    // made, the open fails.
+    if (mode & O_CREAT) {
         char dirPath[256];
         char *pos = strrchr(path, '/');
+        char *backslash = strrchr(path, '\\');
+
+        if (backslash != NULL && (pos == NULL || backslash > pos))
+            pos = backslash;
         if (pos != NULL && pos > path && pos[-1] != ':' && (size_t)(pos - path) < sizeof(dirPath)) {
+            DIR *dir;
+
             memcpy(dirPath, path, pos - path);
             dirPath[pos - path] = '\0';
-            mkdir(dirPath, 0777); // fails harmlessly when the folder is there
+            if ((dir = opendir(dirPath)) != NULL)
+                closedir(dir);
+            else
+                mkdir(dirPath, 0777);
         }
     }
     return 1;
