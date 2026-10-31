@@ -189,6 +189,51 @@ int lngAddLanguages(char *path, const char *separator, int mode)
     return result;
 }
 
+// Drops the languages of a device that is gone. The language in use moves to another copy of it, or to English until
+// the device is back: the settings keep its name.
+void lngRemoveLanguages(const char *path)
+{
+    char name[256] = "";
+    int i, j, len = strlen(path);
+
+    if (len == 0)
+        return;
+
+    if (guiLangCopy >= 0)
+        snprintf(name, sizeof(name), "%s", languages[guiLangCopy].name);
+
+    for (i = 0, j = 0; i < nLanguages; i++) {
+        if (strncmp(languages[i].filePath, path, len) == 0) {
+            LOG("LANG Remove language: %s\n", languages[i].filePath);
+            free(languages[i].name);
+            free(languages[i].filePath);
+            if (i == guiLangCopy)
+                guiLangCopy = -2; // loaded, but its file is gone
+        } else {
+            if (i == guiLangCopy)
+                guiLangCopy = j;
+            languages[j++] = languages[i];
+        }
+    }
+
+    if (j == nLanguages)
+        return;
+
+    nLanguages = j;
+    lngRebuildLangNames();
+
+    if (name[0] != '\0') {
+        int lost = (guiLangCopy == -2);
+
+        // Keeps the copy in use, or loads another one or English (then it returns 0)
+        lngSetGuiValue(lngFindGuiID(name));
+        if (lost) {
+            for (i = 0; i < MODE_COUNT; i++)
+                moduleUpdateMenu(i, 0, 1);
+        }
+    }
+}
+
 void lngInit(void)
 {
     fntInit();
@@ -265,6 +310,10 @@ char **lngGetGuiList(void)
 
 char *lngGetFilePath(int langID)
 {
+    // The language notification can still be shown after its device went away
+    if (langID < 1 || langID > nGuiLanguages)
+        return "";
+
     language_t *currLang = &languages[guiLanguages[langID - 1]];
     char *path = currLang->filePath;
 

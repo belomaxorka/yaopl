@@ -1514,28 +1514,43 @@ void thmInit(void)
     thmAddElements(gBaseMCDir, "/", 0);
 }
 
-void thmReinit(const char *path)
+// Drops the themes of a device that is gone. The theme in use moves to another copy of it, or to the internal theme
+// until the device is back: the settings keep its name.
+void thmRemoveElements(const char *path)
 {
-    thmLoad(NULL);
-    guiThemeID = 0;
-    guiThemeCopy = -1;
+    char name[256] = "";
+    int i, j, len = strlen(path);
 
-    int i = 0;
-    while (i < nThemes) {
-        if (strncmp(themes[i].filePath, path, strlen(path)) == 0) {
+    if (len == 0)
+        return;
+
+    if (guiThemeCopy >= 0)
+        snprintf(name, sizeof(name), "%s", themes[guiThemeCopy].name);
+
+    for (i = 0, j = 0; i < nThemes; i++) {
+        if (strncmp(themes[i].filePath, path, len) == 0) {
             LOG("THEMES Remove theme: %s\n", themes[i].filePath);
-            nThemes--;
             free(themes[i].name);
-            themes[i].name = themes[nThemes].name;
-            themes[nThemes].name = NULL;
             free(themes[i].filePath);
-            themes[i].filePath = themes[nThemes].filePath;
-            themes[nThemes].filePath = NULL;
-        } else
-            i++;
+            if (i == guiThemeCopy)
+                guiThemeCopy = -2; // loaded, but its files are gone
+        } else {
+            if (i == guiThemeCopy)
+                guiThemeCopy = j;
+            themes[j++] = themes[i];
+        }
     }
 
+    if (j == nThemes)
+        return;
+
+    nThemes = j;
     thmRebuildGuiNames();
+
+    if (name[0] != '\0' && thmSetGuiValue(thmFindGuiID(name), 0)) {
+        for (i = 0; i < MODE_COUNT; i++)
+            moduleUpdateMenu(i, 1, 0);
+    }
 }
 
 void thmReloadScreenExtents(void)
@@ -1591,6 +1606,10 @@ const char **thmGetGuiList(void)
 
 char *thmGetFilePath(int themeID)
 {
+    // The theme notification can still be shown after its device went away
+    if (themeID < 1 || themeID > nGuiThemes)
+        return "";
+
     theme_file_t *currTheme = &themes[guiThemes[themeID - 1]];
     char *path = currTheme->filePath;
 
