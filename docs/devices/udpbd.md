@@ -45,7 +45,7 @@ treated as read-only until the device connects again.
 | Rename, Delete | In the game menu, with *Write Operations* on | Not offered, for games and for apps in the served `APPS` folder |
 | Folders (`CD`, `DVD`, `CFG`, ...) | Created if missing | Not created |
 | Game list cache (`games.bin`) | Kept up to date | Read if there is one, not written |
-| YAOPL's own settings | As on any USB drive, if YAOPL saves them on a BDM device | Never saved there |
+| YAOPL's own settings | Never saved there: they are read before UDPBD starts | Never saved there |
 
 With a read-only server, a game that has no settings saved on the memory card yet uses the
 `CFG/<game ID>.cfg` on the served disk, if there is one (for example made by a PC manager). After the first

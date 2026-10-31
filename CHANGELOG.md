@@ -5,6 +5,14 @@ Loader (OPL) before the fork.
 
 ## Unreleased
 
+- Settings: Started from an MMCE card, YAOPL keeps its settings in the root of the card's SD card, which does
+  not change with the card's memory card. (1328f72b)
+- Settings: The device YAOPL was started from comes first for its settings, before the memory card, and holds
+  them from the first save; its themes and languages are then used first too. (d861fb5e)
+- Settings: YAOPL no longer saves its settings on MX4SIO, iLink or a UDPBD server, where they were not found
+  at the next start; Save Changes reports an error if there is no other place. (2d5adc29)
+- Settings: Started from the HDD (or from any folder of a USB drive), YAOPL recognises the device it was
+  started from; an HDD start read the USB drive's settings before the HDD's. (be29a311)
 - GUI: Themes and languages of a USB drive or another device that goes away leave the lists; the one in use
   falls back to another copy, or to the built-in theme and English until the device is back. A network share
   that reconnects no longer resets a theme from elsewhere or lists its languages twice. (6c8d4f31)
