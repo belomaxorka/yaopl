@@ -57,10 +57,14 @@ typedef struct
     int present;
     const char *driver; // BDM: usb, ata, sdc (MX4SIO), sd (iLink), udp (UDPBD)
     int hasCfg;         // conf_opl.cfg is there
+    int hasCfgPrefixed; // in the BDM prefix folder (OPL/) instead of the root
 } sim_dev_t;
 
 static sim_dev_t dev[DEV_COUNT];
 static const char *cwd = "";
+static int mcGoneAtSave; // the memory card is pulled before the save
+static int prefixAtSave; // the settings set a BDM prefix (OPL), known only once they are read
+static int prefixed(const char *path) { return !strncmp(path, "mass", 4) && strstr(path, ":OPL") != NULL; }
 static int savePhase;  // the menu started every device of the scenario
 static int hddLoaded;  // atad etc.: the APA HDD and the BDM HDD can be read
 static int mmceLoaded; // mmceman
@@ -130,17 +134,21 @@ static char *configGetDir(void)
     snprintf(d, sizeof(d), "%s:", i >= 0 ? devName[i] : "?");
     return d;
 }
+static int hasCfgAt(int d, const char *path) { return prefixed(path) ? dev[d].hasCfgPrefixed : dev[d].hasCfg; }
 static int configReadMulti(int types)
 {
     int d = devOf(home);
-    return (visible(d) && dev[d].hasCfg) ? types : 0;
+    return (visible(d) && hasCfgAt(d, home)) ? types : 0;
 }
 static int configWriteMulti(int types)
 {
     int d = devOf(home);
     if (!visible(d))
         return 0;
-    dev[d].hasCfg = 1;
+    if (prefixed(home))
+        dev[d].hasCfgPrefixed = 1;
+    else
+        dev[d].hasCfg = 1;
     return 1;
 }
 static int sysCheckMC(void) { return dev[DEV_MC].present ? 0 : -1; }
@@ -172,7 +180,7 @@ static int harness_open(const char *path, int flags, ...)
     if (!visible(d))
         return -1;
     if ((flags & 3) == O_RDONLY)
-        return dev[d].hasCfg ? 3 : -1;
+        return hasCfgAt(d, path) ? 3 : -1;
     return 3; // a write probe: the file is written later
 }
 static int harness_close(int fd) { return 0; }
@@ -237,13 +245,18 @@ static void run(void)
     savePhase = 1;
     for (i = 0; i < MAX_BDM_DEVICES; i++)
         bdmDeviceList[i].flags = 0;
+    if (prefixAtSave)
+        strcpy(gBDMPrefix, "OPL");
+    if (mcGoneAtSave)
+        dev[DEV_MC].present = 0;
     r = configWriteMulti(CONFIG_ALL);
     if (r == 0)
         r = trySaveAlternateDevice(CONFIG_ALL);
-    printf(" | save=%s", r > 0 ? where() : "error");
+    printf(" | save=%s%s", r > 0 ? where() : "error", (r > 0 && prefixed(home)) ? "/OPL" : "");
 
-    // The next start
+    // The next start: the prefix is in the settings, not known yet
     savePhase = hddLoaded = mmceLoaded = 0;
+    gBDMPrefix[0] = '\0';
     r = loadSettings();
     printf(" | next=%s\n", (r & CONFIG_OPL) ? where() : "-");
 }
@@ -307,6 +320,13 @@ int main(int argc, char **argv)
         cwd = "mmce0:/APPS/";
         add(DEV_MC, "mc", 0);
         add(DEV_MMCE0, "mmce", 0);
+    } else if (!strcmp(s, "usb-prefix")) {
+        // Started from the memory card with no settings anywhere; the settings set a BDM prefix and the card is
+        // pulled before they are saved, so they go to the USB drive
+        cwd = "mc0:/APPS/";
+        add(DEV_MC, "mc", 0);
+        add(DEV_MASS0, "usb", 0);
+        mcGoneAtSave = prefixAtSave = 1;
     } else if (!strcmp(s, "mx4sio")) {
         // No memory card, no USB drive: games on an MX4SIO card, enabled in the menu
         cwd = "mass:/APPS/";

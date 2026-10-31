@@ -49,6 +49,7 @@ regenerate the file from a run on this tree:
 | `cfg` | `readFileBuffer()`, `strToColor()`, `splitAssignment()`, `parsePrefix()`, `configReadLegacyIP()`, `CheckPS2Logo()` | a `#` last line without LF crashes; a read error corrupts memory; colours, keys, prefixes and `IPCONFIG.DAT` overflow; the HDD logo read is one sector too long |
 | `cheatsel` | `cheatConfigLoadSelections()` | picks of cheats that share a name are lost |
 | `cfgwrite` | `configWrite()` | a failed write is reported as saved |
+| `cfgsave` | `configWriteMulti()`, `configSetMove()`, `configWrite()`, the start of `_saveConfig()` mirrored | a save whose `conf_opl.cfg` fails is reported as saved when the other files did not change; moved to another device, only the changed files reach it |
 | `cdread` | in-game `cdvdman_read()` | 2340-byte sectors are copied 12 bytes past the buffer |
 | `bdmprobe` | `bdmFindPartition()` | the write probe empties `conf_opl.cfg` (upstream #1397); a read-only UDPBD server (`ro0`) is chosen for the settings |
 | `vmc` | `sysCheckVMC()` | a VMC of another size is replaced without asking |
@@ -58,7 +59,7 @@ regenerate the file from a run on this tree:
 | `thmcolors` | `thmSetColors()` | a new text colour reaches only the main screen, images included; the apps list and the info screens keep the old one |
 | `bdmindex` | `drawBDMIndex()` | the dots show the slot of five, not the connected devices: two devices give five dots, slots 0 and 2 give none on slot 0, one device in slot 2 gets dots |
 | `lang` | `lngReadEntry()` | a `.lng` name shorter than `lang_X.lng` gives a negative length |
-| `cfgloc` | where OPL's settings are read and saved: `src/opl.c` `tryAlternateDevice()`, `trySaveAlternateDevice()` and the functions they call, `bdmFindPartition()`, the start of `_loadConfig()` and `_saveConfig()` mirrored | started from a USB drive or an MMCE card, the memory card's settings are used and a first save goes there; started from the HDD, the USB drive's settings are used (an 8-byte `getcwd()` buffer); with only MX4SIO or UDPBD the settings are saved there and not found at the next start |
+| `cfgloc` | where OPL's settings are read and saved: `src/opl.c` `tryAlternateDevice()`, `trySaveAlternateDevice()` and the functions they call, `bdmFindPartition()`, the start of `_loadConfig()` and `_saveConfig()` mirrored | started from a USB drive or an MMCE card, the memory card's settings are used and a first save goes there; started from the HDD, the USB drive's settings are used (an 8-byte `getcwd()` buffer); with only MX4SIO or UDPBD the settings are saved there and not found at the next start; saved on a USB drive from the menu, they go under the BDM prefix and are not found at the next start (`usb-prefix`) |
 | `thmlist` | the theme and language lists of `src/themes.c` and `src/lang.c` (`thmAddElements()`, `lngAddLanguages()`, the removal on a device that is gone), the device code mirrored | a theme or language on two devices is listed twice and the settings always get the first copy; a USB drive that goes away leaves its themes and languages listed and in use; an SMB reconnect switches to the internal theme and lists the share's languages again |
 | `history` | `GetBootFilename()` | a boot file name over 16 characters overflows `filename[17]` |
 | `gsm` | `PrepareGSM()` | `$GSMVMode` indexes past the table of 29 modes |
@@ -67,7 +68,7 @@ regenerate the file from a run on this tree:
 | `atad` | in-game `ata_device_sector_io_internal()` | an LBA48 transfer of 65536 sectors or more loops forever, issuing 0-sector commands |
 | `bgm` | `bgmLoad()` | the default BGM path is the format string |
 | `about` | `src/gui.c` `guiShowAbout()` | the version and the build options are cut to 39 characters: the last character of the commit on upstream, a third of a YAOPL nightly's version |
-| `udpbdro` | `src/bdmsupport.c` `bdmCheckWritable()`, `bdmGetConfig()` with `src/supportbase.c` `sbPopulateConfig()` | none (upstream has no UDPBD); on YAOPL before the fix the settings of a game on a UDPBD server that drops what is written (udpbd-vexfat) are "saved" there and lost; the check also covers where they are read from and saved after the fix |
+| `udpbdro` | `src/bdmsupport.c` `bdmCheckWritable()`, `bdmGetConfig()` with `src/supportbase.c` `sbPopulateConfig()` | none (upstream has no UDPBD); on YAOPL before the fix the settings of a game on a UDPBD server that drops what is written (udpbd-vexfat) are "saved" there and lost; the check also covers where they are read from and saved after the fix; with OPL's settings in the root of a USB drive that has no `CFG` folder there, saving them fails (`drop-usbhome`) |
 
 ## Console test files
 

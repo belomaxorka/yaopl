@@ -187,6 +187,18 @@ if (Want "cdread") {
     foreach ($c in "2048 2", "2340 1", "2340 3", "2328 2") { Test "cdvdman_read $c" cdread-t $c.Split(" ") }
 }
 
+if (Want "cfgsave") {
+    # Saving the settings when one file of them cannot be written where they were read
+    Build cfgsave t "src\config.c" "configMove", "configSetMove", "configWrite", "configWriteMulti" -Source2 "src\util.c" -Funcs2 "openFileBuffer", "writeFileBuffer", "closeFileBuffer"
+    foreach ($v in "plain", "asan") {
+        $dir = Join-Path $build "cfgsave"
+        if (Test-Path $dir) { Remove-Item -Recurse -Force $dir }
+        New-Item -ItemType Directory -Force (Join-Path $dir "home\conf_opl.cfg"), (Join-Path $dir "other") | Out-Null
+        $exe = if ($v -eq "plain") { "cfgsave-t" } else { "cfgsave-t-asan" }
+        Emit ("{0,-34} {1}: {2}" -f $(if ($v -eq "plain") { "Save, conf_opl.cfg fails" } else { "" }), $v.PadRight(5), (Run $exe @((Join-Path $dir "home"), (Join-Path $dir "other"))))
+    }
+}
+
 if (Want "cfgloc") {
     # Where the settings are read and saved, by the device OPL was started from
     $cfglocDefine = ""
@@ -194,7 +206,7 @@ if (Want "cfgloc") {
     if ((Get-Content -Raw (Join-Path $Opl "src\config.c")).Contains("configGetDeviceRank(")) { $cfglocDefine += " /DHAVE_RANK" }
     $cfglocFuncs = "checkLoadConfigBDM", "checkLoadConfigHDD", "?checkLoadConfigMMCE", "?BOOT_DEVICE_OTHER", "?BOOT_DEVICE_BDM", "?BOOT_DEVICE_HDD", "?BOOT_DEVICE_MMCE0", "?BOOT_DEVICE_MMCE1", "?getBootDevice", "?tryBootDevice", "?trySetBootHome", "tryAlternateDevice", "trySaveConfigBDM", "trySaveConfigHDD", "trySaveConfigMC", "?trySaveConfigMMCE", "trySaveAlternateDevice"
     Build cfgloc t "src\opl.c" $cfglocFuncs -Source2 "src\bdmsupport.c" -Funcs2 "?bdmCanHoldSettings", "bdmFindPartition" -Source3 "src\config.c" -Funcs3 "?configGetDeviceRank" -Defines $cfglocDefine
-    foreach ($s in "usb", "usb-root", "usb-first", "usb-apa", "mc", "hdd", "hdd-pfs", "mmce", "mmce-first", "mx4sio", "udpbd") { Test "Settings $s" cfgloc-t $s }
+    foreach ($s in "usb", "usb-root", "usb-first", "usb-apa", "mc", "hdd", "hdd-pfs", "mmce", "mmce-first", "usb-prefix", "mx4sio", "udpbd") { Test "Settings $s" cfgloc-t $s }
 }
 
 if (Want "bdmprobe") {
@@ -317,7 +329,7 @@ if (Want "udpbdro") {
     $probeDefine = if ((Get-Content -Raw (Join-Path $Opl "src\bdmsupport.c")).Contains("bdmCheckWritable(")) { "/DHAVE_PROBE" } else { "" }
     Build udpbdro t "src\bdmsupport.c" "?bdmCheckWritable", "bdmGetConfig" -Source2 "src\supportbase.c" -Funcs2 "sbPopulateConfig" -Defines $probeDefine
     $dir = Join-Path $build "udpbdro"
-    foreach ($case in "probe rw", "probe drop", "probe stale", "probe fail", "cfg rw", "cfg drop", "cfg drop-saved", "cfg usb") {
+    foreach ($case in "probe rw", "probe drop", "probe stale", "probe fail", "cfg rw", "cfg drop", "cfg drop-saved", "cfg drop-usbhome", "cfg usb") {
         foreach ($v in "plain", "asan") {
             if (Test-Path $dir) { Remove-Item -Recurse -Force $dir }
             New-Item -ItemType Directory -Force $dir | Out-Null

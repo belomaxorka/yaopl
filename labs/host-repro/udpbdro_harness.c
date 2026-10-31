@@ -1,7 +1,7 @@
 /* Host harness for the settings of games on a UDPBD server that drops what is written (src/bdmsupport.c
  * bdmCheckWritable() and bdmGetConfig(), src/supportbase.c sbPopulateConfig()):
  *   udpbdro <dir> probe rw|drop|stale|fail
- *   udpbdro <dir> cfg rw|drop|drop-saved|usb
+ *   udpbdro <dir> cfg rw|drop|drop-saved|drop-usbhome|usb
  * "massN:" maps to <dir>\massN\ (the game's device), "mc0:" to <dir>\mc0\ (where conf_game.cfg is).
  * The device is a UDPBD server that keeps what is written (rw), drops it but acknowledges it (drop, as
  * udpbd-vexfat does), drops it while its sectors still hold an earlier check's data (stale) or refuses to
@@ -89,7 +89,7 @@ static void localPath(char *local, const char *path)
 
 static int dropsWrites(const char *path)
 {
-    return !strncmp(path, "mass", 4) && (!strcmp(server, "drop") || !strcmp(server, "stale"));
+    return !strncmp(path, "mass0", 5) && (!strcmp(server, "drop") || !strcmp(server, "stale"));
 }
 
 /* File calls of the write check. A server that drops writes still creates the file in the directory
@@ -120,6 +120,12 @@ static int harness_remove(const char *path)
     char local[1024];
     localPath(local, path);
     return remove(local);
+}
+static int harness_mkdir(const char *path, int mode)
+{
+    char local[1024];
+    localPath(local, path);
+    return _mkdir(local);
 }
 static u64 GetTimerSystemTime(void) { return timerSeed; }
 static unsigned int USBA_crc32(const char *s) { return 0; }
@@ -204,10 +210,12 @@ static const char *configGet(config_set_t *c, const char *key)
 #define read   _read
 #define close  _close
 #define remove harness_remove
+#define mkdir  harness_mkdir
 
 #include "udpbdro_extracted.c"
 
 #undef remove
+#undef mkdir
 
 static void readFile(const char *rel, char *out, int size)
 {
@@ -292,6 +300,13 @@ int main(int argc, char **argv)
     if (!strcmp(server, "drop-saved")) {
         server = "drop";
         writeFile("mc0\\OPL\\CFG\\SLUS_123.45.cfg", "$Compatibility=8\n");
+    }
+    if (!strcmp(server, "drop-usbhome")) {
+        /* OPL's settings in the root of a USB drive (mass1:), which has no CFG folder there */
+        server = "drop";
+        gameConfig.filename = "mass1:/conf_game.cfg";
+        sprintf(dir, "%s\\mass1", root);
+        _mkdir(dir);
     }
     if (!strcmp(server, "usb"))
         device.bdmDeviceType = BDM_TYPE_USB;
