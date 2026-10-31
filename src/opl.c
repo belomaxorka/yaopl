@@ -2027,7 +2027,10 @@ static void miniInit(int mode)
 
     InitConsoleRegionData();
 
-    ret = configReadMulti(CONFIG_ALL);
+    // As in _loadConfig(): the device OPL was started from comes first, then the memory card
+    ret = tryBootDevice(CONFIG_ALL);
+    if (!(ret & CONFIG_OPL))
+        ret = configReadMulti(CONFIG_ALL);
     if (CONFIG_ALL & CONFIG_OPL) {
         if (!(ret & CONFIG_OPL)) {
             if (mode == BDM_MODE)
