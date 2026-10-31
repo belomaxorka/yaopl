@@ -9,8 +9,9 @@ Loader (OPL) before the fork.
   YAOPL was started from first. (915c52db)
 - Settings: Settings saved on a USB drive when they could not be saved where they were read go to the root of
   the drive, where they are found at the next start, also with a BDM prefix. (f2fef874)
-- Settings: Saving the settings of a game on a read-only UDPBD server works when YAOPL's settings are in the
-  root of a USB drive or an MMCE card that has no `CFG` folder there. (ea75aa4b)
+- Settings: A settings file saved into a folder that is not there yet makes the folder on any device, not only
+  on a memory card: the settings of a game on a read-only UDPBD server save when YAOPL's settings are in the
+  root of a USB drive or an MMCE card with no `CFG` folder there. (ea75aa4b, 133a091e)
 - Settings: When the settings cannot be saved where they were read, all their files are saved in the next
   place, not only the changed ones, and a failed save is no longer reported as saved. (f34274dd, f4b08859)
 - Settings: Started from an MMCE card, YAOPL keeps its settings in the root of the card's SD card, which does
