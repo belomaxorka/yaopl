@@ -866,22 +866,53 @@ static int getBootDevice(void)
     return BOOT_DEVICE_OTHER;
 }
 
-// When this function is called, the current device for loading/saving config is the memory card.
-static int tryAlternateDevice(int types)
+// The settings of the device OPL was started from come first, before the memory card's: the settings, themes and
+// languages of an OPL started from a USB drive or the HDD are the ones on that device.
+static int tryBootDevice(int types)
 {
-    int value, bootDevice = getBootDevice();
+    int bootDevice = getBootDevice();
+    char path[64];
+
+    // Only the BDM devices that are there already: checkLoadConfigBDM() waits up to 5 s for an HDD through BDM,
+    // which would delay every start of a console with an APA HDD. That HDD is checked after the memory card.
+    if (bootDevice == BOOT_DEVICE_BDM && bdmFindPartition(path, "conf_opl.cfg", 0))
+        return checkLoadConfigBDM(types);
+    if (bootDevice == BOOT_DEVICE_HDD)
+        return checkLoadConfigHDD(types);
+
+    return 0;
+}
+
+// With no settings anywhere, the device OPL was started from holds them from the first save, when it is there.
+static int trySetBootHome(void)
+{
+    int bootDevice = getBootDevice();
+    char *prefix;
     DIR *dir;
 
-    // First, try the device that OPL booted from.
-    if (bootDevice == BOOT_DEVICE_BDM) {
-        if ((value = checkLoadConfigBDM(types)) != 0)
-            return value;
-    } else if (bootDevice == BOOT_DEVICE_HDD) {
-        if ((value = checkLoadConfigHDD(types)) != 0)
-            return value;
-    }
+    if (bootDevice == BOOT_DEVICE_BDM)
+        prefix = "mass0:";
+    else if (bootDevice == BOOT_DEVICE_HDD)
+        prefix = gHDDPrefix;
+    else
+        return 0;
 
-    // Config was not found on the boot device. Check all supported devices.
+    if ((dir = opendir(prefix)) == NULL)
+        return 0;
+    closedir(dir);
+
+    configEnd();
+    configInit(prefix);
+    return 1;
+}
+
+// When this function is called, the boot device and the memory card have no settings.
+static int tryAlternateDevice(int types)
+{
+    int value;
+    DIR *dir;
+
+    // Check all supported devices.
     //  Check USB device
     if ((value = checkLoadConfigBDM(types)) != 0)
         return value;
@@ -889,8 +920,12 @@ static int tryAlternateDevice(int types)
     if ((value = checkLoadConfigHDD(types)) != 0)
         return value;
 
-    // At this point, the user has no loadable config files on any supported device, so try to find a device to save on.
-    // We don't want to get users into alternate mode for their very first launch of OPL (i.e no config file at all, but still want to save on MC)
+    // At this point, the user has no loadable config files on any supported device, so try to find a device to save on:
+    // the boot device, then the memory card.
+    if (trySetBootHome()) {
+        showCfgPopup = 0;
+        return 0;
+    }
     // Check for a memory card inserted.
     if (sysCheckMC() >= 0) {
         configPrepareNotifications(gBaseMCDir);
@@ -921,7 +956,13 @@ static void _loadConfig()
 {
     int value, themeID = -1, langID = -1;
     const char *temp;
-    int result = configReadMulti(lscstatus);
+    int result = 0;
+
+    // The device OPL was started from comes first, then the memory card, then the other devices
+    if (lscstatus & CONFIG_OPL)
+        result = tryBootDevice(lscstatus);
+    if (!(result & CONFIG_OPL))
+        result = configReadMulti(lscstatus);
 
     if (lscstatus & CONFIG_OPL) {
         if (!(result & CONFIG_OPL)) {
