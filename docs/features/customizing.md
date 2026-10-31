@@ -47,8 +47,9 @@ A theme or language with the same name on several devices is listed once. YAOPL 
 that holds its [settings](../config-files.md#where-they-are), then the one on a memory card, then the one found
 first. Themes and languages on a device that is found after start (a USB drive, the HDD, a network share) are
 used once the device is found; until then the menu shows the built-in theme and English. When a device goes
-away, YAOPL uses another copy, or the built-in theme and English until the device is back. The saved choice
-stays as it is.
+away, YAOPL uses another copy, or the built-in theme and English until the device is back. The same happens
+when the BDM prefix or the MMCE slot or folder is changed: the new folder's themes and languages are listed and
+the old folder's leave the lists. The saved choice stays as it is.
 
 The translations are made in [yaopl/yaopl-lang](https://github.com/yaopl/yaopl-lang), a fork of OPL's
 language repository; its README says how to translate a string or add a language. A string that is not

@@ -42,6 +42,8 @@ static time_t mmceModifiedDVDPrev;
 static int mmceGameCount = 0;
 static base_game_info_t *mmceGames = NULL;
 static int mmceModulesLoaded = 0;
+static unsigned char mmceThemesLoaded = 0;    // the card's THM folder is listed
+static unsigned char mmceLanguagesLoaded = 0; // and its LNG folder
 
 // forward declaration
 static item_list_t mmceGameList;
@@ -106,6 +108,7 @@ static void mmceSetPrefix(int force)
 {
     static int slotUsed = -1;
     static char folderUsed[sizeof(gMMCEPrefix)] = "";
+    char oldPrefix[sizeof(mmcePrefix)];
     int port;
 
     if (!force && mmcePort > 0 && slotUsed == gMMCESlot && !strcmp(folderUsed, gMMCEPrefix))
@@ -114,8 +117,14 @@ static void mmceSetPrefix(int force)
     port = mmceFindCard(force || mmcePort < 0);
     slotUsed = gMMCESlot;
     strcpy(folderUsed, gMMCEPrefix);
+    strcpy(oldPrefix, mmcePrefix);
     mmceBuildPrefix(port);
     mmcePort = port;
+
+    // The slot or the folder changed: the themes and languages of the old folder go, the new one's are listed by
+    // mmceNeedsUpdate()
+    if (oldPrefix[0] != '\0' && strcmp(oldPrefix, mmcePrefix))
+        sbDropThemesLanguages(oldPrefix, &mmceThemesLoaded, &mmceLanguagesLoaded);
 
     LOG("MMCESUPPORT prefix %s, port %d\n", mmcePrefix, mmcePort);
 }
@@ -234,9 +243,6 @@ item_list_t *mmceGetObject(int initOnly)
 
 static int mmceNeedsUpdate(item_list_t *itemList)
 {
-    static unsigned char ThemesLoaded = 0;
-    static unsigned char LanguagesLoaded = 0;
-
     char path[256];
     int result = 0;
     struct stat st;
@@ -268,17 +274,17 @@ static int mmceNeedsUpdate(item_list_t *itemList)
         result = 1;
 
     // update Themes
-    if (!ThemesLoaded) {
+    if (!mmceThemesLoaded) {
         sprintf(path, "%sTHM", mmcePrefix);
         if (thmAddElements(path, "/", 1) > 0)
-            ThemesLoaded = 1;
+            mmceThemesLoaded = 1;
     }
 
     // update Languages
-    if (!LanguagesLoaded) {
+    if (!mmceLanguagesLoaded) {
         sprintf(path, "%sLNG", mmcePrefix);
         if (lngAddLanguages(path, "/", mmceGameList.mode) > 0)
-            LanguagesLoaded = 1;
+            mmceLanguagesLoaded = 1;
     }
 
     sbCreateFolders(mmcePrefix, 1);
