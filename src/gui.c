@@ -196,7 +196,6 @@ void guiStartFrame(void)
 void guiEndFrame(void)
 {
     rmEndFrame();
-    wdFrames++;
 #ifdef __DEBUG
     // Measure time directly after vsync
     prevtime = curtime;
@@ -1561,7 +1560,6 @@ void guiIntroLoop(void)
     clock_t tFadeDelayEnd = 0;
 
     while (!endIntro) {
-        wdFrames++;
         wdGui = 101;
         guiStartFrame();
 

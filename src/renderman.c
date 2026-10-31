@@ -10,6 +10,7 @@
 #include "include/opl.h"
 #include "include/renderman.h"
 #include "include/ioman.h"
+#include "include/eewatchdog.h"
 
 // Allocateable space in vram, as indicated in GsKit's code
 #define __VRAM_SIZE 4194304
@@ -133,6 +134,7 @@ void rmEndFrame(void)
     }
 
     gsKit_TexManager_nextFrame(gsGlobal);
+    wdFrames++; // debug/ds3-metrics: every loop ends its frames here, dialogs too
 }
 
 static int rmOnVSync(int cause)
