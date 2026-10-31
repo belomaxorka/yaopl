@@ -15,9 +15,16 @@ thsemap_IMPORTS_end
 
 thbase_IMPORTS_start
 I_DelayThread
+I_CreateThread
+I_StartThread
+I_GetSystemTime
 I_SetAlarm
 I_CancelAlarm
 thbase_IMPORTS_end
+
+stdio_IMPORTS_start
+I_printf
+stdio_IMPORTS_end
 
 intrman_IMPORTS_start
 I_CpuSuspendIntr
