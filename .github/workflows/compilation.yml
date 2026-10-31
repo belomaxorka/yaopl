@@ -96,6 +96,15 @@ jobs:
         sha256sum modules/mmce/mmceman/mmceman/irx/mmceman.irx modules/mmce/mmceman/mmcedrv/irx/mmcedrv.irx modules/mmce/mmceman/mmceigr/irx/mmceigr.irx
         git -C modules/mmce/mmceman log -1 --format='mmceman sources: %H (%cs)'
 
+    - name: Upload the unstripped ELF and the map (debug/ds3-metrics)
+      if: ${{ success() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: OPL-SYMBOLS
+        path: |
+          opl.elf
+          opl.map
+
     - name: Upload release artifact ELF
       if: ${{ success() }}
       uses: actions/upload-artifact@v4
