@@ -30,6 +30,19 @@ static int harness_open(const char *path, int flags, ...)
 #define open  harness_open
 #define close _close
 
+/* The driver of a device, where the tree asks for it: every device here is a USB drive */
+#define USBMASS_IOCTL_GET_DRIVERNAME 0x1
+static int fileXioDopen(const char *path)
+{
+    return 0;
+}
+static int fileXioIoctl2(int fd, int cmd, void *arg, unsigned int arglen, void *buf, unsigned int buflen)
+{
+    strncpy((char *)buf, "usb", buflen);
+    return 0;
+}
+static int fileXioDclose(int fd) { return 0; }
+
 #include "bdmprobe_extracted.c"
 
 int main(int argc, char **argv)

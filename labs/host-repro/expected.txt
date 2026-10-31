@@ -122,6 +122,28 @@ cdvdman_read 2340 3                plain: read 3 sectors of 2340 bytes into a 70
                                    asan:  read 3 sectors of 2340 bytes into a 7020-byte buffer
 cdvdman_read 2328 2                plain: read 2 sectors of 2328 bytes into a 4656-byte buffer
                                    asan:  read 2 sectors of 2328 bytes into a 4656-byte buffer
+Settings usb                       plain: read=mass0 home=mass0 theme=mass0 | save=mass0 | next=mass0
+                                   asan:  read=mass0 home=mass0 theme=mass0 | save=mass0 | next=mass0
+Settings usb-root                  plain: read=mass0 home=mass0 theme=mass0 | save=mass0 | next=mass0
+                                   asan:  read=mass0 home=mass0 theme=mass0 | save=mass0 | next=mass0
+Settings usb-first                 plain: read=- home=mass0 theme=mass0 | save=mass0 | next=mass0
+                                   asan:  read=- home=mass0 theme=mass0 | save=mass0 | next=mass0
+Settings usb-apa                   plain: read=mc0 home=mc0 theme=mc0 | save=mc0 | next=mc0
+                                   asan:  read=mc0 home=mc0 theme=mc0 | save=mc0 | next=mc0
+Settings mc                        plain: read=mc0 home=mc0 theme=mc0 | save=mc0 | next=mc0
+                                   asan:  read=mc0 home=mc0 theme=mc0 | save=mc0 | next=mc0
+Settings hdd                       plain: read=pfs0 home=pfs0 theme=pfs0 | save=pfs0 | next=pfs0
+                                   asan:  read=pfs0 home=pfs0 theme=pfs0 | save=pfs0 | next=pfs0
+Settings hdd-pfs                   plain: read=pfs0 home=pfs0 theme=pfs0 | save=pfs0 | next=pfs0
+                                   asan:  read=pfs0 home=pfs0 theme=pfs0 | save=pfs0 | next=pfs0
+Settings mmce                      plain: read=mmce0 home=mmce0 theme=mmce0 | save=mmce0 | next=mmce0
+                                   asan:  read=mmce0 home=mmce0 theme=mmce0 | save=mmce0 | next=mmce0
+Settings mmce-first                plain: read=- home=mmce0 theme=mmce0 | save=mmce0 | next=mmce0
+                                   asan:  read=- home=mmce0 theme=mmce0 | save=mmce0 | next=mmce0
+Settings mx4sio                    plain: read=- home=mc0 theme=mass0 | save=error | next=-
+                                   asan:  read=- home=mc0 theme=mass0 | save=error | next=-
+Settings udpbd                     plain: read=- home=mc0 theme=mass0 | save=error | next=-
+                                   asan:  read=- home=mc0 theme=mass0 | save=error | next=-
 bdmFindPartition write probe       plain: probe = 1 (mass0:); conf_opl.cfg 38 bytes before, 38 after
                                    asan : probe = 1 (mass0:); conf_opl.cfg 38 bytes before, 38 after
 bdmFindPartition read-only mass0   plain: probe = 1 (mass1:); conf_opl.cfg 38 bytes before, 38 after

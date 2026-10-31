@@ -187,8 +187,18 @@ if (Want "cdread") {
     foreach ($c in "2048 2", "2340 1", "2340 3", "2328 2") { Test "cdvdman_read $c" cdread-t $c.Split(" ") }
 }
 
+if (Want "cfgloc") {
+    # Where the settings are read and saved, by the device OPL was started from
+    $cfglocDefine = ""
+    if ((Get-Content -Raw (Join-Path $Opl "src\opl.c")).Contains("tryBootDevice(")) { $cfglocDefine += " /DHAVE_BOOT_FIRST" }
+    if ((Get-Content -Raw (Join-Path $Opl "src\config.c")).Contains("configGetDeviceRank(")) { $cfglocDefine += " /DHAVE_RANK" }
+    $cfglocFuncs = "checkLoadConfigBDM", "checkLoadConfigHDD", "?checkLoadConfigMMCE", "?BOOT_DEVICE_OTHER", "?BOOT_DEVICE_BDM", "?BOOT_DEVICE_HDD", "?BOOT_DEVICE_MMCE0", "?BOOT_DEVICE_MMCE1", "?getBootDevice", "?tryBootDevice", "?trySetBootHome", "tryAlternateDevice", "trySaveConfigBDM", "trySaveConfigHDD", "trySaveConfigMC", "?trySaveConfigMMCE", "trySaveAlternateDevice"
+    Build cfgloc t "src\opl.c" $cfglocFuncs -Source2 "src\bdmsupport.c" -Funcs2 "?bdmCanHoldSettings", "bdmFindPartition" -Source3 "src\config.c" -Funcs3 "?configGetDeviceRank" -Defines $cfglocDefine
+    foreach ($s in "usb", "usb-root", "usb-first", "usb-apa", "mc", "hdd", "hdd-pfs", "mmce", "mmce-first", "mx4sio", "udpbd") { Test "Settings $s" cfgloc-t $s }
+}
+
 if (Want "bdmprobe") {
-    Build bdmprobe t "src\bdmsupport.c" "bdmFindPartition"
+    Build bdmprobe t "src\bdmsupport.c" "?bdmCanHoldSettings", "bdmFindPartition"
     $dir = Join-Path $build "bdmprobe"
     foreach ($v in "plain", "asan") {
         New-Item -ItemType Directory -Force (Join-Path $dir "mass0") | Out-Null
