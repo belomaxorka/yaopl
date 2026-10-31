@@ -98,7 +98,7 @@ int bdmFindSettingsDevice(char *target)
 // in the root of the device, not under the BDM prefix: at start, where they are read, the prefix is not known yet.
 int bdmFindPartition(char *target, const char *name, int write)
 {
-    int i, fd;
+    int i, fd, found;
     char path[256];
 
     for (i = 0; i < MAX_BDM_DEVICES; i++) {
@@ -106,14 +106,22 @@ int bdmFindPartition(char *target, const char *name, int write)
             continue;
 
         sprintf(path, "mass%d:%s", i, name);
-        if (write) // Only a probe: the file is written later, and only if its settings are saved
-            fd = open(path, O_WRONLY | O_CREAT, 0666);
-        else
-            fd = open(path, O_RDONLY);
-
-        if (fd >= 0) {
-            sprintf(target, "mass%d:", i);
+        if ((found = (fd = open(path, O_RDONLY)) >= 0))
             close(fd);
+
+        if (write) {
+            // Only a probe: the file is written later, and only if its settings are saved. A file the probe makes is
+            // removed again: if that save then failed, the empty file would be read as the settings at the next start.
+            if ((fd = open(path, found ? O_WRONLY : (O_WRONLY | O_CREAT), 0666)) >= 0) {
+                close(fd);
+                if (!found)
+                    remove(path);
+            }
+            found = (fd >= 0);
+        }
+
+        if (found) {
+            sprintf(target, "mass%d:", i);
             return 1;
         }
     }
