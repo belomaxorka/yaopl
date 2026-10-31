@@ -277,10 +277,7 @@ static int bdmNeedsUpdate(item_list_t *itemList)
         sfxPlay(SFX_BD_DISCONNECT);
 
         // Its themes and languages went with it; they are listed again when it is back
-        thmRemoveElements(pDeviceData->bdmPrefix);
-        lngRemoveLanguages(pDeviceData->bdmPrefix);
-        pDeviceData->ThemesLoaded = 0;
-        pDeviceData->LanguagesLoaded = 0;
+        sbDropThemesLanguages(pDeviceData->bdmPrefix, &pDeviceData->ThemesLoaded, &pDeviceData->LanguagesLoaded);
         return result;
     } else if (result == 1)
         sfxPlay(SFX_BD_CONNECT);
@@ -962,10 +959,18 @@ int bdmUpdateDeviceData(item_list_t *itemList)
 
     // If we opened the device and the menu isn't visible (OR is visible but hasn't been initialized ex: manual device start) initialize device info.
     if (dir >= 0 && (visible == 0 || pDeviceData->bdmPrefix[0] == '\0')) {
+        char oldPrefix[sizeof(pDeviceData->bdmPrefix)];
+
+        strcpy(oldPrefix, pDeviceData->bdmPrefix);
         if (gBDMPrefix[0] != '\0')
             snprintf(pDeviceData->bdmPrefix, sizeof(pDeviceData->bdmPrefix), "mass%d:%s/", itemList->mode, gBDMPrefix);
         else
             snprintf(pDeviceData->bdmPrefix, sizeof(pDeviceData->bdmPrefix), "mass%d:", itemList->mode);
+
+        // The BDM prefix was changed in the settings: the themes and languages of the old folder go, the new one's
+        // are listed by bdmNeedsUpdate()
+        if (oldPrefix[0] != '\0' && strcmp(oldPrefix, pDeviceData->bdmPrefix))
+            sbDropThemesLanguages(oldPrefix, &pDeviceData->ThemesLoaded, &pDeviceData->LanguagesLoaded);
 
         // Get the name of the underlying device driver that backs the fat fs.
         fileXioIoctl2(dir, USBMASS_IOCTL_GET_DRIVERNAME, NULL, 0, &pDeviceData->bdmDriver, sizeof(pDeviceData->bdmDriver) - 1);

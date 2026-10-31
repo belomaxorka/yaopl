@@ -51,6 +51,7 @@ void sbDelete(base_game_info_t **list, const char *prefix, const char *sep, int 
 void sbRename(base_game_info_t **list, const char *prefix, const char *sep, int gamecount, int id, char *newname);
 config_set_t *sbPopulateConfig(base_game_info_t *game, const char *prefix, const char *sep, const char *cfgDir);
 void sbCreateFolders(const char *path, int createDiscImgFolders);
+void sbDropThemesLanguages(const char *prefix, unsigned char *themesLoaded, unsigned char *languagesLoaded);
 
 // ISO9660 filesystem management functions.
 u32 sbGetISO9660MaxLBA(const char *path);

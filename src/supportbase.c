@@ -11,6 +11,7 @@
 #include "include/cheatman.h"
 #include "include/ps2cnf.h"
 #include "include/gui.h"
+#include "include/themes.h"
 #include "include/cheatconfig.h"
 
 #define NEWLIB_PORT_AWARE
@@ -877,6 +878,16 @@ void sbCreateFolders(const char *path, int createDiscImgFolders)
 
     if (createDiscImgFolders)
         sbCreateFoldersFromList(path, discImgFolders);
+}
+
+// Drops the themes and languages under a device's prefix, when the device is gone or its prefix changed. Clearing
+// the flags lets the device's page list them again from where its prefix points now.
+void sbDropThemesLanguages(const char *prefix, unsigned char *themesLoaded, unsigned char *languagesLoaded)
+{
+    thmRemoveElements(prefix);
+    lngRemoveLanguages(prefix);
+    *themesLoaded = 0;
+    *languagesLoaded = 0;
 }
 
 int sbLoadCheats(const char *path, const char *file, config_set_t *configSet)
