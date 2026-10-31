@@ -683,12 +683,8 @@ static config_set_t *bdmGetConfig(item_list_t *itemList, int id)
     if (itemList->flags & MODE_FLAG_READ_ONLY) {
         snprintf(cfgDir, sizeof(cfgDir), "%s", configGetByType(CONFIG_GAME)->filename);
         if ((slash = strrchr(cfgDir, '/')) != NULL) {
-            // The folder is made when a device's page starts, under its prefix: OPL's settings in the root of a
-            // USB drive or an MMCE card may have none next to them. On a memory card openFile() makes it.
-            strcpy(slash + 1, "CFG");
-            if (strncmp(cfgDir, "mc", 2) != 0)
-                mkdir(cfgDir, 0777);
-            strcat(cfgDir, "/");
+            // openFile() makes the folder when the settings are first saved there
+            strcpy(slash + 1, "CFG/");
             return sbPopulateConfig(&pDeviceData->bdmGames[id], pDeviceData->bdmPrefix, "/", cfgDir);
         }
     }
