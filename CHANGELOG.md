@@ -5,6 +5,9 @@ Loader (OPL) before the fork.
 
 ## Unreleased
 
+- GUI: The menu no longer freezes now and then right after start, when the games of a USB device appear, or
+  when a device with themes or languages is connected; it happened most with large themes and a DualShock 3.
+  (b45a592d)
 - GUI: A new text colour of the internal theme reaches the app list and the info screen at once, not only
   after a restart. (3fb0e53a)
 - GUI: The About page shows the whole version, with the commit and `-yaopl` at the end, and all build options;
