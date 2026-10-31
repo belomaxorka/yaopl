@@ -58,6 +58,7 @@ regenerate the file from a run on this tree:
 | `thmcolors` | `thmSetColors()` | a new text colour reaches only the main screen, images included; the apps list and the info screens keep the old one |
 | `bdmindex` | `drawBDMIndex()` | the dots show the slot of five, not the connected devices: two devices give five dots, slots 0 and 2 give none on slot 0, one device in slot 2 gets dots |
 | `lang` | `lngReadEntry()` | a `.lng` name shorter than `lang_X.lng` gives a negative length |
+| `thmlist` | the theme and language lists of `src/themes.c` and `src/lang.c` (`thmAddElements()`, `lngAddLanguages()`, the removal on a device that is gone), the device code mirrored | a theme or language on two devices is listed twice and the settings always get the first copy; a USB drive that goes away leaves its themes and languages listed and in use; an SMB reconnect switches to the internal theme and lists the share's languages again |
 | `history` | `GetBootFilename()` | a boot file name over 16 characters overflows `filename[17]` |
 | `gsm` | `PrepareGSM()` | `$GSMVMode` indexes past the table of 29 modes |
 | `pad` | `readPads()` | the button repeat countdown jumps by 29 s at the tick counter wrap |

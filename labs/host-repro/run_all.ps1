@@ -255,6 +255,15 @@ if (Want "lang") {
     Test "lngReadEntry file names" lang-t "lang_Russian.lng", "abcd.lng", "ru.lng"
 }
 
+if (Want "thmlist") {
+    # The same theme or language on several devices, and a device that goes away
+    $removeDefine = if ((Get-Content -Raw (Join-Path $Opl "src\themes.c")).Contains("thmRemoveElements(")) { "/DHAVE_REMOVE" } else { "" }
+    $thmFuncs = "thmReadEntry", "thmRebuildGuiNames", "thmAddElements", "?thmReinit", "?thmRemoveElements", "thmSetGuiValue", "thmGetGuiValue", "thmFindGuiID", "thmGetFilePath"
+    $lngFuncs = "lngReadEntry", "lngRebuildLangNames", "lngAddLanguages", "?lngRemoveLanguages", "lngSetGuiValue", "lngGetGuiValue", "lngFindGuiID", "lngGetFilePath"
+    Build thmlist t "src\themes.c" $thmFuncs -Source2 "src\lang.c" -Funcs2 $lngFuncs -Source3 "src\config.c" -Funcs3 "?configGetDeviceRank" -Defines $removeDefine
+    foreach ($s in "dup-mc", "dup-usb", "remove", "fallback", "shift", "smb") { Test "Theme/language list $s" thmlist-t $s }
+}
+
 if (Want "history") {
     Build history t "src\OSDHistory.c" "GetBootFilename", "AddHistoryRecordUsingFullPath"
     Test "GetBootFilename" history-t "cdrom0:\SLUS_200.62;1", "cdrom0:\DATA\ABCDEFGHIJKLMNOPQRST.ELF;1"
