@@ -128,6 +128,23 @@ static int harness_mkdir(const char *path, int mode)
     return _mkdir(local);
 }
 static u64 GetTimerSystemTime(void) { return timerSeed; }
+
+/* What openFile() needs for a memory-card path: the card is mc0 */
+typedef struct
+{
+    int dummy;
+} DIR;
+static DIR fakeDir;
+static char mcID = '0';
+static int checkMC(void) { return 0; }
+static DIR *opendir(const char *path)
+{
+    char local[1024];
+    struct _stat st;
+    localPath(local, path);
+    return _stat(local, &st) == 0 ? &fakeDir : NULL;
+}
+static int closedir(DIR *dir) { return 0; }
 static unsigned int USBA_crc32(const char *s) { return 0; }
 
 static config_set_t gameConfig = {CONFIG_GAME, "mc0:OPL/conf_game.cfg"};
@@ -180,13 +197,19 @@ static int configRead(config_set_t *c)
     c->modified = 0;
     return 1;
 }
+/* As src/config.c configWrite(): the file is opened through src/util.c openFile(), which makes a missing folder
+ * where the tree does so */
+int openFile(char *path, int mode);
 static int configWrite(config_set_t *c)
 {
     char local[1024];
     FILE *f;
-    int i;
+    int i, fd;
     if (dropsWrites(c->filename))
         return 1; /* acknowledged, gone */
+    if ((fd = openFile(c->filename, O_WRONLY | O_CREAT | O_TRUNC)) < 0)
+        return 0;
+    _close(fd);
     localPath(local, c->filename);
     if ((f = fopen(local, "w")) == NULL)
         return 0;

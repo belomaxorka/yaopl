@@ -167,6 +167,17 @@ static int checkFile(char *path, int mode)
                     closedir(dir);
             }
         }
+    } else if (mode & O_CREAT) {
+        // Elsewhere a device's folders are made when its page starts (sbCreateFolders()), under its prefix. A file
+        // written before that, or outside the prefix, makes its folder here: the CFG folder next to OPL's settings
+        // in the root of a USB drive, for instance. If the folder cannot be made, the open fails.
+        char dirPath[256];
+        char *pos = strrchr(path, '/');
+        if (pos != NULL && pos > path && pos[-1] != ':' && (size_t)(pos - path) < sizeof(dirPath)) {
+            memcpy(dirPath, path, pos - path);
+            dirPath[pos - path] = '\0';
+            mkdir(dirPath, 0777); // fails harmlessly when the folder is there
+        }
     }
     return 1;
 }
