@@ -43,20 +43,32 @@ int bdmIsReadOnlyPath(const char *path)
     return 0;
 }
 
+// The driver behind a BDM device: "usb", "ata", "sdc" (MX4SIO), "sd" (iLink) or "udp" (UDPBD). 0 if the device is not
+// there.
+static int bdmGetDriverName(int deviceId, char *driver, int size)
+{
+    char path[16];
+    int dir;
+
+    memset(driver, 0, size);
+    sprintf(path, "mass%d:/", deviceId);
+    if ((dir = fileXioDopen(path)) < 0)
+        return 0;
+
+    fileXioIoctl2(dir, USBMASS_IOCTL_GET_DRIVERNAME, NULL, 0, driver, size - 1);
+    fileXioDclose(dir);
+    return 1;
+}
+
 // Whether OPL's settings can be saved on a BDM device: only where they are read at the next start, before the
 // settings say which drivers to load. That is USB and the HDD through BDM; MX4SIO, iLink and UDPBD are loaded
 // later, so settings saved there would not be found.
 static int bdmCanHoldSettings(int deviceId)
 {
-    char path[16], driver[32] = "";
+    char driver[32];
 
-    sprintf(path, "mass%d:/", deviceId);
-    int dir = fileXioDopen(path);
-    if (dir < 0)
+    if (!bdmGetDriverName(deviceId, driver, sizeof(driver)))
         return 1; // not there: the probe fails anyway
-
-    fileXioIoctl2(dir, USBMASS_IOCTL_GET_DRIVERNAME, NULL, 0, driver, sizeof(driver) - 1);
-    fileXioDclose(dir);
 
     return !strcmp(driver, "usb") || !strcmp(driver, "ata");
 }
@@ -1075,18 +1087,9 @@ static int bdmDeviceIsPresent(int deviceId)
 
 static int bdmDeviceIsATA(int deviceId)
 {
-    char path[16];
-    bdm_device_data_t data;
+    char driver[32];
 
-    sprintf(path, "mass%d:/", deviceId);
-    int dir = fileXioDopen(path);
-    if (dir < 0)
-        return 0;
-
-    fileXioIoctl2(dir, USBMASS_IOCTL_GET_DRIVERNAME, NULL, 0, &data.bdmDriver, sizeof(data.bdmDriver) - 1);
-    fileXioDclose(dir);
-
-    return (!strcmp(data.bdmDriver, "ata") && strlen(data.bdmDriver) == 3);
+    return bdmGetDriverName(deviceId, driver, sizeof(driver)) && !strcmp(driver, "ata");
 }
 
 static int bdmGetATADeviceId()
