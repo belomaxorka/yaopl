@@ -11,12 +11,17 @@
  * as well, so something keeps every thread from running. While no frame is drawn it samples the interrupted PC (COP0
  * EPC) every VBlank and reports the samples and the running and ready threads; a line every ~30 s shows it is alive.
  * No EEIW line during a hang means the EE takes no interrupts at all (a crash or a loop with interrupts disabled).
+ *
+ * EE exceptions (TLB, address and bus errors, reserved instruction, coprocessor unusable, overflow, trap; libeedebug)
+ * are caught too ("EEEX" lines). The exception handler cannot call the kernel, so it saves the registers and returns
+ * into wdCrashReport() on its own stack; the crashed thread then sends the state every 2 seconds.
  */
 
 #include "include/opl.h"
 #include <kernel.h>
 #include <sifcmd.h>
 #include <delaythread.h>
+#include <ee_debug.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -50,6 +55,16 @@ typedef union
 static wdi_slot_t wdiSlots[WDI_PACKETS] __attribute__((aligned(64)));
 static unsigned int wdiSlot, wdiTicks, wdiLastFrames, wdiStuck, wdiEpc[WDI_SAMPLES];
 static char *wdiPos, *wdiEnd;
+
+// Exception state saved by wdException() for wdCrashReport().
+typedef struct
+{
+    u32 cause, epc, badvaddr, status, ra, sp, gp, v0, a0, a1, a2, a3, s0, s1, t9, tid;
+} wd_crash_t;
+static wd_crash_t wdCrash;
+static volatile int wdCrashCount;
+static u8 wdCrashStack[0x2000] __attribute__((aligned(16)));
+extern char _ftext[], _etext[];
 static u8 wdStack[0x2000] __attribute__((aligned(16)));
 static int wdGuiThid;
 
@@ -224,6 +239,76 @@ static s32 wdiVblank(s32 cause)
     return 0;
 }
 
+// Runs in the thread that raised the exception, after wdException() returned into it.
+static void wdCrashReport(void)
+{
+    const u32 *stack;
+    int round, i, n;
+    char line[96];
+    int len;
+
+    wdCrash.tid = GetThreadId();
+    for (round = 0;; round++) {
+        wdSend("EEEX %d #%d cause=%x code=%u epc=%x badv=%x status=%x tid=%u", round, wdCrashCount, wdCrash.cause,
+               (wdCrash.cause >> 2) & 0x1F, wdCrash.epc, wdCrash.badvaddr, wdCrash.status, wdCrash.tid);
+        wdSend("EEEX %d ra=%x sp=%x gp=%x v0=%x a0=%x a1=%x a2=%x", round, wdCrash.ra, wdCrash.sp, wdCrash.gp, wdCrash.v0,
+               wdCrash.a0, wdCrash.a1, wdCrash.a2);
+        wdSend("EEEX %d a3=%x s0=%x s1=%x t9=%x gui=%d pad=%d io=%d/%d stress=%u note=%s", round, wdCrash.a3, wdCrash.s0,
+               wdCrash.s1, wdCrash.t9, wdGui, wdPad, wdIo, wdIoType, wdStress, wdNote ? wdNote : "-");
+
+        // Code addresses on the stack: return addresses of the callers, for a rough backtrace.
+        if (wdCrash.sp >= 0x00100000 && wdCrash.sp < 0x01FFF000 && (wdCrash.sp & 3) == 0) {
+            stack = (const u32 *)wdCrash.sp;
+            len = 0;
+            n = 0;
+            for (i = 0; i < 256 && n < 24; i++) {
+                if (stack[i] >= (u32)_ftext && stack[i] < (u32)_etext && (stack[i] & 3) == 0) {
+                    len += snprintf(line + len, sizeof(line) - len, " %x", stack[i]);
+                    n++;
+                    if (len > 70) {
+                        wdSend("EEEX %d stack%s", round, line);
+                        len = 0;
+                    }
+                }
+            }
+            if (len > 0)
+                wdSend("EEEX %d stack%s", round, line);
+        }
+        DelayThread(2000 * 1000);
+    }
+}
+
+// libeedebug level 1 handler, in exception context: no kernel calls here.
+static int wdException(EE_RegFrame *frame)
+{
+    wdCrashCount++;
+    if (wdCrashCount == 1) {
+        wdCrash.cause = frame->cause;
+        wdCrash.epc = frame->epc;
+        wdCrash.badvaddr = frame->badvaddr;
+        wdCrash.status = frame->status;
+        wdCrash.ra = frame->ra[0];
+        wdCrash.sp = frame->sp[0];
+        wdCrash.gp = frame->gp[0];
+        wdCrash.v0 = frame->v0[0];
+        wdCrash.a0 = frame->a0[0];
+        wdCrash.a1 = frame->a1[0];
+        wdCrash.a2 = frame->a2[0];
+        wdCrash.a3 = frame->a3[0];
+        wdCrash.s0 = frame->s0[0];
+        wdCrash.s1 = frame->s1[0];
+        wdCrash.t9 = frame->t9[0];
+    }
+
+    // Resume the thread in wdCrashReport() on its own stack; a second exception (in the report itself) parks the
+    // thread in an endless report loop the same way, keeping the first state.
+    frame->epc = (u32)&wdCrashReport;
+    frame->sp[0] = (u32)(wdCrashStack + sizeof(wdCrashStack) - 64);
+    frame->gp[0] = (u32)&_gp;
+    frame->ra[0] = 0;
+    return 0;
+}
+
 static void wdDumpThreads(int sec)
 {
     ee_thread_status_t st;
@@ -295,6 +380,14 @@ void wdStart(void)
     tid = CreateThread(&thread);
     if (tid >= 0)
         StartThread(tid, NULL);
+
+    if (ee_dbg_install(1) == 0) {
+        static const int codes[] = {1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13};
+        unsigned int i;
+
+        for (i = 0; i < sizeof(codes) / sizeof(codes[0]); i++)
+            ee_dbg_set_level1_handler(codes[i], &wdException);
+    }
 
     DIntr();
     AddIntcHandler(INTC_VBLANK_S, &wdiVblank, 0);
