@@ -61,7 +61,8 @@ static int bdmCanHoldSettings(int deviceId)
     return !strcmp(driver, "usb") || !strcmp(driver, "ata");
 }
 
-// Identifies the partition that the specified file is stored on and generates a full path to it.
+// Identifies the partition that the specified file is stored on and generates a full path to it. OPL's settings are
+// in the root of the device, not under the BDM prefix: at start, where they are read, the prefix is not known yet.
 int bdmFindPartition(char *target, const char *name, int write)
 {
     int i, fd;
@@ -75,30 +76,21 @@ int bdmFindPartition(char *target, const char *name, int write)
         if (write && !bdmCanHoldSettings(i))
             continue;
 
-        if (gBDMPrefix[0] != '\0')
-            sprintf(path, "mass%d:%s/%s", i, gBDMPrefix, name);
-        else
-            sprintf(path, "mass%d:%s", i, name);
+        sprintf(path, "mass%d:%s", i, name);
         if (write) // Only a probe: the file is written later, and only if its settings are saved
             fd = open(path, O_WRONLY | O_CREAT, 0666);
         else
             fd = open(path, O_RDONLY);
 
         if (fd >= 0) {
-            if (gBDMPrefix[0] != '\0')
-                sprintf(target, "mass%d:%s/", i, gBDMPrefix);
-            else
-                sprintf(target, "mass%d:", i);
+            sprintf(target, "mass%d:", i);
             close(fd);
             return 1;
         }
     }
 
-    // default to first partition (for themes, ...)
-    if (gBDMPrefix[0] != '\0')
-        sprintf(target, "mass0:%s/", gBDMPrefix);
-    else
-        sprintf(target, "mass0:");
+    // default to first partition
+    sprintf(target, "mass0:");
     return 0;
 }
 
