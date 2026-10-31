@@ -307,12 +307,17 @@ static int diaShowColSel(unsigned char *r, unsigned char *g, unsigned char *b)
                 rmDrawRect(x, y, 200, 20, GS_SETREG_RGBA(0x20, 0x20, 0x20, 0x80));
 
             rmDrawRect(x + 2, y + 2, 190.0f * (cc[co] * 100 / 255) / 100, 16, dcol);
+
+            // the channel value, 0-255
+            char value[4];
+            snprintf(value, sizeof(value), "%u", col[co]);
+            fntRenderString(gTheme->fonts[0], x + 210, y + 10, ALIGN_VCENTER, 0, 0, value, selc == co ? gTheme->selTextColor : gTheme->textColor);
         }
 
         // target color itself
         u64 dcol = GS_SETREG_RGBA(col[0], col[1], col[2], 0x80);
 
-        x = 300;
+        x = 330;
         y = 75;
 
         rmDrawRect(x, y, 70, 70, GS_SETREG_RGBA(0x60, 0x60, 0x60, 0x80));
