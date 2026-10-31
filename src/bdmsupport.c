@@ -43,7 +43,26 @@ int bdmIsReadOnlyPath(const char *path)
     return 0;
 }
 
-// Identifies the partition that the specified file is stored on and generates a full path to it.
+// Whether OPL's settings can be saved on a BDM device: only where they are read at the next start, before the
+// settings say which drivers to load. That is USB and the HDD through BDM; MX4SIO, iLink and UDPBD are loaded
+// later, so settings saved there would not be found.
+static int bdmCanHoldSettings(int deviceId)
+{
+    char path[16], driver[32] = "";
+
+    sprintf(path, "mass%d:/", deviceId);
+    int dir = fileXioDopen(path);
+    if (dir < 0)
+        return 1; // not there: the probe fails anyway
+
+    fileXioIoctl2(dir, USBMASS_IOCTL_GET_DRIVERNAME, NULL, 0, driver, sizeof(driver) - 1);
+    fileXioDclose(dir);
+
+    return !strcmp(driver, "usb") || !strcmp(driver, "ata");
+}
+
+// Identifies the partition that the specified file is stored on and generates a full path to it. OPL's settings are
+// in the root of the device, not under the BDM prefix: at start, where they are read, the prefix is not known yet.
 int bdmFindPartition(char *target, const char *name, int write)
 {
     int i, fd;
@@ -54,30 +73,24 @@ int bdmFindPartition(char *target, const char *name, int write)
         if (write && (bdmDeviceList[i].flags & MODE_FLAG_READ_ONLY))
             continue;
 
-        if (gBDMPrefix[0] != '\0')
-            sprintf(path, "mass%d:%s/%s", i, gBDMPrefix, name);
-        else
-            sprintf(path, "mass%d:%s", i, name);
+        if (write && !bdmCanHoldSettings(i))
+            continue;
+
+        sprintf(path, "mass%d:%s", i, name);
         if (write) // Only a probe: the file is written later, and only if its settings are saved
             fd = open(path, O_WRONLY | O_CREAT, 0666);
         else
             fd = open(path, O_RDONLY);
 
         if (fd >= 0) {
-            if (gBDMPrefix[0] != '\0')
-                sprintf(target, "mass%d:%s/", i, gBDMPrefix);
-            else
-                sprintf(target, "mass%d:", i);
+            sprintf(target, "mass%d:", i);
             close(fd);
             return 1;
         }
     }
 
-    // default to first partition (for themes, ...)
-    if (gBDMPrefix[0] != '\0')
-        sprintf(target, "mass0:%s/", gBDMPrefix);
-    else
-        sprintf(target, "mass0:");
+    // default to first partition
+    sprintf(target, "mass0:");
     return 0;
 }
 
@@ -670,7 +683,12 @@ static config_set_t *bdmGetConfig(item_list_t *itemList, int id)
     if (itemList->flags & MODE_FLAG_READ_ONLY) {
         snprintf(cfgDir, sizeof(cfgDir), "%s", configGetByType(CONFIG_GAME)->filename);
         if ((slash = strrchr(cfgDir, '/')) != NULL) {
-            strcpy(slash + 1, "CFG/");
+            // The folder is made when a device's page starts, under its prefix: OPL's settings in the root of a
+            // USB drive or an MMCE card may have none next to them. On a memory card openFile() makes it.
+            strcpy(slash + 1, "CFG");
+            if (strncmp(cfgDir, "mc", 2) != 0)
+                mkdir(cfgDir, 0777);
+            strcat(cfgDir, "/");
             return sbPopulateConfig(&pDeviceData->bdmGames[id], pDeviceData->bdmPrefix, "/", cfgDir);
         }
     }

@@ -18,7 +18,7 @@ or fixing a setting that makes YAOPL unusable.
 | `hdd0:__common/OPL/conf_hdd.cfg` | Which APA partition is YAOPL's | APA HDD, see [Internal HDD](devices/hdd.md#apa) |
 
 `conf_opl.cfg` and its companions are kept together: in `mc0:OPL` or `mc1:OPL` on a memory card, or in the root
-of a USB drive or of the APA HDD's OPL partition. The search order is in
+of a USB drive, of the APA HDD's OPL partition or of an MMCE card's SD card. The search order is in
 [Where settings are saved](getting-started.md#where-settings-are-saved).
 
 These files are the same as OPL's, so settings can be moved between OPL and YAOPL. The parental lock password

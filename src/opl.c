@@ -844,25 +844,114 @@ static int checkLoadConfigHDD(int types)
     return 0;
 }
 
-// When this function is called, the current device for loading/saving config is the memory card.
+#define BOOT_DEVICE_OTHER 0
+#define BOOT_DEVICE_BDM   1
+#define BOOT_DEVICE_HDD   2
+#define BOOT_DEVICE_MMCE0 3 // the MMCE card in memory-card slot 1
+#define BOOT_DEVICE_MMCE1 4 // in slot 2
+
+// The device OPL was started from. The working directory is argv[0] up to the file name, such as "mass:/APPS/"
+// or "hdd0:__common:pfs:/OPL/" (PS2BBL passes "pfs:/..." for the HDD, and "mmce0:/..." or "mmce1:/..." for an
+// MMCE card). getcwd() fails without touching the buffer when the directory does not fit.
+static int getBootDevice(void)
+{
+    char pwd[256];
+
+    if (getcwd(pwd, sizeof(pwd)) == NULL)
+        return BOOT_DEVICE_OTHER;
+
+    if (!strncmp(pwd, "mass", 4) && (pwd[4] == ':' || pwd[5] == ':'))
+        return BOOT_DEVICE_BDM;
+    if ((!strncmp(pwd, "hdd", 3) && (pwd[3] == ':' || pwd[4] == ':')) || (!strncmp(pwd, "pfs", 3) && (pwd[3] == ':' || pwd[4] == ':')))
+        return BOOT_DEVICE_HDD;
+    if (!strncmp(pwd, "mmce0:", 6))
+        return BOOT_DEVICE_MMCE0;
+    if (!strncmp(pwd, "mmce1:", 6))
+        return BOOT_DEVICE_MMCE1;
+
+    return BOOT_DEVICE_OTHER;
+}
+
+// Settings on the root of the MMCE card OPL was started from. mmceman is loaded for it: it talks to both
+// memory-card slots when it starts, which is why it is otherwise loaded only while the MMCE device is on.
+static int checkLoadConfigMMCE(int types, int bootDevice)
+{
+    char *prefix = (bootDevice == BOOT_DEVICE_MMCE0) ? "mmce0:" : "mmce1:";
+    char path[32];
+    int value;
+
+    mmceLoadModules();
+
+    snprintf(path, sizeof(path), "%s/conf_opl.cfg", prefix);
+    value = open(path, O_RDONLY);
+    if (value >= 0) {
+        close(value);
+        configEnd();
+        configInit(prefix);
+        value = configReadMulti(types);
+        config_set_t *configOPL = configGetByType(CONFIG_OPL);
+        configSetInt(configOPL, CONFIG_OPL_MMCE_MODE, START_MODE_AUTO);
+        return value;
+    }
+
+    return 0;
+}
+
+// The settings of the device OPL was started from come first, before the memory card's: the settings, themes and
+// languages of an OPL started from a USB drive or the HDD are the ones on that device.
+static int tryBootDevice(int types)
+{
+    int bootDevice = getBootDevice();
+    char path[64];
+
+    // Only the BDM devices that are there already: checkLoadConfigBDM() waits up to 5 s for an HDD through BDM,
+    // which would delay every start of a console with an APA HDD. That HDD is checked after the memory card.
+    if (bootDevice == BOOT_DEVICE_BDM && bdmFindPartition(path, "conf_opl.cfg", 0))
+        return checkLoadConfigBDM(types);
+    if (bootDevice == BOOT_DEVICE_HDD)
+        return checkLoadConfigHDD(types);
+    if (bootDevice == BOOT_DEVICE_MMCE0 || bootDevice == BOOT_DEVICE_MMCE1)
+        return checkLoadConfigMMCE(types, bootDevice);
+
+    return 0;
+}
+
+// With no settings anywhere, the device OPL was started from holds them from the first save, when it is there.
+static int trySetBootHome(void)
+{
+    int bootDevice = getBootDevice();
+    char *prefix, *root;
+    DIR *dir;
+
+    if (bootDevice == BOOT_DEVICE_BDM)
+        prefix = root = "mass0:";
+    else if (bootDevice == BOOT_DEVICE_HDD)
+        prefix = root = gHDDPrefix;
+    else if (bootDevice == BOOT_DEVICE_MMCE0) {
+        prefix = "mmce0:";
+        root = "mmce0:/";
+    } else if (bootDevice == BOOT_DEVICE_MMCE1) {
+        prefix = "mmce1:";
+        root = "mmce1:/";
+    } else
+        return 0;
+
+    if ((dir = opendir(root)) == NULL)
+        return 0;
+    closedir(dir);
+
+    configEnd();
+    configInit(prefix);
+    return 1;
+}
+
+// When this function is called, the boot device and the memory card have no settings.
 static int tryAlternateDevice(int types)
 {
-    char pwd[8];
     int value;
     DIR *dir;
 
-    getcwd(pwd, sizeof(pwd));
-
-    // First, try the device that OPL booted from.
-    if (!strncmp(pwd, "mass", 4) && (pwd[4] == ':' || pwd[5] == ':')) {
-        if ((value = checkLoadConfigBDM(types)) != 0)
-            return value;
-    } else if (!strncmp(pwd, "hdd", 3) && (pwd[3] == ':' || pwd[4] == ':')) {
-        if ((value = checkLoadConfigHDD(types)) != 0)
-            return value;
-    }
-
-    // Config was not found on the boot device. Check all supported devices.
+    // Check all supported devices.
     //  Check USB device
     if ((value = checkLoadConfigBDM(types)) != 0)
         return value;
@@ -870,8 +959,12 @@ static int tryAlternateDevice(int types)
     if ((value = checkLoadConfigHDD(types)) != 0)
         return value;
 
-    // At this point, the user has no loadable config files on any supported device, so try to find a device to save on.
-    // We don't want to get users into alternate mode for their very first launch of OPL (i.e no config file at all, but still want to save on MC)
+    // At this point, the user has no loadable config files on any supported device, so try to find a device to save on:
+    // the boot device, then the memory card.
+    if (trySetBootHome()) {
+        showCfgPopup = 0;
+        return 0;
+    }
     // Check for a memory card inserted.
     if (sysCheckMC() >= 0) {
         configPrepareNotifications(gBaseMCDir);
@@ -902,7 +995,13 @@ static void _loadConfig()
 {
     int value, themeID = -1, langID = -1;
     const char *temp;
-    int result = configReadMulti(lscstatus);
+    int result = 0;
+
+    // The device OPL was started from comes first, then the memory card, then the other devices
+    if (lscstatus & CONFIG_OPL)
+        result = tryBootDevice(lscstatus);
+    if (!(result & CONFIG_OPL))
+        result = configReadMulti(lscstatus);
 
     if (lscstatus & CONFIG_OPL) {
         if (!(result & CONFIG_OPL)) {
@@ -1068,19 +1167,27 @@ static int trySaveConfigMC(int types)
     return configWriteMulti(types);
 }
 
+// Only on the MMCE card OPL was started from: the settings are read there at start (checkLoadConfigMMCE()).
+static int trySaveConfigMMCE(int types, int bootDevice)
+{
+    mmceLoadModules();
+    configSetMove((bootDevice == BOOT_DEVICE_MMCE0) ? "mmce0:" : "mmce1:");
+    return configWriteMulti(types);
+}
+
 static int trySaveAlternateDevice(int types)
 {
-    char pwd[8];
-    int value;
-
-    getcwd(pwd, sizeof(pwd));
+    int value, bootDevice = getBootDevice();
 
     // First, try the device that OPL booted from.
-    if (!strncmp(pwd, "mass", 4) && (pwd[4] == ':' || pwd[5] == ':')) {
+    if (bootDevice == BOOT_DEVICE_BDM) {
         if ((value = trySaveConfigBDM(types)) > 0)
             return value;
-    } else if (!strncmp(pwd, "hdd", 3) && (pwd[3] == ':' || pwd[4] == ':')) {
+    } else if (bootDevice == BOOT_DEVICE_HDD) {
         if ((value = trySaveConfigHDD(types)) > 0)
+            return value;
+    } else if (bootDevice == BOOT_DEVICE_MMCE0 || bootDevice == BOOT_DEVICE_MMCE1) {
+        if ((value = trySaveConfigMMCE(types, bootDevice)) > 0)
             return value;
     }
 
@@ -1920,7 +2027,10 @@ static void miniInit(int mode)
 
     InitConsoleRegionData();
 
-    ret = configReadMulti(CONFIG_ALL);
+    // As in _loadConfig(): the device OPL was started from comes first, then the memory card
+    ret = tryBootDevice(CONFIG_ALL);
+    if (!(ret & CONFIG_OPL))
+        ret = configReadMulti(CONFIG_ALL);
     if (CONFIG_ALL & CONFIG_OPL) {
         if (!(ret & CONFIG_OPL)) {
             if (mode == BDM_MODE)

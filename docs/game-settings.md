@@ -3,7 +3,8 @@
 Press Triangle on a game for its [game menu](interface.md#game-menu). Its settings are saved in `CFG/<game ID>.cfg`
 on the game's device (on the APA HDD, in the OPL partition). For a game on a read-only
 [UDPBD](devices/udpbd.md#servers-that-write-and-read-only-servers) server they are saved next to YAOPL's own
-settings instead, usually in `mc0:OPL/CFG/`.
+settings instead: in `mc0:OPL/CFG/`, or in `CFG` in the root of the device YAOPL was started from (see
+[Where settings are saved](getting-started.md#where-settings-are-saved)).
 
 ## Global and per-game settings
 

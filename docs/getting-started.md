@@ -75,14 +75,27 @@ device, and you can copy your games there.
 
 YAOPL looks for its settings, `conf_opl.cfg` and its companion files, in this order:
 
-1. `OPL` on a memory card (`mc0:OPL` or `mc1:OPL`);
-2. the device YAOPL was started from (a USB drive or the APA HDD);
-3. a USB or other BDM drive, then the internal HDD.
+1. the device YAOPL was started from: a USB drive, the APA HDD, or an [MMCE](devices/mmce.md) card (the root
+   of its SD card);
+2. `OPL` on a memory card (`mc0:OPL` or `mc1:OPL`);
+3. a USB drive or an HDD through BDM, then the APA HDD.
 
-When it saves, it uses the device it was started from, then a memory card, then a USB drive, then the HDD.
+So settings on the device YAOPL was started from win over those on a memory card. A game started by another
+program (a launcher that starts it in YAOPL directly) reads them in the same order. With no settings anywhere,
+the first save goes to the device YAOPL was started from, else to a memory card, a USB drive or the HDD. When
+a save fails where the settings were read, YAOPL saves all its settings files in the next of these places and
+says so; if there is none, Save Changes reports an error. On a USB drive or an HDD through BDM the settings
+are in the root of the drive, also when a *BDM Prefix Path* is set.
+
+YAOPL does not save its settings on MX4SIO, iLink or a UDPBD server: their drivers start only after the
+settings are read, so settings there would not be found. Without a memory card, a USB drive or an HDD, Save
+Changes then reports an error.
+
 With *Notifications* on (Display Settings), YAOPL shows where it loaded the settings from, and Save Changes
 says where it saved them. If the settings are found on a USB drive, its *BDM Start Mode* is switched to Auto;
-settings found on the APA HDD switch on the HDD page. The full list of files is in
+settings found on the APA HDD switch on the HDD page, and on an MMCE card the *MMCE Start Mode*. A
+[theme or language](features/customizing.md#the-same-theme-or-language-on-several-devices) on several devices is
+also taken first from the device that holds the settings. The full list of files is in
 [Configuration files](config-files.md).
 
 ### Keys at startup

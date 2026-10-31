@@ -25,6 +25,10 @@ Main menu → **MMCE Settings**:
 Choose **OK** and **Save Changes**. The card's own settings (which memory card it shows, game ID support) are
 made in its firmware or menu.
 
+When YAOPL is started from the card (`mmce0:/...` or `mmce1:/...`, for example by PS2BBL), it keeps its own
+settings in the root of the card's SD card, which does not change when the card switches memory cards; see
+[Where settings are saved](../getting-started.md#where-settings-are-saved).
+
 ## How it works with games
 
 - With *Send the game ID to the card* on, every game started from YAOPL, also from USB, MX4SIO or the HDD, makes

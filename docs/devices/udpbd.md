@@ -40,21 +40,23 @@ treated as read-only until the device connects again.
 | | Server that writes | Read-only server |
 | --- | --- | --- |
 | Examples | udpbd-server, PS2-Servers with a disk image | udpbd-vexfat; PS2-Servers with a folder or `--read-only`; udpbd-server with an image it cannot write |
-| [Game settings](../game-settings.md) | `CFG/<game ID>.cfg` on the served disk, as on a USB drive | `CFG/<game ID>.cfg` next to YAOPL's own settings, usually `mc0:OPL/CFG/` on the memory card |
+| [Game settings](../game-settings.md) | `CFG/<game ID>.cfg` on the served disk, as on a USB drive | `CFG/<game ID>.cfg` next to YAOPL's own settings: `mc0:OPL/CFG/`, or `CFG` on the device YAOPL was started from |
 | [VMC](../features/vmc.md) | In `VMC/` on the served disk | Not available: *Configure VMC* shows a note; a VMC set in the game's settings is not used and the game saves to the real memory card |
 | Rename, Delete | In the game menu, with *Write Operations* on | Not offered, for games and for apps in the served `APPS` folder |
 | Folders (`CD`, `DVD`, `CFG`, ...) | Created if missing | Not created |
 | Game list cache (`games.bin`) | Kept up to date | Read if there is one, not written |
-| YAOPL's own settings | As on any USB drive, if YAOPL saves them on a BDM device | Never saved there |
+| YAOPL's own settings | Never saved there: they are read before UDPBD starts | Never saved there |
 
-With a read-only server, a game that has no settings saved on the memory card yet uses the
+With a read-only server, a game that has no settings saved next to YAOPL's own yet uses the
 `CFG/<game ID>.cfg` on the served disk, if there is one (for example made by a PC manager). After the first
-save on the console, the memory card's file is used and the one on the served disk is no longer read.
+save on the console, the file next to YAOPL's settings is used and the one on the served disk is no longer
+read.
 
-If YAOPL keeps its own settings on a USB drive, the folder next to them is that drive's own `CFG` folder. A
-game on a read-only server and the same game (same ID) on the USB drive then share one settings file. That
-is intended: a VMC set for the USB copy stays in the file and is simply not used when the game runs from the
-server.
+If YAOPL keeps its own settings on a USB drive (for example because it was started from it), the folder next
+to them is the `CFG` folder in the root of that drive; YAOPL makes it if it is missing. A game on a read-only
+server and the same game (same ID) on the USB drive then share one settings file when the drive has no BDM
+prefix. That is intended: a VMC set for the USB copy stays in the file and is simply not used when the game
+runs from the server.
 
 A device is read-only for YAOPL only when the write check above fails; the same rules would apply to any
 other device found read-only.
@@ -69,5 +71,5 @@ other device found read-only.
   waits for a restart of YAOPL (*The network adapter is used by SMB. Restart OPL to use UDPBD.*). Turn the one
   you do not use off and restart YAOPL.
 - With a read-only server (udpbd-vexfat) there are no VMCs and no Rename or Delete, and game settings are
-  saved on the memory card, see [above](#servers-that-write-and-read-only-servers).
+  saved next to YAOPL's own settings, see [above](#servers-that-write-and-read-only-servers).
 - UDPBD is not used when a launcher starts a BDM game directly in YAOPL.

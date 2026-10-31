@@ -5,6 +5,22 @@ Loader (OPL) before the fork.
 
 ## Unreleased
 
+- Settings: A game started by another program reads YAOPL's settings in the same order as the menu, the device
+  YAOPL was started from first. (915c52db)
+- Settings: Settings saved on a USB drive when they could not be saved where they were read go to the root of
+  the drive, where they are found at the next start, also with a BDM prefix. (f2fef874)
+- Settings: Saving the settings of a game on a read-only UDPBD server works when YAOPL's settings are in the
+  root of a USB drive or an MMCE card that has no `CFG` folder there. (ea75aa4b)
+- Settings: When the settings cannot be saved where they were read, all their files are saved in the next
+  place, not only the changed ones, and a failed save is no longer reported as saved. (f34274dd, f4b08859)
+- Settings: Started from an MMCE card, YAOPL keeps its settings in the root of the card's SD card, which does
+  not change with the card's memory card. (1328f72b)
+- Settings: The device YAOPL was started from comes first for its settings, before the memory card, and holds
+  them from the first save; its themes and languages are then used first too. (d861fb5e)
+- Settings: YAOPL no longer saves its settings on MX4SIO, iLink or a UDPBD server, where they were not found
+  at the next start; Save Changes reports an error if there is no other place. (2d5adc29)
+- Settings: Started from the HDD (or from any folder of a USB drive), YAOPL recognises the device it was
+  started from; an HDD start read the USB drive's settings before the HDD's. (be29a311)
 - GUI: Themes and languages of a USB drive or another device that goes away leave the lists; the one in use
   falls back to another copy, or to the built-in theme and English until the device is back. A network share
   that reconnects no longer resets a theme from elsewhere or lists its languages twice. (6c8d4f31)
