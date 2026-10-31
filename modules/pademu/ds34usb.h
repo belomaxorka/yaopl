@@ -20,8 +20,6 @@ typedef struct _usb_ds34
     int devId;
     int sema;
     int cmd_sema;
-    int data_sema; // completion of the report transfer
-    int data_result;
     int controlEndp;
     int interruptEndp;
     int outEndp;
@@ -32,7 +30,6 @@ typedef struct _usb_ds34
     u8 lrum;
     u8 rrum;
     u8 update_rum;
-    u8 data_pending; // a report transfer is queued
     union
     {
         struct ds2report ds2;
