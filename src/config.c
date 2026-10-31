@@ -232,6 +232,8 @@ void configSetMove(char *prefix)
     for (i = 0; i < CONFIG_INDEX_COUNT; i++) {
         snprintf(path, sizeof(path), "%s/%s", prefix, configFilenames[i]);
         configMove(&configFiles[i], path);
+        // Nothing is at the new place yet: write every file there, also the ones that did not change
+        configFiles[i].modified = 1;
     }
 
     configPrepareNotifications(prefix);
