@@ -80,9 +80,12 @@ YAOPL looks for its settings, `conf_opl.cfg` and its companion files, in this or
 2. `OPL` on a memory card (`mc0:OPL` or `mc1:OPL`);
 3. a USB drive or an HDD through BDM, then the APA HDD.
 
-So settings on the device YAOPL was started from win over those on a memory card. With no settings anywhere,
+So settings on the device YAOPL was started from win over those on a memory card. A game started by another
+program (a launcher that starts it in YAOPL directly) reads them in the same order. With no settings anywhere,
 the first save goes to the device YAOPL was started from, else to a memory card, a USB drive or the HDD. When
-a save fails where the settings were read, YAOPL tries the same places in that order.
+a save fails where the settings were read, YAOPL saves all its settings files in the next of these places and
+says so; if there is none, Save Changes reports an error. On a USB drive or an HDD through BDM the settings
+are in the root of the drive, also when a *BDM Prefix Path* is set.
 
 YAOPL does not save its settings on MX4SIO, iLink or a UDPBD server: their drivers start only after the
 settings are read, so settings there would not be found. Without a memory card, a USB drive or an HDD, Save
