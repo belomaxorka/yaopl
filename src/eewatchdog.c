@@ -6,6 +6,11 @@
  * the menu stays stuck.
  * Lines go to the IOP as raw SIF commands (user command 0, EE -> IOP over SIF1), which need no reply: a menu hang
  * stalls the IOP -> EE direction (SIF0), which RPC replies use. ds34usb.irx prints them.
+ *
+ * A VBlank interrupt handler watches too ("EEIW" lines): in a hang caught with build 5 the watchdog thread fell silent
+ * as well, so something keeps every thread from running. While no frame is drawn it samples the interrupted PC (COP0
+ * EPC) every VBlank and reports the samples and the running and ready threads; a line every ~30 s shows it is alive.
+ * No EEIW line during a hang means the EE takes no interrupts at all (a crash or a loop with interrupts disabled).
  */
 
 #include "include/opl.h"
@@ -33,6 +38,18 @@ typedef struct
 } wd_packet_t;
 
 static wd_packet_t wdPacket __attribute__((aligned(64)));
+
+// Interrupt watchdog: its own packets, each read by the SIF DMA long before the ring comes back to it.
+#define WDI_PACKETS 16
+#define WDI_SAMPLES 8
+typedef union
+{
+    wd_packet_t pkt;
+    u8 pad[128];
+} wdi_slot_t;
+static wdi_slot_t wdiSlots[WDI_PACKETS] __attribute__((aligned(64)));
+static unsigned int wdiSlot, wdiTicks, wdiLastFrames, wdiStuck, wdiEpc[WDI_SAMPLES];
+static char *wdiPos, *wdiEnd;
 static u8 wdStack[0x2000] __attribute__((aligned(16)));
 static int wdGuiThid;
 
@@ -73,6 +90,138 @@ static void wdDumpRegs(int sec)
            WD_REG(0x1000F000), WD_REG(0x1000F010));
     wdSend("EEWD %d sif mscom=%x smcom=%x msflg=%x smflg=%x ctrl=%x", sec, WD_REG(0x1000F200), WD_REG(0x1000F210),
            WD_REG(0x1000F220), WD_REG(0x1000F230), WD_REG(0x1000F240));
+}
+
+// Line builders for interrupt context: no vsnprintf there.
+static void wdiBegin(const char *tag)
+{
+    wd_packet_t *pkt = &wdiSlots[wdiSlot % WDI_PACKETS].pkt;
+
+    wdiPos = pkt->text;
+    wdiEnd = pkt->text + WD_TEXT_SIZE - 1;
+    while (*tag != '\0' && wdiPos < wdiEnd)
+        *wdiPos++ = *tag++;
+}
+
+static void wdiStr(const char *str)
+{
+    while (*str != '\0' && wdiPos < wdiEnd)
+        *wdiPos++ = *str++;
+}
+
+static void wdiHex(unsigned int value)
+{
+    int shift;
+
+    for (shift = 28; shift >= 0 && wdiPos < wdiEnd; shift -= 4)
+        *wdiPos++ = "0123456789abcdef"[(value >> shift) & 0xF];
+}
+
+static void wdiDec(unsigned int value)
+{
+    char digits[10];
+    int n = 0;
+
+    do {
+        digits[n++] = '0' + value % 10;
+        value /= 10;
+    } while (value != 0);
+    while (n > 0 && wdiPos < wdiEnd)
+        *wdiPos++ = digits[--n];
+}
+
+static void wdiSend(void)
+{
+    wd_packet_t *pkt = &wdiSlots[wdiSlot % WDI_PACKETS].pkt;
+
+    *wdiPos = '\0';
+    if (isceSifSendCmd(WD_SIF_CMD, pkt, sizeof(*pkt), NULL, NULL, 0) != 0)
+        wdiSlot++;
+}
+
+static void wdiDump(void)
+{
+    ee_thread_status_t st;
+    int tid, i, lines = 0;
+
+    wdiBegin("EEIW ");
+    wdiDec(wdiTicks);
+    wdiStr(" HANG vblanks=");
+    wdiDec(wdiStuck);
+    wdiStr(" gui=");
+    wdiDec(wdGui);
+    wdiStr(" pad=");
+    wdiDec(wdPad);
+    wdiStr(" io=");
+    wdiDec(wdIo);
+    wdiStr(" stress=");
+    wdiDec(wdStress);
+    wdiSend();
+
+    wdiBegin("EEIW ");
+    wdiDec(wdiTicks);
+    wdiStr(" epc");
+    for (i = 0; i < WDI_SAMPLES; i++) {
+        wdiStr(" ");
+        wdiHex(wdiEpc[i]);
+    }
+    wdiSend();
+
+    // The running thread is the one the VBlank interrupted; ready ones are waiting for the CPU.
+    for (tid = 1; tid < 256 && lines < 10; tid++) {
+        if (iReferThreadStatus(tid, &st) < 0 || (st.status != 1 && st.status != 2 && tid != wdGuiThid))
+            continue;
+        wdiBegin("EEIW ");
+        wdiDec(wdiTicks);
+        wdiStr(" thr ");
+        wdiDec(tid);
+        wdiStr(tid == wdGuiThid ? "(gui) st=" : " st=");
+        wdiHex(st.status);
+        wdiStr(" pri=");
+        wdiDec(st.current_priority);
+        wdiStr(" wait=");
+        wdiDec(st.waitType);
+        wdiStr(" id=");
+        wdiDec(st.waitId);
+        wdiStr(" func=");
+        wdiHex((unsigned int)st.func);
+        wdiSend();
+        lines++;
+    }
+}
+
+static s32 wdiVblank(s32 cause)
+{
+    unsigned int epc, frames = wdFrames;
+
+    (void)cause;
+
+    __asm__ __volatile__("mfc0 %0, $14"
+                         : "=r"(epc));
+    wdiTicks++;
+    wdiEpc[wdiTicks % WDI_SAMPLES] = epc;
+
+    if (frames != wdiLastFrames) {
+        wdiLastFrames = frames;
+        wdiStuck = 0;
+    } else
+        wdiStuck++;
+
+    // ~9 s at 50 Hz, longer than a theme reload; then every ~5 s.
+    if (wdiStuck == 450 || (wdiStuck > 450 && wdiStuck % 250 == 0))
+        wdiDump();
+    else if (wdiTicks % 1500 == 0) {
+        wdiBegin("EEIW ");
+        wdiDec(wdiTicks);
+        wdiStr(" alive frames=");
+        wdiDec(frames);
+        wdiStr(" epc=");
+        wdiHex(epc);
+        wdiSend();
+    }
+
+    ExitHandler();
+    return 0;
 }
 
 static void wdDumpThreads(int sec)
@@ -146,4 +295,9 @@ void wdStart(void)
     tid = CreateThread(&thread);
     if (tid >= 0)
         StartThread(tid, NULL);
+
+    DIntr();
+    AddIntcHandler(INTC_VBLANK_S, &wdiVblank, 0);
+    EnableIntc(INTC_VBLANK_S);
+    EIntr();
 }
