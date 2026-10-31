@@ -5,6 +5,9 @@ Loader (OPL) before the fork.
 
 ## Unreleased
 
+- GUI: Saving the settings before the device with the chosen theme or language is found no longer replaces
+  them with the internal theme and English; a theme picked but not saved yet is no longer switched back when
+  a device is found. (6bc22612)
 - GUI: A new text colour of the internal theme reaches the app list and the info screen at once, not only
   after a restart. (3fb0e53a)
 - GUI: The About page shows the whole version, with the commit and `-yaopl` at the end, and all build options;
