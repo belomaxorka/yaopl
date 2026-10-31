@@ -13,6 +13,9 @@ static int nValidEntries = LANG_STR_COUNT;
 static int nLanguages = 0;
 static language_t languages[MAX_LANGUAGE_FILES];
 static char **guiLangNames;
+static int nGuiLanguages = 0;
+static int guiLanguages[MAX_LANGUAGE_FILES]; // the copy in languages[] listed for each name, by GUI ID - 1
+static int guiLangCopy = -1;                 // the copy in languages[] that is loaded, -1 for internal English
 
 // localised string getter
 char *_l(unsigned int id)
@@ -137,6 +140,8 @@ static int lngReadEntry(int index, const char *path, const char *separator, cons
 
 static void lngRebuildLangNames(void)
 {
+    int i, j, best;
+
     if (guiLangNames)
         free(guiLangNames);
 
@@ -146,12 +151,25 @@ static void lngRebuildLangNames(void)
     // add default internal (english)
     guiLangNames[0] = internalEnglish[0];
 
-    int i = 0;
-    for (; i < nLanguages; i++) {
-        guiLangNames[i + 1] = languages[i].name;
+    // A language found on several devices is listed once, where it was first found, with its copy of the lowest rank
+    nGuiLanguages = 0;
+    for (i = 0; i < nLanguages; i++) {
+        for (j = 0; j < i && strcasecmp(languages[j].name, languages[i].name); j++)
+            ;
+        if (j < i)
+            continue;
+
+        best = i;
+        for (j = i + 1; j < nLanguages; j++) {
+            if (!strcasecmp(languages[j].name, languages[i].name) && configGetDeviceRank(languages[j].filePath) < configGetDeviceRank(languages[best].filePath))
+                best = j;
+        }
+
+        guiLanguages[nGuiLanguages] = best;
+        guiLangNames[++nGuiLanguages] = languages[best].name;
     }
 
-    guiLangNames[nLanguages + 1] = NULL;
+    guiLangNames[nGuiLanguages + 1] = NULL;
 }
 
 int lngAddLanguages(char *path, const char *separator, int mode)
@@ -196,12 +214,15 @@ void lngEnd(void)
 int lngSetGuiValue(int langID)
 {
     if (langID != -1) {
-        if (guiLangID != langID) {
+        int copy = langID != 0 ? guiLanguages[langID - 1] : -1;
+
+        if (guiLangCopy != copy) {
             bgmMute();
-            if (langID != 0) {
-                language_t *currLang = &languages[langID - 1];
+            if (copy != -1) {
+                language_t *currLang = &languages[copy];
                 if (lngLoadFromFile(currLang->filePath, currLang->name)) {
                     guiLangID = langID;
+                    guiLangCopy = copy;
                     thmSetGuiValue(thmGetGuiValue(), 1);
                     bgmUnMute();
                     return 1;
@@ -209,11 +230,13 @@ int lngSetGuiValue(int langID)
             }
             lang_strs = internalEnglish;
             guiLangID = 0;
+            guiLangCopy = -1;
             // lang switched back to internalEnglish, reload default font
             fntLoadDefault(NULL);
             thmSetGuiValue(thmGetGuiValue(), 1);
             bgmUnMute();
-        }
+        } else
+            guiLangID = langID;
     }
     return 0;
 }
@@ -227,8 +250,8 @@ int lngFindGuiID(const char *lang)
 {
     if (lang) {
         int i = 0;
-        for (; i < nLanguages; i++) {
-            if (strcasecmp(languages[i].name, lang) == 0)
+        for (; i < nGuiLanguages; i++) {
+            if (strcasecmp(languages[guiLanguages[i]].name, lang) == 0)
                 return i + 1; // shift for Gui id
         }
     }
@@ -242,7 +265,7 @@ char **lngGetGuiList(void)
 
 char *lngGetFilePath(int langID)
 {
-    language_t *currLang = &languages[langID - 1];
+    language_t *currLang = &languages[guiLanguages[langID - 1]];
     char *path = currLang->filePath;
 
     return path;

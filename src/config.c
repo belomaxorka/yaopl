@@ -176,6 +176,21 @@ char *configGetDir(void)
     return path;
 }
 
+// Of the copies of a theme or a language found on several devices, the one with the lowest rank is used: 0 on the
+// device that holds the settings, 1 on a memory card, 2 elsewhere
+int configGetDeviceRank(const char *path)
+{
+    const char *home = configGetDir();
+
+    if (!strncmp(path, "mc", 2))
+        return strncmp(home, "mc", 2) ? 1 : 0;
+
+    if (home[0] != '\0' && !strncmp(path, home, strlen(home)))
+        return 0;
+
+    return 2;
+}
+
 void configPrepareNotifications(char *prefix)
 {
     char *colpos;

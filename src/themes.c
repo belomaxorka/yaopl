@@ -26,6 +26,9 @@ static int guiThemeID = 0;
 static int nThemes = 0;
 static theme_file_t themes[THM_MAX_FILES];
 static const char **guiThemesNames = NULL;
+static int nGuiThemes = 0;
+static int guiThemes[THM_MAX_FILES]; // the copy in themes[] listed for each name, by GUI ID - 1
+static int guiThemeCopy = -1;        // the copy in themes[] that is loaded, -1 for the internal theme
 
 // Global data
 theme_t *gTheme;
@@ -1446,6 +1449,8 @@ static void thmLoad(const char *themePath)
 
 static void thmRebuildGuiNames(void)
 {
+    int i, j, best;
+
     if (guiThemesNames)
         free(guiThemesNames);
 
@@ -1455,12 +1460,25 @@ static void thmRebuildGuiNames(void)
     // add default internal
     guiThemesNames[0] = "<OPL>";
 
-    int i = 0;
-    for (; i < nThemes; i++) {
-        guiThemesNames[i + 1] = themes[i].name;
+    // A theme found on several devices is listed once, where it was first found, with its copy of the lowest rank
+    nGuiThemes = 0;
+    for (i = 0; i < nThemes; i++) {
+        for (j = 0; j < i && strcasecmp(themes[j].name, themes[i].name); j++)
+            ;
+        if (j < i)
+            continue;
+
+        best = i;
+        for (j = i + 1; j < nThemes; j++) {
+            if (!strcasecmp(themes[j].name, themes[i].name) && configGetDeviceRank(themes[j].filePath) < configGetDeviceRank(themes[best].filePath))
+                best = j;
+        }
+
+        guiThemes[nGuiThemes] = best;
+        guiThemesNames[++nGuiThemes] = themes[best].name;
     }
 
-    guiThemesNames[nThemes + 1] = NULL;
+    guiThemesNames[nGuiThemes + 1] = NULL;
 }
 
 int thmAddElements(char *path, const char *separator, int forceRefresh)
@@ -1500,6 +1518,7 @@ void thmReinit(const char *path)
 {
     thmLoad(NULL);
     guiThemeID = 0;
+    guiThemeCopy = -1;
 
     int i = 0;
     while (i < nThemes) {
@@ -1532,13 +1551,18 @@ const char *thmGetValue(void)
 int thmSetGuiValue(int themeID, int reload)
 {
     if (themeID != -1) {
-        if (guiThemeID != themeID || reload) {
-            thmLoad(themeID != 0 ? themes[themeID - 1].filePath : NULL);
+        int copy = themeID != 0 ? guiThemes[themeID - 1] : -1;
+
+        if (guiThemeCopy != copy || reload) {
+            thmLoad(copy != -1 ? themes[copy].filePath : NULL);
 
             guiThemeID = themeID;
+            guiThemeCopy = copy;
             return 1;
-        } else if (guiThemeID == 0)
+        } else if (themeID == 0)
             thmSetColors(gTheme);
+
+        guiThemeID = themeID;
     }
     return 0;
 }
@@ -1552,8 +1576,8 @@ int thmFindGuiID(const char *theme)
 {
     if (theme) {
         int i = 0;
-        for (; i < nThemes; i++) {
-            if (strcasecmp(themes[i].name, theme) == 0)
+        for (; i < nGuiThemes; i++) {
+            if (strcasecmp(themes[guiThemes[i]].name, theme) == 0)
                 return i + 1;
         }
     }
@@ -1567,7 +1591,7 @@ const char **thmGetGuiList(void)
 
 char *thmGetFilePath(int themeID)
 {
-    theme_file_t *currTheme = &themes[themeID - 1];
+    theme_file_t *currTheme = &themes[guiThemes[themeID - 1]];
     char *path = currTheme->filePath;
 
     return path;
