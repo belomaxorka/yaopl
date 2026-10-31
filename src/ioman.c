@@ -1,5 +1,6 @@
 #include "include/opl.h"
 #include "include/ioman.h"
+#include "include/eewatchdog.h"
 #include <kernel.h>
 #include <string.h>
 #include <malloc.h>
@@ -107,8 +108,12 @@ static void ioProcessRequest(struct io_request_t *req)
     // invalidate the request
     void *data = req->data;
 
+    wdIoType = req->type;
+    wdIo = 1;
     if (hlr)
         hlr(data);
+    wdIo = 0;
+    wdIoCount++;
 }
 
 static void ioWorkerThread(void *arg)

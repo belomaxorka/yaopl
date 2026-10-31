@@ -1,5 +1,6 @@
 #include "include/opl.h"
 #include "include/themes.h"
+#include "include/eewatchdog.h"
 #include "include/util.h"
 #include "include/gui.h"
 #include "include/renderman.h"
@@ -1294,6 +1295,7 @@ static void thmLoadFonts(config_set_t *themeConfig, const char *themePath, theme
 static void thmLoad(const char *themePath)
 {
     LOG("THEMES Load theme path=%s\n", themePath);
+    wdNote = "thmLoad";
     char path[256];
     theme_t *curT = gTheme;
     theme_t *newT = (theme_t *)malloc(sizeof(theme_t));
@@ -1440,8 +1442,10 @@ static void thmLoad(const char *themePath)
         for (i = ELF_FORMAT; i <= VMODE_PAL; i++)
             thmLoadResource(&newT->textures[i], i, NULL, GS_PSM_CT32, 1);
 
+    wdNote = "thmFree";
     gTheme = newT;
     thmFree(curT);
+    wdNote = "thmDone";
 }
 
 static void thmRebuildGuiNames(void)

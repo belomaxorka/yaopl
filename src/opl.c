@@ -5,6 +5,7 @@
 */
 
 #include "include/opl.h"
+#include "include/eewatchdog.h"
 #include "include/ioman.h"
 #include "include/gui.h"
 #include "include/guigame.h"
@@ -2102,6 +2103,8 @@ int main(int argc, char *argv[])
 
     // until this point in the code is reached, only PREINIT_LOG macro should be used
     LOG_ENABLE();
+
+    wdStart(); // debug/ds3-metrics
 
     // queue deffered init which shuts down the intro screen later
     ioPutRequest(IO_CUSTOM_SIMPLEACTION, &deferredInit);

@@ -94,7 +94,7 @@ else
   OPL_VERSION = v$(YAOPL_VERSION)-nightly.$(YAOPL_NIGHTLY)$(if $(GIT_HASH),-$(GIT_HASH))$(DIRTY)$(if $(LOCALVERSION),-$(LOCALVERSION))
 endif
 
-FRONTEND_OBJS = pad.o xparam.o fntsys.o renderman.o menusys.o OSDHistory.o system.o lang.o lang_internal.o config.o hdd.o dialogs.o \
+FRONTEND_OBJS = pad.o eewatchdog.o xparam.o fntsys.o renderman.o menusys.o OSDHistory.o system.o lang.o lang_internal.o config.o hdd.o dialogs.o \
 		dia.o ioman.o texcache.o themes.o supportbase.o bdmsupport.o ethsupport.o hddsupport.o zso.o lz4.o \
 		appsupport.o mmcesupport.o gui.o guigame.o vmc_groups.o textures.o opl.o atlas.o nbns.o httpclient.o gsm.o cheatman.o cheatconfig.o sound.o ps2cnf.o
 

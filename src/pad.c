@@ -7,6 +7,7 @@
 #include "include/opl.h"
 #include "include/pad.h"
 #include "include/ioman.h"
+#include "include/eewatchdog.h"
 #include <libpad.h>
 #include <timer.h>
 #include <time.h>
@@ -249,6 +250,7 @@ static int readPad(struct pad_data_t *pad)
 
     padsRead = 0;
     oldState = pad->state;
+    wdPad = 1;
     newState = padGetState(pad->port, pad->slot);
     updatePadState(pad, newState);
     if ((oldState == PAD_STATE_DISCONN) && ((pad->state == PAD_STATE_STABLE) || (pad->state == PAD_STATE_FINDCTP1))) {
@@ -263,6 +265,7 @@ static int readPad(struct pad_data_t *pad)
 
     if ((pad->state == PAD_STATE_STABLE) || (pad->state == PAD_STATE_FINDCTP1)) {
         // pad is connected. Read pad button information.
+        wdPad = 2;
         ret = padRead(pad->port, pad->slot, &pad->buttons); // port, slot, buttons
 
         if (ret != 0) {
@@ -272,8 +275,11 @@ static int readPad(struct pad_data_t *pad)
     }
 
 #ifdef PADEMU
+    wdPad = 3;
     if (ds34bt_get_status(pad->port) & DS34BT_STATE_RUNNING) {
+        wdPad = 4;
         ret = ds34bt_get_data(pad->port, (u8 *)&pad->buttons.btns);
+        wdPad = 5;
         ds34bt_set_rumble(pad->port, 0, 0);
         if (ret != 0) {
             newpdata |= 0xffff ^ pad->buttons.btns;
@@ -281,8 +287,11 @@ static int readPad(struct pad_data_t *pad)
         }
     }
 
+    wdPad = 6;
     if (ds34usb_get_status(pad->port) & DS34USB_STATE_RUNNING) {
+        wdPad = 7;
         ret = ds34usb_get_data(pad->port, (u8 *)&pad->buttons.btns);
+        wdPad = 8;
         ds34usb_set_rumble(pad->port, 0, 0);
         if (ret != 0) {
             newpdata |= 0xffff ^ pad->buttons.btns;
@@ -290,6 +299,7 @@ static int readPad(struct pad_data_t *pad)
         }
     }
 #endif
+    wdPad = 0;
     if (padsRead > 0) {
         if (newpdata != 0x0) // something
             rcode = 1;

@@ -11,6 +11,7 @@
 #include "include/menusys.h"
 #include "include/fntsys.h"
 #include "include/ioman.h"
+#include "include/eewatchdog.h"
 #include "include/lang.h"
 #include "include/themes.h"
 #include "include/pad.h"
@@ -1552,6 +1553,8 @@ void guiIntroLoop(void)
     clock_t tFadeDelayEnd = 0;
 
     while (!endIntro) {
+        wdFrames++;
+        wdGui = 101;
         guiStartFrame();
 
         if (greetingAlpha < 0x80)
@@ -1574,12 +1577,16 @@ void guiIntroLoop(void)
         if (greetingAlpha <= 0)
             endIntro = 1;
 
+        wdGui = 104;
         guiDrawOverlays();
 
+        wdGui = 106;
         guiHandleDeferredOps();
 
+        wdGui = 107;
         guiEndFrame();
 
+        wdGui = 108;
         if (!screenHandlerTarget && screenHandler)
             screenHandler->handleInput();
     }
@@ -1597,30 +1604,40 @@ void guiMainLoop(void)
         bgmStart();
 
     while (!gTerminate) {
+        wdFrames++;
+        wdGui = 1;
         guiStartFrame();
 
         // Read the pad states to prepare for input processing in the screen handler
+        wdGui = 2;
         guiReadPads();
 
         // handle inputs and render screen
+        wdGui = 3;
         guiShow();
 
         // Render overlaying gui thingies :)
+        wdGui = 4;
         guiDrawOverlays();
 
+        wdGui = 5;
         if (gEnableNotifications)
             guiShowNotifications();
 
         // handle deferred operations
+        wdGui = 6;
         guiHandleDeferredOps();
 
+        wdGui = 7;
         guiEndFrame();
 
         // if not transiting, handle input
         // done here so we can use renderman if needed
+        wdGui = 8;
         if (!screenHandlerTarget && screenHandler)
             screenHandler->handleInput();
 
+        wdGui = 9;
         if (gFrameHook)
             gFrameHook();
     }

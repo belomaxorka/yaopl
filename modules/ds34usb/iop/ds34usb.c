@@ -752,6 +752,7 @@ static int rpc_buf[64] __attribute((aligned(16)));
 #define DS34USB_SET_LED    6
 #define DS34USB_GET_DATA   7
 #define DS34USB_RESET      8
+#define DS34USB_LOG        9 // debug/ds3-metrics: a line from the EE watchdog
 
 #define DS34USB_BIND_RPC_ID 0x18E3878E
 
@@ -791,6 +792,10 @@ void *rpc_sf(int cmd, void *data, int size)
             break;
         case DS34USB_RESET:
             ds34usb_reset();
+            break;
+        case DS34USB_LOG:
+            ((char *)data)[size < 255 ? size : 255] = '\0';
+            printf("%s", (char *)data);
             break;
         default:
             break;
