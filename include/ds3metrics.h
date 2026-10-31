@@ -244,7 +244,7 @@ static void ds3mPrintSif(u32 sec)
 
 #ifdef DS3M_EE_LINES
 // Lines from the EE watchdog (src/eewatchdog.c), sent as IOP user SIF command 0.
-#define DS3M_EE_RING 64
+#define DS3M_EE_RING 128
 static char ds3mEeLines[DS3M_EE_RING][100];
 static volatile u32 ds3mEeWrite, ds3mEeRead, ds3mEeLost;
 

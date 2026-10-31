@@ -10,7 +10,7 @@
 
 extern volatile unsigned int wdFrames;
 extern volatile int wdGui, wdPad, wdIo, wdIoType;
-extern volatile unsigned int wdIoCount;
+extern volatile unsigned int wdIoCount, wdStress;
 extern const char *volatile wdNote;
 
 void wdStart(void);

@@ -1,8 +1,9 @@
 /*
  * OPL debug build (branch debug/ds3-metrics): EE watchdog, see include/eewatchdog.h.
- * Every second it checks whether the menu drew a frame. While it does, a line every 10 seconds says so. When no frame
- * was drawn for 3 seconds, it sends the breadcrumbs, the EE DMA and SIF registers and every EE thread's state (and
- * the semaphores they wait on), then again every 5 seconds while the menu stays stuck.
+ * Every second it checks whether the menu drew a frame (guiEndFrame, which every loop calls, dialogs too). While it
+ * does, a line every 10 seconds says so. When no frame was drawn for 3 seconds, it sends the breadcrumbs, the EE DMA
+ * and SIF registers and every EE thread's state (and the semaphores they wait on), then again every 5 seconds while
+ * the menu stays stuck.
  * Lines go to the IOP as raw SIF commands (user command 0, EE -> IOP over SIF1), which need no reply: a menu hang
  * stalls the IOP -> EE direction (SIF0), which RPC replies use. ds34usb.irx prints them.
  */
@@ -22,7 +23,7 @@
 
 volatile unsigned int wdFrames;
 volatile int wdGui, wdPad, wdIo, wdIoType;
-volatile unsigned int wdIoCount;
+volatile unsigned int wdIoCount, wdStress;
 const char *volatile wdNote;
 
 typedef struct
@@ -80,8 +81,10 @@ static void wdDumpThreads(int sec)
     ee_sema_t sema;
     int tid;
 
-    for (tid = 1; tid < 64; tid++) {
-        if (ReferThreadStatus(tid, &st) < 0)
+    // Thread IDs keep growing across launches: check every slot of the kernel's table, skip the free ones.
+    for (tid = 1; tid < 256; tid++) {
+        memset(&st, 0, sizeof(st));
+        if (ReferThreadStatus(tid, &st) < 0 || st.status == 0)
             continue;
         wdSend("EEWD %d thr %d%s st=%x pri=%d wait=%u id=%u func=%p", sec, tid, (tid == wdGuiThid) ? "(gui)" : "",
                st.status, st.current_priority, (unsigned int)st.waitType, (unsigned int)st.waitId, st.func);
@@ -111,11 +114,12 @@ static void wdThread(void *arg)
             stuck = 0;
 
         if (stuck == 0 && sec % 10 == 0)
-            wdSend("EEWD %d alive frames/s=%u gui=%d pad=%d io=%d/%d io+=%u note=%s", sec, wdFrames - lastFrames, wdGui,
-                   wdPad, wdIo, wdIoType, wdIoCount - lastIo, wdNote ? wdNote : "-");
+            wdSend("EEWD %d alive frames/s=%u gui=%d pad=%d io=%d/%d io+=%u stress=%u note=%s", sec,
+                   wdFrames - lastFrames, wdGui, wdPad, wdIo, wdIoType, wdIoCount - lastIo, wdStress,
+                   wdNote ? wdNote : "-");
         if (stuck == 3 || (stuck > 3 && stuck % 5 == 0)) {
-            wdSend("EEWD %d HANG no frame for %ds gui=%d pad=%d io=%d/%d note=%s", sec, stuck, wdGui, wdPad, wdIo,
-                   wdIoType, wdNote ? wdNote : "-");
+            wdSend("EEWD %d HANG no frame for %ds gui=%d pad=%d io=%d/%d stress=%u note=%s", sec, stuck, wdGui, wdPad,
+                   wdIo, wdIoType, wdStress, wdNote ? wdNote : "-");
             wdDumpRegs(sec);
             wdDumpThreads(sec);
         }

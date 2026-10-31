@@ -192,6 +192,7 @@ void guiStartFrame(void)
 void guiEndFrame(void)
 {
     rmEndFrame();
+    wdFrames++;
 #ifdef __DEBUG
     // Measure time directly after vsync
     prevtime = curtime;
@@ -1604,7 +1605,6 @@ void guiMainLoop(void)
         bgmStart();
 
     while (!gTerminate) {
-        wdFrames++;
         wdGui = 1;
         guiStartFrame();
 
