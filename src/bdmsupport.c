@@ -43,6 +43,24 @@ int bdmIsReadOnlyPath(const char *path)
     return 0;
 }
 
+// Whether OPL's settings can be saved on a BDM device: only where they are read at the next start, before the
+// settings say which drivers to load. That is USB and the HDD through BDM; MX4SIO, iLink and UDPBD are loaded
+// later, so settings saved there would not be found.
+static int bdmCanHoldSettings(int deviceId)
+{
+    char path[16], driver[32] = "";
+
+    sprintf(path, "mass%d:/", deviceId);
+    int dir = fileXioDopen(path);
+    if (dir < 0)
+        return 1; // not there: the probe fails anyway
+
+    fileXioIoctl2(dir, USBMASS_IOCTL_GET_DRIVERNAME, NULL, 0, driver, sizeof(driver) - 1);
+    fileXioDclose(dir);
+
+    return !strcmp(driver, "usb") || !strcmp(driver, "ata");
+}
+
 // Identifies the partition that the specified file is stored on and generates a full path to it.
 int bdmFindPartition(char *target, const char *name, int write)
 {
@@ -52,6 +70,9 @@ int bdmFindPartition(char *target, const char *name, int write)
     for (i = 0; i < MAX_BDM_DEVICES; i++) {
         // A read-only device passes the probe, but what is saved there is lost
         if (write && (bdmDeviceList[i].flags & MODE_FLAG_READ_ONLY))
+            continue;
+
+        if (write && !bdmCanHoldSettings(i))
             continue;
 
         if (gBDMPrefix[0] != '\0')
