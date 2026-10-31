@@ -14,3 +14,8 @@ fi
 if test "$(cd "$REPO_FOLDER" && git rev-parse HEAD 2>/dev/null)" != "$COMMIT" || test ! -f "$REPO_FOLDER/iop/usb/usbd/src/usbd.c"; then
   (cd "$REPO_FOLDER" && git fetch -q --depth 1 --filter=blob:none origin "$COMMIT" && git checkout -q "$COMMIT") || { exit 1; }
 fi
+# Debug branch debug/ds3-metrics: USB stack metrics (modules/usb/usbd_mini/ds3-metrics.diff), printed as "USBM" lines.
+PATCH="$PWD/modules/usb/usbd_mini/ds3-metrics.diff"
+if ! (cd "$REPO_FOLDER" && git apply --reverse --check "$PATCH" 2>/dev/null); then
+  (cd "$REPO_FOLDER" && git apply "$PATCH") || { echo "download_usbd.sh: $PATCH does not apply"; exit 1; }
+fi

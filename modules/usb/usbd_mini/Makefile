@@ -2,7 +2,7 @@
 # b1f7ff96), which download_usbd.sh fetches into ps2sdk/. It is built the way ps2sdk built it then:
 # the sources of iop/usb/usbd with -DMINI_DRIVER (iop/usb/usbd_mini/Makefile of that tree). See CONTRIBUTING.md.
 IOP_BIN = usbd_mini.irx
-IOP_OBJS = hcd.o hub.o interface.o mem.o usbd.o usbio.o driver.o imports.o exports.o
+IOP_OBJS = hcd.o hub.o interface.o mem.o usbd.o usbio.o driver.o metrics.o imports.o exports.o
 
 USBD_DIR = ps2sdk/iop/usb/usbd/
 IOP_CFLAGS += -DMINI_DRIVER

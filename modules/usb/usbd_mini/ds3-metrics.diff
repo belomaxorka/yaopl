@@ -1,0 +1,234 @@
+diff --git a/iop/usb/usbd/src/mem.c b/iop/usb/usbd/src/mem.c
+index 29425e2..38ebb88 100644
+--- a/iop/usb/usbd/src/mem.c
++++ b/iop/usb/usbd/src/mem.c
+@@ -44,13 +44,24 @@ void freeIsoTd(HcIsoTD *argTd)
+     }
+ }
+ 
++extern volatile u32 usbmTdAllocFails, usbmTdMinFree; // OPL debug: metrics.c
++
+ HcTD *allocTd(void)
+ {
+     HcTD *res = memPool.freeHcTdList;
+     if (res) {
++        HcTD *pos;
++        u32 n = 0;
++
+         memPool.freeHcTdList = res->next;
+         res->next            = NULL;
+-    }
++
++        for (pos = memPool.freeHcTdList; pos != NULL; pos = pos->next)
++            n++;
++        if (n < usbmTdMinFree)
++            usbmTdMinFree = n;
++    } else
++        usbmTdAllocFails++;
+     return res;
+ }
+ 
+diff --git a/iop/usb/usbd/src/metrics.c b/iop/usb/usbd/src/metrics.c
+new file mode 100644
+index 0000000..3fb7974
+--- /dev/null
++++ b/iop/usb/usbd/src/metrics.c
+@@ -0,0 +1,177 @@
++/*
++ * OPL debug build (branch debug/ds3-metrics): USB stack metrics.
++ * A thread prints the state of the transfer descriptors, the IoRequests and the open endpoints once a second when
++ * it changed, and every 10 seconds anyway. Lines start with "USBM".
++ */
++
++#include "usbdpriv.h"
++#include "mem.h"
++
++#include "stdio.h"
++#include "thbase.h"
++#include "intrman.h"
++
++#define USBM_MAX_EPS 12
++
++volatile u32 usbmTdAllocFails;
++volatile u32 usbmTdMinFree = 0xFFFF;
++
++typedef struct
++{
++    u16 id;
++    u8 type;
++    u8 flags; // 1 halted, 2 waiting for a TD, 4 skipped
++    u16 devId;
++    u8 reqs; // IoRequests waiting for a TD on this endpoint
++    u8 tds;  // TDs on the endpoint's ED (requests the controller works on)
++} UsbmEp;
++
++typedef struct
++{
++    u16 freeTd, minFreeTd, freeIoReq, tdQueue;
++    u32 allocFails;
++    u32 hcControl, hcIntStatus, rh0, rh1;
++    u16 numEps;
++    UsbmEp eps[USBM_MAX_EPS];
++} UsbmSnap;
++
++static UsbmSnap snap, prevSnap;
++
++static void usbmTakeSnapshot(UsbmSnap *s)
++{
++    int state, i;
++    u32 n;
++    HcTD *td;
++    IoRequest *req;
++    Endpoint *ep;
++
++    CpuSuspendIntr(&state);
++
++    for (n = 0, td = memPool.freeHcTdList; td != NULL && n < 0xFFFF; td = td->next)
++        n++;
++    s->freeTd = n;
++    s->minFreeTd = (usbmTdMinFree < n) ? usbmTdMinFree : n;
++    usbmTdMinFree = n;
++    s->allocFails = usbmTdAllocFails;
++
++    for (n = 0, req = memPool.freeIoReqList; req != NULL && n < 0xFFFF; req = req->next)
++        n++;
++    s->freeIoReq = n;
++
++    for (n = 0, ep = memPool.tdQueueStart[GENTD_QUEUE - 1]; ep != NULL && n < 0xFFFF; ep = ep->busyNext)
++        n++;
++    s->tdQueue = n;
++
++    s->hcControl = memPool.ohciRegs->HcControl;
++    s->hcIntStatus = memPool.ohciRegs->HcInterruptStatus;
++    s->rh0 = memPool.ohciRegs->HcRhPortStatus[0];
++    s->rh1 = memPool.ohciRegs->HcRhPortStatus[1];
++
++    s->numEps = 0;
++    for (i = 0; i < usbConfig.maxEndpoints && s->numEps < USBM_MAX_EPS; i++) {
++        UsbmEp *e;
++        u32 head;
++
++        ep = &memPool.endpointBuf[i];
++        if (ep->correspDevice == NULL)
++            continue;
++
++        e = &s->eps[s->numEps++];
++        e->id = ep->id;
++        e->type = ep->endpointType;
++        e->devId = ep->correspDevice->id;
++        head = (u32)ep->hcEd.tdHead;
++        e->flags = ((head & 1) ? 1 : 0) | (ep->inTdQueue ? 2 : 0) | ((ep->hcEd.hcArea & 0x4000) ? 4 : 0);
++
++        for (n = 0, req = ep->ioReqListStart; req != NULL && n < 255; req = req->next)
++            n++;
++        e->reqs = n;
++
++        for (n = 0, td = (HcTD *)(head & ~0xF); td != NULL && td != ep->hcEd.tdTail && n < 255; td = td->next)
++            n++;
++        e->tds = n;
++    }
++
++    CpuResumeIntr(state);
++}
++
++static int usbmChanged(const UsbmSnap *a, const UsbmSnap *b)
++{
++    int i;
++
++    if (a->freeTd != b->freeTd || a->minFreeTd != b->minFreeTd || a->freeIoReq != b->freeIoReq ||
++        a->tdQueue != b->tdQueue || a->allocFails != b->allocFails || a->hcIntStatus != b->hcIntStatus ||
++        a->hcControl != b->hcControl || a->rh0 != b->rh0 || a->rh1 != b->rh1 || a->numEps != b->numEps)
++        return 1;
++
++    for (i = 0; i < a->numEps; i++) {
++        const UsbmEp *x = &a->eps[i], *y = &b->eps[i];
++        if (x->id != y->id || x->flags != y->flags || x->reqs != y->reqs || x->tds != y->tds)
++            return 1;
++    }
++
++    return 0;
++}
++
++static const char *usbmType(u8 type)
++{
++    if (type == TYPE_CONTROL)
++        return "C";
++    if (type == TYPE_BULK)
++        return "B";
++    if (type == TYPE_ISOCHRON)
++        return "S";
++    return "I";
++}
++
++static void usbmThread(void *arg)
++{
++    u32 sec = 0, quiet = 0;
++    int i;
++
++    (void)arg;
++
++    printf("USBM start: td=%d ioreq=%d ep=%d thpri=%d,%d\n", usbConfig.maxTransfDesc, usbConfig.maxIoReqs,
++           usbConfig.maxEndpoints, usbConfig.hcdThreadPrio, usbConfig.cbThreadPrio);
++
++    while (1) {
++        DelayThread(1000 * 1000);
++        sec++;
++
++        usbmTakeSnapshot(&snap);
++        if (!usbmChanged(&snap, &prevSnap) && ++quiet < 10)
++            continue;
++        quiet = 0;
++        prevSnap = snap;
++
++        printf("USBM %u td=%u min=%u fail=%u tdq=%u ioreq=%u ctl=%x is=%x rh=%x,%x eps=%u\n", (unsigned int)sec,
++               snap.freeTd, snap.minFreeTd, (unsigned int)snap.allocFails, snap.tdQueue, snap.freeIoReq,
++               (unsigned int)snap.hcControl, (unsigned int)snap.hcIntStatus, (unsigned int)snap.rh0,
++               (unsigned int)snap.rh1, snap.numEps);
++
++        for (i = 0; i < snap.numEps; i++) {
++            const UsbmEp *e = &snap.eps[i];
++            if (e->reqs == 0 && e->tds == 0 && e->flags == 0)
++                continue;
++            printf("USBM %u  ep%u %s%u dev%u req=%u td=%u%s%s%s\n", (unsigned int)sec, e->id, usbmType(e->type),
++                   (e->type < TYPE_CONTROL) ? e->type : 0, e->devId, e->reqs, e->tds, (e->flags & 1) ? " HALT" : "",
++                   (e->flags & 2) ? " TDWAIT" : "", (e->flags & 4) ? " SKIP" : "");
++        }
++    }
++}
++
++void usbmStart(void)
++{
++    iop_thread_t thread;
++    int thid;
++
++    thread.attr = TH_C;
++    thread.option = 0;
++    thread.thread = usbmThread;
++    thread.stacksize = 0x800;
++    thread.priority = 1;
++
++    thid = CreateThread(&thread);
++    if (thid > 0)
++        StartThread(thid, NULL);
++}
+diff --git a/iop/usb/usbd/src/usbd.c b/iop/usb/usbd/src/usbd.c
+index 0ce3cfd..d0aaf5c 100644
+--- a/iop/usb/usbd/src/usbd.c
++++ b/iop/usb/usbd/src/usbd.c
+@@ -332,6 +332,8 @@ static inline void ParseOptionInput(const struct ArgOption *option, const char *
+     }
+ }
+ 
++void usbmStart(void);
++
+ int _start(int argc, char *argv[])
+ {
+     static const struct ArgOption SupportedArgs[] = {
+@@ -404,6 +406,7 @@ int _start(int argc, char *argv[])
+     usbdSema     = CreateSema(&sema);
+ 
+     hcdInit();
++    usbmStart(); // OPL debug: metrics.c
+ 
+     dbg_printf("Init done\n");
+     return MODULE_RESIDENT_END;
