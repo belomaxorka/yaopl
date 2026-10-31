@@ -5,6 +5,11 @@ Loader (OPL) before the fork.
 
 ## Unreleased
 
+- GUI: Themes and languages of a USB drive or another device that goes away leave the lists; the one in use
+  falls back to another copy, or to the built-in theme and English until the device is back. A network share
+  that reconnects no longer resets a theme from elsewhere or lists its languages twice. (6c8d4f31)
+- GUI: A theme or language on several devices is listed once; the copy on the device with the settings is
+  used, then the memory card's. (2bd5b1e0)
 - GUI: Saving the settings before the device with the chosen theme or language is found no longer replaces
   them with the internal theme and English; a theme picked but not saved yet is no longer switched back when
   a device is found. (6bc22612)

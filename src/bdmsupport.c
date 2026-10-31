@@ -262,6 +262,12 @@ static int bdmNeedsUpdate(item_list_t *itemList)
     // If a device was added or removed play the appropriate UI sound.
     if (result == -1) {
         sfxPlay(SFX_BD_DISCONNECT);
+
+        // Its themes and languages went with it; they are listed again when it is back
+        thmRemoveElements(pDeviceData->bdmPrefix);
+        lngRemoveLanguages(pDeviceData->bdmPrefix);
+        pDeviceData->ThemesLoaded = 0;
+        pDeviceData->LanguagesLoaded = 0;
         return result;
     } else if (result == 1)
         sfxPlay(SFX_BD_CONNECT);

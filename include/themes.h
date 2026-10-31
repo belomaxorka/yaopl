@@ -131,7 +131,7 @@ typedef struct theme
 extern theme_t *gTheme;
 
 void thmInit(void);
-void thmReinit(const char *path);
+void thmRemoveElements(const char *path);
 void thmReloadScreenExtents(void);
 int thmAddElements(char *path, const char *separator, int forceRefresh);
 const char *thmGetValue(void);

@@ -182,6 +182,18 @@ BdmIndex gap, own 5-dot pictures   plain: 0:Index_0 2:Index_2 5:- 6:- 7:- 8:-
                                    asan:  0:Index_0 2:Index_2 5:- 6:- 7:- 8:- 
 lngReadEntry file names            plain: lang_Russian.lng: language "Russian" from mc0:/OPL/lang_Russian.lng | abcd.lng: skipped | ru.lng: skipped
                                    asan:  lang_Russian.lng: language "Russian" from mc0:/OPL/lang_Russian.lng | abcd.lng: skipped | ru.lng: skipped
+Theme/language list dup-mc         plain: start thm[A]=A@mc? lng[Russian]=Russian@mc?; usb+ thm[A B]=A@mc? lng[Russian]=Russian@mc?; 
+                                   asan:  start thm[A]=A@mc? lng[Russian]=Russian@mc?; usb+ thm[A B]=A@mc? lng[Russian]=Russian@mc?; 
+Theme/language list dup-usb        plain: start thm[A]=A@mc? lng[Russian]=Russian@mc?; usb+ thm[A B]=A@mass0 lng[Russian]=Russian@mass0; 
+                                   asan:  start thm[A]=A@mc? lng[Russian]=Russian@mc?; usb+ thm[A B]=A@mass0 lng[Russian]=Russian@mass0; 
+Theme/language list remove         plain: usb+ thm[A B]=B@mass0 lng[Russian]=Russian@mass0; usb- thm[A]=<OPL> lng[]=English; usb+ thm[A B]=B@mass0 lng[Russian]=Russian@mass0; 
+                                   asan:  usb+ thm[A B]=B@mass0 lng[Russian]=Russian@mass0; usb- thm[A]=<OPL> lng[]=English; usb+ thm[A B]=B@mass0 lng[Russian]=Russian@mass0; 
+Theme/language list fallback       plain: usb+ thm[A]=A@mass0 lng[Russian]=Russian@mass0; usb- thm[A]=A@mc? lng[Russian]=Russian@mc?; 
+                                   asan:  usb+ thm[A]=A@mass0 lng[Russian]=Russian@mass0; usb- thm[A]=A@mc? lng[Russian]=Russian@mc?; 
+Theme/language list shift          plain: smb+ thm[C D]=D@smb0 lng[Russian German]=German@smb0; usb- thm[D]=D@smb0 lng[German]=German@smb0; 
+                                   asan:  smb+ thm[C D]=D@smb0 lng[Russian German]=German@smb0; usb- thm[D]=D@smb0 lng[German]=German@smb0; 
+Theme/language list smb            plain: smb+ thm[A C]=A@mc? lng[Russian German]=Russian@mc?; smb- thm[A]=A@mc? lng[Russian]=Russian@mc?; smb+ thm[A C]=A@mc? lng[Russian German]=Russian@mc?; 
+                                   asan:  smb+ thm[A C]=A@mc? lng[Russian German]=Russian@mc?; smb- thm[A]=A@mc? lng[Russian]=Russian@mc?; smb+ thm[A C]=A@mc? lng[Russian German]=Russian@mc?; 
 GetBootFilename                    plain: cdrom0:\SLUS_200.62;1: record "SLUS_200.62" (11 characters) | cdrom0:\DATA\ABCDEFGHIJKLMNOPQRST.ELF;1: record "ABCDEFGHIJKLMNOP" (16 characters)
                                    asan:  cdrom0:\SLUS_200.62;1: record "SLUS_200.62" (11 characters) | cdrom0:\DATA\ABCDEFGHIJKLMNOPQRST.ELF;1: record "ABCDEFGHIJKLMNOP" (16 characters)
 PrepareGSM $GSMVMode=0             plain: $GSMVMode=0: mode used 2, interlace 1, ffmd 0, display 001BF9FF0182E2BC, cmdline "1 2 0 7874698008519356 56154283650848769 1 0 0 0 0 0"

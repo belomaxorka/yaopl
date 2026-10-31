@@ -17,6 +17,7 @@ typedef struct
 } language_t;
 
 int lngAddLanguages(char *path, const char *separator, int mode);
+void lngRemoveLanguages(const char *path);
 void lngInit(void);
 char *lngGetValue(void);
 void lngEnd(void);

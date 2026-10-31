@@ -440,7 +440,8 @@ void ethInit(item_list_t *itemList)
 
     if (gNetworkStartup >= ERROR_ETH_SMB_CONN) {
         LOG("ETHSUPPORT Re-Init\n");
-        thmReinit(ethBase);
+        thmRemoveElements(ethBase);
+        lngRemoveLanguages(ethBase);
         ethULSizePrev = -2;
         ethGameCount = 0;
         ioPutRequest(IO_CUSTOM_SIMPLEACTION, &ethInitSMB);
