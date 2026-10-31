@@ -41,6 +41,15 @@ file next to it. Right-to-left languages need an `EXTRA_FEATURES` build.
 
 With *Notifications* on, YAOPL shows which device a theme or language was loaded from.
 
+### The same theme or language on several devices
+
+A theme or language with the same name on several devices is listed once. YAOPL uses the copy on the device
+that holds its [settings](../config-files.md#where-they-are), then the one on a memory card, then the one found
+first. Themes and languages on a device that is found after start (a USB drive, the HDD, a network share) are
+used once the device is found; until then the menu shows the built-in theme and English. When a device goes
+away, YAOPL uses another copy, or the built-in theme and English until the device is back. The saved choice
+stays as it is.
+
 The translations are made in [yaopl/yaopl-lang](https://github.com/yaopl/yaopl-lang), a fork of OPL's
 language repository; its README says how to translate a string or add a language. A string that is not
 translated yet is shown in English. [Translations](../translations.md) shows how complete each language is.
