@@ -844,20 +844,39 @@ static int checkLoadConfigHDD(int types)
     return 0;
 }
 
+#define BOOT_DEVICE_OTHER 0
+#define BOOT_DEVICE_BDM   1
+#define BOOT_DEVICE_HDD   2
+
+// The device OPL was started from. The working directory is argv[0] up to the file name, such as "mass:/APPS/"
+// or "hdd0:__common:pfs:/OPL/" (PS2BBL passes "pfs:/..." for the HDD). getcwd() fails without touching the
+// buffer when the directory does not fit.
+static int getBootDevice(void)
+{
+    char pwd[256];
+
+    if (getcwd(pwd, sizeof(pwd)) == NULL)
+        return BOOT_DEVICE_OTHER;
+
+    if (!strncmp(pwd, "mass", 4) && (pwd[4] == ':' || pwd[5] == ':'))
+        return BOOT_DEVICE_BDM;
+    if ((!strncmp(pwd, "hdd", 3) && (pwd[3] == ':' || pwd[4] == ':')) || (!strncmp(pwd, "pfs", 3) && (pwd[3] == ':' || pwd[4] == ':')))
+        return BOOT_DEVICE_HDD;
+
+    return BOOT_DEVICE_OTHER;
+}
+
 // When this function is called, the current device for loading/saving config is the memory card.
 static int tryAlternateDevice(int types)
 {
-    char pwd[8];
-    int value;
+    int value, bootDevice = getBootDevice();
     DIR *dir;
 
-    getcwd(pwd, sizeof(pwd));
-
     // First, try the device that OPL booted from.
-    if (!strncmp(pwd, "mass", 4) && (pwd[4] == ':' || pwd[5] == ':')) {
+    if (bootDevice == BOOT_DEVICE_BDM) {
         if ((value = checkLoadConfigBDM(types)) != 0)
             return value;
-    } else if (!strncmp(pwd, "hdd", 3) && (pwd[3] == ':' || pwd[4] == ':')) {
+    } else if (bootDevice == BOOT_DEVICE_HDD) {
         if ((value = checkLoadConfigHDD(types)) != 0)
             return value;
     }
@@ -1070,16 +1089,13 @@ static int trySaveConfigMC(int types)
 
 static int trySaveAlternateDevice(int types)
 {
-    char pwd[8];
-    int value;
-
-    getcwd(pwd, sizeof(pwd));
+    int value, bootDevice = getBootDevice();
 
     // First, try the device that OPL booted from.
-    if (!strncmp(pwd, "mass", 4) && (pwd[4] == ':' || pwd[5] == ':')) {
+    if (bootDevice == BOOT_DEVICE_BDM) {
         if ((value = trySaveConfigBDM(types)) > 0)
             return value;
-    } else if (!strncmp(pwd, "hdd", 3) && (pwd[3] == ':' || pwd[4] == ':')) {
+    } else if (bootDevice == BOOT_DEVICE_HDD) {
         if ((value = trySaveConfigHDD(types)) > 0)
             return value;
     }
